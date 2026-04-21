@@ -1,0 +1,48 @@
+{
+  "name": "@gromlab/svg-sprites",
+  "version": "0.1.0",
+  "description": "Generate SVG sprites (stack/symbol) and TypeScript icon name types from folders of SVG files",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "svg-sprites": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "sprite": "node dist/cli.js --input sprites --output public",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "svg",
+    "sprite",
+    "svg-sprite",
+    "icons",
+    "typescript",
+    "codegen"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "citty": "^0.1.6",
+    "colorette": "^2.0.20",
+    "svg-sprite": "^2.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/svg-sprite": "^0.0.39",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  }
+}
