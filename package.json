@@ -1,6 +1,6 @@
 {
   "name": "@gromlab/svg-sprites",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Generate SVG sprites (stack/symbol) and TypeScript icon name types from folders of SVG files",
   "type": "module",
   "main": "./dist/index.js",
