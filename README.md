@@ -1,5 +1,7 @@
 # @gromlab/svg-sprites
 
+![Preview](preview-image.png)
+
 Генерация SVG-спрайтов из папок с иконками. TypeScript-типизация, SVG-трансформации, React-компонент и HTML-превью из коробки.
 
 ## Установка
