@@ -1,6 +1,6 @@
 {
   "name": "@gromlab/svg-sprites",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Generate SVG sprites (stack/symbol) and TypeScript icon name types from folders of SVG files",
   "type": "module",
   "main": "./dist/index.js",
@@ -44,7 +44,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://gromlab.ru/gromov/svg-sprites.git"
+    "url": "https://gromlab.ru/gromov/svg-sprites"
   },
   "homepage": "https://gromlab.ru/gromov/svg-sprites",
   "bugs": {
