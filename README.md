@@ -1,8 +1,21 @@
 # @gromlab/svg-sprites
+
+![npm](https://img.shields.io/npm/v/@gromlab/svg-sprites) ![license](https://img.shields.io/npm/l/@gromlab/svg-sprites)
+
 Генерация SVG-спрайтов из папок с иконками. TypeScript-типизация, SVG-трансформации, React-компонент и HTML-превью из коробки.
 
 ![Preview](https://gromlab.ru/gromov/svg-sprites/media/branch/master/preview-image.png)
 
+**Чем отличается от аналогов:**
+
+- Генерирует готовый типизированный React-компонент — не нужно писать обёртку
+- Автоматически заменяет цвета на CSS-переменные — для тем и hover-состояний
+- Выдаёт HTML-превью всех иконок — удобно пересылать дизайнеру
+
+## Требования
+
+- Node.js 18+
+- React 18+ (опционально, только если нужен генерируемый компонент)
 
 ## Установка
 
@@ -22,12 +35,11 @@ export default defineConfig({
   output: 'public/sprites',
 
   // URL-путь к спрайтам (для href в React-компоненте)
-  publicPath: '/public/sprites',
+  publicPath: '/sprites',
 
   // Папка для React-компонента и типов
   react: 'src/shared/ui/svg-sprite',
 
-  // Массив спрайтов имя и откуда наполняем.
   sprites: [
     { name: 'icons', input: 'src/assets/icons' },
     { name: 'logos', input: 'src/assets/logos' },
@@ -38,21 +50,13 @@ export default defineConfig({
 Запустите генерацию:
 
 ```bash
+# или добавьте "sprite": "svg-sprites" в scripts вашего package.json
 npx svg-sprites
 ```
 
-Результат:
+В результате будут сгенерированы SVG-спрайты, типизированный React-компонент и HTML-превью.
 
-```
-public/
-  icons.sprite.svg
-  logos.sprite.svg
-  preview.html
-
-src/shared/ui/svg-sprite/
-  svg-sprite.tsx
-  svg-sprite.module.css
-```
+Цвета иконок автоматически заменяются на CSS-переменные — см. раздел [Управление цветом](#управление-цветом).
 
 ## Использование компонента
 
@@ -69,11 +73,20 @@ import { SvgSprite } from './shared/ui/svg-sprite'
 <SvgSprite icon="arrow-left" wrapped />
 ```
 
-Компонент полностью типизирован — автодополнение работает для имён иконок и спрайтов.
+Компонент полностью типизирован — автодополнение работает для имён иконок и спрайтов. Типы экспортируются из того же модуля:
+
+```ts
+import type {
+  IconsIconName,  // 'check' | 'arrow-left' | ...
+  LogosIconName,  // 'github' | 'twitter' | ...
+  SpriteName,     // 'icons' | 'logos'
+  SpriteMap,      // { icons: IconsIconName, logos: LogosIconName }
+} from './shared/ui/svg-sprite'
+```
 
 ## Управление цветом
 
-При сборке цвета иконок заменяются на CSS-переменные.
+При сборке цвета иконок заменяются на CSS-переменные. Это ключевая фича — иконки адаптируются к теме без дублирования SVG.
 
 **Моно-иконка** (один цвет) — наследует `color` текста:
 
@@ -96,19 +109,27 @@ import { SvgSprite } from './shared/ui/svg-sprite'
 }
 ```
 
+## Способы рендера
+
+| Способ | Управление цветом | Пример |
+|--------|-------------------|--------|
+| React / SVG `<use>` | CSS-переменные, `color` | `<SvgSprite icon="check" />` |
+| CSS `mask-image` | `background-color` (монохром) | `.icon { mask: url(...); background-color: red; }` |
+| `<img>` | нет | `<img src="icons.sprite.svg#check">` |
+
 ## Конфигурация
 
-### `output` (обязательный)
+### Основные опции
 
-Папка для сгенерированных спрайтов.
+| Опция | Обязательная | Описание |
+|-------|-------------|----------|
+| `output` | да | Папка для сгенерированных SVG-спрайтов |
+| `sprites` | да | Массив спрайтов для генерации |
+| `publicPath` | нет | URL-путь к спрайтам (для `href` в React-компоненте) |
+| `react` | нет | Путь для генерации React-компонента и типов |
+| `preview` | нет | Генерация HTML-превью (по умолчанию: `true`) |
 
-```ts
-output: 'public/sprites'
-```
-
-### `sprites` (обязательный)
-
-Массив спрайтов для генерации.
+### `sprites`
 
 ```ts
 sprites: [
@@ -132,13 +153,15 @@ sprites: [
 Публичный URL-путь к спрайтам. Зашивается в React-компонент для формирования `href`.
 
 ```ts
-publicPath: '/img/sprites'
-// → <use href="/img/sprites/icons.sprite.svg#check" />
+publicPath: '/sprites'
+// → <use href="/sprites/icons.sprite.svg#check" />
 ```
+
+> **Примечание:** путь не должен включать имя папки `public` — она не входит в URL в Vite/Next.
 
 ### `react`
 
-Путь для генерации React-компонента. Имена файлов берутся из названия папки.
+Имена файлов берутся из названия папки:
 
 ```ts
 react: 'src/shared/ui/svg-sprite'
@@ -146,14 +169,6 @@ react: 'src/shared/ui/svg-sprite'
 ```
 
 Если не задан — компонент и типы не генерируются.
-
-### `preview`
-
-Генерация HTML-превью со всеми иконками. По умолчанию: `true`.
-
-```ts
-preview: false
-```
 
 ### `transform`
 
@@ -175,26 +190,11 @@ transform: {
 }
 ```
 
-## Сгенерированные типы
+## Ограничения
 
-React-компонент включает TypeScript-типы для каждого спрайта:
-
-```ts
-import type {
-  IconsIconName,  // 'check' | 'arrow-left' | ...
-  LogosIconName,  // 'github' | 'twitter' | ...
-  SpriteName,     // 'icons' | 'logos'
-  SpriteMap,      // { icons: IconsIconName, logos: LogosIconName }
-} from './shared/ui/svg-sprite'
-```
-
-## Способы рендера
-
-| Способ | Управление цветом | Пример |
-|--------|-------------------|--------|
-| React / SVG `<use>` | CSS-переменные, `color` | `<SvgSprite icon="check" />` |
-| CSS `mask-image` | `background-color` (монохром) | `.icon { mask: url(...); background-color: red; }` |
-| `<img>` | нет | `<img src="icons.sprite.svg#check">` |
+- `mode: 'symbol'` — поддерживается, но превью и примеры кода оптимизированы под `stack`
+- `replaceColors` может некорректно обработать иконки со сложными градиентами — используйте `transform: { replaceColors: false }` для таких случаев
+- Генерируемый React-компонент предназначен для React 18+. Для Vue/Svelte используйте спрайты напрямую через SVG `<use>`
 
 ## Программный API
 
