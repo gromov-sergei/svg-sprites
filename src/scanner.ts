@@ -1,71 +1,81 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import type { SpriteFolder, SpriteMode } from './types.js'
+import type { SpriteEntry, SpriteFolder } from './types.js'
 
 /**
- * Парсит имя папки и извлекает режим спрайта.
- *
- * Формат: `folder-name` → stack (по умолчанию), `folder-name?symbol` → symbol.
+ * Сканирует папку и возвращает отсортированные абсолютные пути к SVG-файлам.
  */
-function parseFolderName(fullName: string): { name: string; mode: SpriteMode } {
-  const hasCustomMode = fullName.includes('?')
-  if (!hasCustomMode) {
-    return { name: fullName, mode: 'stack' }
+function scanDirectory(dirPath: string): string[] {
+  if (!fs.existsSync(dirPath)) {
+    throw new Error(`Input directory does not exist: ${dirPath}`)
   }
 
-  const parts = fullName.split('?')
-  const mode = parts.pop() as SpriteMode
-  const name = parts[0]
-
-  if (mode !== 'stack' && mode !== 'symbol') {
-    throw new Error(
-      `Unknown sprite mode "${mode}" in folder "${fullName}". Supported: stack, symbol.`,
-    )
-  }
-
-  return { name, mode }
+  return fs
+    .readdirSync(dirPath)
+    .filter((file) => file.endsWith('.svg'))
+    .sort()
+    .map((file) => path.join(dirPath, file))
 }
 
 /**
- * Сканирует директорию и возвращает список папок-спрайтов с их SVG-файлами.
- *
- * Пропускает записи, не являющиеся директориями, и папки без SVG-файлов.
+ * Резолвит массив путей к SVG-файлам в абсолютные пути.
+ * Проверяет существование каждого файла.
  */
-export function scanSpriteFolders(inputDir: string): SpriteFolder[] {
-  if (!fs.existsSync(inputDir)) {
-    throw new Error(`Input directory does not exist: ${inputDir}`)
-  }
+function resolveFiles(files: string[]): string[] {
+  return files.map((filePath) => {
+    const resolved = path.resolve(filePath)
 
-  const entries = fs.readdirSync(inputDir)
-  const folders: SpriteFolder[] = []
-
-  for (const entry of entries) {
-    const fullPath = path.join(inputDir, entry)
-
-    if (!fs.lstatSync(fullPath).isDirectory()) {
-      continue
+    if (!fs.existsSync(resolved)) {
+      throw new Error(`SVG file does not exist: ${resolved}`)
     }
 
-    const svgFiles = fs
-      .readdirSync(fullPath)
-      .filter((file) => file.endsWith('.svg'))
-      .sort()
-      .map((file) => path.join(fullPath, file))
-
-    if (svgFiles.length === 0) {
-      continue
+    if (!resolved.endsWith('.svg')) {
+      throw new Error(`File is not an SVG: ${resolved}`)
     }
 
-    const { name, mode } = parseFolderName(entry)
+    return resolved
+  })
+}
 
-    folders.push({
-      fullName: entry,
-      name,
+/**
+ * Преобразует SpriteEntry из конфига в SpriteFolder для компиляции.
+ */
+export function resolveSpriteEntry(entry: SpriteEntry): SpriteFolder {
+  const mode = entry.mode ?? 'stack'
+
+  if (Array.isArray(entry.input)) {
+    const files = resolveFiles(entry.input)
+
+    if (files.length === 0) {
+      throw new Error(`Sprite "${entry.name}" has empty input array.`)
+    }
+
+    return {
+      name: entry.name,
       mode,
-      path: fullPath,
-      files: svgFiles,
-    })
+      path: null,
+      files,
+    }
   }
 
-  return folders
+  const dirPath = path.resolve(entry.input)
+  const files = scanDirectory(dirPath)
+
+  if (files.length === 0) {
+    throw new Error(`Sprite "${entry.name}" has no SVG files in "${dirPath}".`)
+  }
+
+  return {
+    name: entry.name,
+    mode,
+    path: dirPath,
+    files,
+  }
+}
+
+/**
+ * Преобразует массив SpriteEntry из конфига в массив SpriteFolder.
+ */
+export function resolveSprites(entries: SpriteEntry[]): SpriteFolder[] {
+  return entries.map(resolveSpriteEntry)
 }

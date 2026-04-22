@@ -1,0 +1,37 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-2);
+  border-radius: var(--radius-2);
+  background: var(--color-card-bg);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.root:hover {
+  background: var(--color-card-hover);
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-1);
+  background: var(--checkerboard);
+  background-size: var(--checkerboard-size);
+}
+
+.icon {
+  width: var(--icon-size);
+  height: var(--icon-size);
+  color: var(--color-fg);
+}
+
+.name {
+  font-size: 13px;
+  color: var(--color-muted);
+  text-align: center;
+  word-break: break-all;
+}

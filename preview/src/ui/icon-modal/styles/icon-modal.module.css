@@ -1,0 +1,211 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-10) 0;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.root {
+  position: relative;
+  width: 90%;
+  max-width: 560px;
+  padding: var(--space-6);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-3);
+}
+
+.closeButton {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  padding: var(--space-1) var(--space-2);
+  background: none;
+  border: none;
+  color: var(--color-fg);
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  margin-bottom: var(--space-4);
+  background: var(--color-card-bg);
+  border-radius: var(--radius-2);
+}
+
+.iconViewBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-1);
+  background: var(--checkerboard);
+  background-size: var(--checkerboard-size);
+}
+
+.icon,
+.iconImg,
+.iconCss {
+  width: 256px;
+  height: 256px;
+}
+
+.icon {
+  color: var(--color-fg);
+}
+
+.iconImg {
+  object-fit: contain;
+}
+
+.iconCss {
+  background-color: var(--color-fg);
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.name {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.viewBoxBadge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px var(--space-2);
+  border-radius: 10px;
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+.varsSection {
+  margin-bottom: var(--space-5);
+}
+
+.varsTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-2);
+}
+
+.varRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+
+
+.noVars {
+  font-size: 12px;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.hint {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-card-bg);
+  border-radius: var(--radius-1);
+  border-left: 3px solid var(--color-accent);
+}
+
+.colorHint {
+  margin-bottom: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-muted);
+  background: var(--color-card-bg);
+  border-radius: var(--radius-1);
+  border-left: 3px solid var(--color-accent);
+}
+
+.colorHintTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+  margin-bottom: var(--space-1);
+}
+
+.colorHintRow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+}
+
+.colorHintCode {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 2px var(--space-1);
+  background: var(--color-bg);
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.colorHintDesc {
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+.cssColorRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-3);
+}
+
+.tab {
+  padding: var(--space-2) var(--space-4);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--color-muted);
+  background: none;
+}
+
+.tab._active {
+  color: var(--color-accent);
+  border-bottom-color: var(--color-accent);
+}
+
+.tabContent {
+  display: none;
+}
+
+.tabContent._active {
+  display: block;
+}

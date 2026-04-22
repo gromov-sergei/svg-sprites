@@ -6,7 +6,7 @@
  * - Добавление transition к элементам с цветом
  */
 
-import type { TransformOptions } from './types.js'
+
 
 /** Элементы, которые могут содержать цвет (fill/stroke). */
 const COLORABLE_TAGS = [
@@ -173,13 +173,15 @@ function addTransitions(svg: string): string {
   })
 }
 
+import type { TransformOptions } from './types.js'
+
 /**
  * Shape transform для svg-sprite.
  *
  * Применяет трансформации в зависимости от опций:
- * - removeSize: удаление width/height
- * - replaceColors: замена цветов на CSS-переменные
- * - addTransition: добавление transition к элементам с цветом
+ * - removeSize: удаление width/height (по умолчанию: true)
+ * - replaceColors: замена цветов на CSS-переменные (по умолчанию: true)
+ * - addTransition: добавление transition к элементам с цветом (по умолчанию: true)
  */
 export function createShapeTransform(options: TransformOptions = {}): (
   shape: { getSVG: (inline: boolean) => string; setSVG: (svg: string) => void },

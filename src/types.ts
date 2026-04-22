@@ -1,36 +1,25 @@
 /** Режим спрайта: stack или symbol. */
 export type SpriteMode = 'stack' | 'symbol'
 
-/** Результат парсинга имени папки со спрайтами. */
-export interface SpriteFolder {
-  /** Полное имя папки (как на диске, включая суффикс ?mode). */
-  fullName: string
-  /** Имя папки без суффикса режима. */
+/** Описание одного спрайта в конфиге. */
+export type SpriteEntry = {
+  /** Уникальное имя спрайта (используется как имя файла и в типах). */
   name: string
-  /** Режим спрайта. */
-  mode: SpriteMode
-  /** Абсолютный путь к папке. */
-  path: string
-  /** Абсолютные пути к SVG-файлам внутри папки. */
-  files: string[]
+  /**
+   * Источник SVG-файлов.
+   * Строка — путь к папке с SVG-файлами.
+   * Массив — пути к конкретным SVG-файлам.
+   */
+  input: string | string[]
+  /**
+   * Режим спрайта.
+   * По умолчанию: 'stack'.
+   */
+  mode?: SpriteMode
 }
 
-/** Результат компиляции одного спрайта. */
-export interface SpriteResult {
-  /** Имя папки (без суффикса режима). */
-  name: string
-  /** Режим спрайта. */
-  mode: SpriteMode
-  /** Путь к сгенерированному SVG-спрайту. */
-  spritePath: string
-  /** Путь к сгенерированному .generated.ts файлу (если включена генерация типов). */
-  typesPath: string | null
-  /** Количество иконок в спрайте. */
-  iconCount: number
-}
-
-/** Параметры трансформации SVG. */
-export interface TransformOptions {
+/** Параметры трансформации SVG. Все включены по умолчанию. */
+export type TransformOptions = {
   /**
    * Удалять width/height с корневого <svg>.
    * По умолчанию: true.
@@ -50,30 +39,55 @@ export interface TransformOptions {
   addTransition?: boolean
 }
 
-/** Параметры генерации спрайтов. */
-export interface GenerateOptions {
-  /** Путь к папке с исходными SVG (содержит подпапки-спрайты). */
-  input: string
+/** Конфигурация генерации SVG-спрайтов. */
+export type SvgSpritesConfig = {
   /** Путь к папке для сгенерированных SVG-спрайтов. */
   output: string
   /**
-   * Генерировать ли .generated.ts файлы с union-типами имён иконок.
-   * По умолчанию: true.
+   * Публичный путь к спрайтам для использования в коде (href, src, url()).
+   * Используется в сгенерированном React-компоненте.
+   * Пример: '/img/sprites'.
    */
-  types?: boolean
-  /**
-   * Куда складывать .generated.ts файлы.
-   * По умолчанию: рядом с исходными папками (в input).
-   */
-  typesOutput?: string
-  /**
-   * Настройки трансформации SVG.
-   * По умолчанию: все трансформации включены.
-   */
-  transform?: TransformOptions
+  publicPath?: string
   /**
    * Генерировать HTML-превью со всеми иконками.
    * По умолчанию: true.
    */
   preview?: boolean
+  /**
+   * Путь для генерации React-компонента.
+   * Если не задан — компонент и типы не генерируются.
+   */
+  react?: string
+  /**
+   * Настройки трансформации SVG.
+   * По умолчанию: все трансформации включены.
+   */
+  transform?: TransformOptions
+  /** Список спрайтов для генерации. */
+  sprites: SpriteEntry[]
+}
+
+/** Результат парсинга спрайта — данные для компиляции. */
+export type SpriteFolder = {
+  /** Имя спрайта. */
+  name: string
+  /** Режим спрайта. */
+  mode: SpriteMode
+  /** Абсолютный путь к папке (для input-папки) или null (для input-массива). */
+  path: string | null
+  /** Абсолютные пути к SVG-файлам. */
+  files: string[]
+}
+
+/** Результат компиляции одного спрайта. */
+export type SpriteResult = {
+  /** Имя спрайта. */
+  name: string
+  /** Режим спрайта. */
+  mode: SpriteMode
+  /** Путь к сгенерированному SVG-спрайту. */
+  spritePath: string
+  /** Количество иконок в спрайте. */
+  iconCount: number
 }

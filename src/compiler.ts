@@ -5,28 +5,35 @@ import { createShapeTransform } from './transforms.js'
 import type { SpriteFolder, SpriteMode, TransformOptions } from './types.js'
 
 /** Конфигурация режима для svg-sprite. */
-function getModeConfig(mode: SpriteMode, destDir: string) {
+function getModeConfig(mode: SpriteMode, destDir: string, name: string) {
   return {
     dest: destDir,
-    sprite: `sprite.${mode}.svg`,
+    sprite: `${name}.sprite.svg`,
     example: false,
     rootviewbox: false,
   }
 }
 
-/** Строит массив shape.transform на основе опций. */
-function buildShapeTransforms(transform: TransformOptions) {
+/** Строит массив shape.transform. */
+function buildShapeTransforms(transform: TransformOptions = {}) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const transforms: any[] = ['svgo']
-
-  const hasCustomTransform =
-    transform.removeSize !== false ||
-    transform.replaceColors !== false ||
-    transform.addTransition !== false
-
-  if (hasCustomTransform) {
-    transforms.push(createShapeTransform(transform))
-  }
+  const transforms: any[] = [
+    {
+      svgo: {
+        plugins: [
+          {
+            name: 'preset-default',
+            params: {
+              overrides: {
+                removeViewBox: false,
+              },
+            },
+          },
+        ],
+      },
+    },
+    createShapeTransform(transform),
+  ]
 
   return transforms
 }
@@ -41,14 +48,12 @@ export async function compileSprite(
   outputDir: string,
   transform: TransformOptions = {},
 ): Promise<string> {
-  const destDir = path.join(outputDir, folder.name)
-
   const config = {
     shape: {
       transform: buildShapeTransforms(transform),
     },
     mode: {
-      [folder.mode]: getModeConfig(folder.mode, destDir),
+      [folder.mode]: getModeConfig(folder.mode, outputDir, folder.name),
     },
   }
 

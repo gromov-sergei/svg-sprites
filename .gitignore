@@ -1,6 +1,7 @@
 node_modules/
 dist/
 public/
+test/public/
 .tmp/
 *.generated.ts
 *.tgz

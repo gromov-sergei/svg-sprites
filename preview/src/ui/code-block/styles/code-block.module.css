@@ -1,0 +1,85 @@
+.root {
+  position: relative;
+  border-radius: var(--radius-2);
+  overflow: hidden;
+  background: var(--color-code-bg);
+}
+
+.pre {
+  margin: 0;
+  padding: var(--space-4);
+  overflow-x: auto;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  line-height: 1.6;
+}
+
+.code {
+  font-family: var(--font-mono);
+}
+
+:global(:root[data-theme='light']) .code {
+  --hl-tag: #116329;
+  --hl-attr: #0550ae;
+  --hl-string: #0a3069;
+  --hl-comment: #8b949e;
+  --hl-punctuation: #6639ba;
+  --hl-selector: #6639ba;
+  --hl-property: #0550ae;
+  --hl-color: #0a3069;
+  --hl-number: #0550ae;
+  --hl-function: #0550ae;
+}
+
+:global(:root[data-theme='dark']) .code {
+  --hl-tag: #7ee787;
+  --hl-attr: #79c0ff;
+  --hl-string: #a5d6ff;
+  --hl-comment: #8b949e;
+  --hl-punctuation: #d2a8ff;
+  --hl-selector: #d2a8ff;
+  --hl-property: #79c0ff;
+  --hl-color: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-function: #d2a8ff;
+}
+
+.code :global(.hl-tag),
+.code :global(.hl-attr),
+.code :global(.hl-string),
+.code :global(.hl-comment),
+.code :global(.hl-punctuation),
+.code :global(.hl-selector),
+.code :global(.hl-property),
+.code :global(.hl-color),
+.code :global(.hl-number),
+.code :global(.hl-function) {
+  color: var(--hl-tag);
+}
+
+.code :global(.hl-attr) { color: var(--hl-attr); }
+.code :global(.hl-string) { color: var(--hl-string); }
+.code :global(.hl-comment) { color: var(--hl-comment); }
+.code :global(.hl-punctuation) { color: var(--hl-punctuation); }
+.code :global(.hl-selector) { color: var(--hl-selector); }
+.code :global(.hl-property) { color: var(--hl-property); }
+.code :global(.hl-color) { color: var(--hl-color); }
+.code :global(.hl-number) { color: var(--hl-number); }
+.code :global(.hl-function) { color: var(--hl-function); }
+
+.copyButton {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  font-size: 11px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-1);
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.copyButton:hover {
+  color: var(--color-fg);
+}

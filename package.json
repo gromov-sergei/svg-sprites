@@ -16,10 +16,11 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "tsup && npm run build:preview",
+    "build:preview": "cd preview && npx vite build",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "sprite": "node dist/cli.js --input sprites --output public",
+    "sprite": "node dist/cli.js",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -35,8 +36,8 @@
     "node": ">=18"
   },
   "dependencies": {
-    "citty": "^0.1.6",
     "colorette": "^2.0.20",
+    "jiti": "^2.6.1",
     "svg-sprite": "^2.0.4"
   },
   "devDependencies": {

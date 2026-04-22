@@ -1,0 +1,19 @@
+/* @generated — this file is auto-generated, do not edit manually. */
+
+.root {
+  transition-property: fill, stroke, color;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}
+
+.wrap {
+  display: inline-flex;
+}
+
+.wrap svg {
+  width: 100%;
+  height: 100%;
+  transition-property: fill, stroke, color;
+  transition-duration: 0.3s;
+  transition-timing-function: ease;
+}

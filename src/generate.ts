@@ -1,40 +1,38 @@
 import path from 'node:path'
-import { scanSpriteFolders } from './scanner.js'
+import { resolveSprites } from './scanner.js'
 import { compileSprite } from './compiler.js'
-import { generateIconTypes } from './codegen.js'
+import { generateReactModule } from './codegen-react.js'
 import { generatePreview } from './preview.js'
 import { log } from './logger.js'
-import type { GenerateOptions, SpriteResult } from './types.js'
+import type { SvgSpritesConfig, SpriteResult } from './types.js'
 
 /**
- * Генерирует SVG-спрайты и (опционально) TypeScript-типы для всех подпапок.
+ * Генерирует SVG-спрайты из конфига.
  *
  * Основная точка входа — используется и из CLI, и из программного API.
  */
-export async function generate(options: GenerateOptions): Promise<SpriteResult[]> {
+export async function generate(config: SvgSpritesConfig): Promise<SpriteResult[]> {
   const {
-    input,
     output,
-    types = true,
-    typesOutput,
-    transform = {},
+    publicPath,
     preview = true,
-  } = options
+    react,
+    transform = {},
+    sprites,
+  } = config
 
-  const inputDir = path.resolve(input)
   const outputDir = path.resolve(output)
-  const typesDir = typesOutput ? path.resolve(typesOutput) : inputDir
 
-  log.title(`Scanning ${inputDir}...`)
+  log.title('Resolving sprites...')
 
-  const folders = scanSpriteFolders(inputDir)
+  const folders = resolveSprites(sprites)
 
   if (folders.length === 0) {
-    log.warn('No sprite folders with SVG files found.')
+    log.warn('No sprites to generate.')
     return []
   }
 
-  log.info(`Found ${folders.length} sprite folder(s)\n`)
+  log.info(`Found ${folders.length} sprite(s)\n`)
 
   const results: SpriteResult[] = []
 
@@ -42,19 +40,19 @@ export async function generate(options: GenerateOptions): Promise<SpriteResult[]
     const spritePath = await compileSprite(folder, outputDir, transform)
     log.success(`  [${folder.mode}] ${folder.name} → ${path.relative(process.cwd(), spritePath)} (${folder.files.length} icons)`)
 
-    let typesPath: string | null = null
-    if (types) {
-      typesPath = generateIconTypes(folder, typesDir)
-      log.success(`  [types] ${folder.name} → ${path.relative(process.cwd(), typesPath)}`)
-    }
-
     results.push({
       name: folder.name,
       mode: folder.mode,
       spritePath,
-      typesPath,
       iconCount: folder.files.length,
     })
+  }
+
+  if (react) {
+    const reactDir = path.resolve(react)
+    const resolvedPublicPath = publicPath ?? `/${output}`
+    const iconPath = generateReactModule(results, folders, reactDir, resolvedPublicPath)
+    log.success(`  [react]  → ${path.relative(process.cwd(), iconPath)}`)
   }
 
   if (preview) {
