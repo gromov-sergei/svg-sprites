@@ -1,8 +1,8 @@
 # @gromlab/svg-sprites
-
-![Preview](preview-image.png)
-
 Генерация SVG-спрайтов из папок с иконками. TypeScript-типизация, SVG-трансформации, React-компонент и HTML-превью из коробки.
+
+![Preview](https://gromlab.ru/gromov/svg-sprites/media/branch/master/preview-image.png)
+
 
 ## Установка
 
@@ -18,10 +18,16 @@ npm install @gromlab/svg-sprites
 import { defineConfig } from '@gromlab/svg-sprites'
 
 export default defineConfig({
-  output: 'public',
-  publicPath: '/public',
+  // Папка для сгенерированных SVG-спрайтов
+  output: 'public/sprites',
+
+  // URL-путь к спрайтам (для href в React-компоненте)
+  publicPath: '/public/sprites',
+
+  // Папка для React-компонента и типов
   react: 'src/shared/ui/svg-sprite',
 
+  // Массив спрайтов имя и откуда наполняем.
   sprites: [
     { name: 'icons', input: 'src/assets/icons' },
     { name: 'logos', input: 'src/assets/logos' },
