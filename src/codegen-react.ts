@@ -17,10 +17,10 @@ function getIconNames(folder: SpriteFolder): string[] {
 }
 
 /**
- * Генерирует [name].tsx и [name].module.css — React-компонент с типами.
+ * Генерирует index.ts, [name].tsx и [name].module.css — React-компонент с типами.
  *
  * Имена файлов берутся из basename папки outputDir.
- * Например: outputDir = 'src/ui/svg-sprite' → svg-sprite.tsx + svg-sprite.module.css.
+ * Например: outputDir = 'src/ui/svg-sprite' → index.ts + svg-sprite.tsx + svg-sprite.module.css.
  *
  * Содержит:
  * - union-типы имён иконок для каждого спрайта (IconsIconName, LogosIconName, ...)
@@ -174,6 +174,22 @@ export function generateReactModule(
 
   const cssPath = path.join(outputDir, `${baseName}.module.css`)
   fs.writeFileSync(cssPath, css)
+
+  const index = [
+    '/** @generated — this file is auto-generated, do not edit manually. */',
+    `export { SvgSprite } from './${baseName}'`,
+    'export type {',
+    '  SvgSpriteProps,',
+    '  SpriteName,',
+    '  SpriteMap,',
+    '  IconName,',
+    '  DefaultSprite,',
+    `} from './${baseName}'`,
+    '',
+  ].join('\n')
+
+  const indexPath = path.join(outputDir, 'index.ts')
+  fs.writeFileSync(indexPath, index)
 
   return outputPath
 }

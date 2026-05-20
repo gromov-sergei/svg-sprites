@@ -29,6 +29,7 @@
     "build": "tsup && npm run build:preview",
     "build:preview": "cd preview && npx vite build",
     "dev": "tsup --watch",
+    "test": "tsup && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "sprite": "node dist/cli.js",
     "prepublishOnly": "npm run build"

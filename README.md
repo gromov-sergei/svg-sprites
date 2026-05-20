@@ -165,7 +165,7 @@ publicPath: '/sprites'
 
 ```ts
 react: 'src/shared/ui/svg-sprite'
-// → svg-sprite.tsx + svg-sprite.module.css
+// → index.ts + svg-sprite.tsx + svg-sprite.module.css
 ```
 
 Если не задан — компонент и типы не генерируются.
