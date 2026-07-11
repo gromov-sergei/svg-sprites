@@ -81,7 +81,7 @@ TypeScript checks the `icon` value against the file names:
 <FileManagerIcon icon="missing" /> // TypeScript error
 ```
 
-Types, display methods, and color controls are described in the [main documentation](../../README.md#display-methods).
+Types, rendering methods, and color controls are described in the [main documentation](../../README.md#rendering-methods).
 
 Webpack processes the generated `new URL('./sprite.svg', import.meta.url)` through Asset Modules and emits a separate SVG asset.
 

@@ -83,7 +83,7 @@ TypeScript checks the `icon` value against the file names:
 <FileManagerIcon icon="unknown" /> // TypeScript error
 ```
 
-Types, display methods, and color controls are described in the [main documentation](../../README.md#display-methods).
+Types, rendering methods, and color controls are described in the [main documentation](../../README.md#rendering-methods).
 
 Vite emits the sprite as a separate file named like `assets/sprite-<hash>.svg`. SVG path data is not included in JavaScript.
 
