@@ -38,7 +38,7 @@ export default defineReactSpriteConfig({
 
 По умолчанию SVG берутся из `./icons`. Общие иконки из других папок можно добавить через `inputFiles`: папка и список объединяются в один спрайт.
 
-Полный список опций находится в разделе [Конфигурация → React](../../README_RU.md#react).
+Полный список опций находится в разделе [«Конфигурация React и Next.js»](reference.md#конфигурация-react-и-nextjs).
 
 ## 4. Добавьте генерацию в package.json
 
@@ -81,11 +81,13 @@ export const OpenFolderButton = () => (
 <FileManagerIcon icon="missing" /> // ошибка TypeScript
 ```
 
-Типы, способы отображения и управление цветами описаны в [основной документации](../../README_RU.md#способы-отображения).
+Типы, способы отображения и управление цветами описаны в [техническом справочнике](reference.md#react-компонент-и-typescript).
 
 Webpack обработает generated `new URL('./sprite.svg', import.meta.url)` через Asset Modules и выпустит отдельный SVG asset.
 
 Если проект уже использует собственный SVG loader, убедитесь, что он не перехватывает generated `sprite.svg` вместо Asset Modules.
+
+Generated-компонент импортирует `styles.module.css`, поэтому Webpack должен обрабатывать CSS Modules через `css-loader` и `style-loader` либо `MiniCssExtractPlugin`. Если TypeScript-проект не содержит декларации для CSS Modules, добавьте её отдельно.
 
 ## 6. Добавьте debug-страницу
 

@@ -38,7 +38,7 @@ export default defineReactSpriteConfig({
 
 By default, SVG files are loaded from `./icons`. You can add shared icons from other directories through `inputFiles`: the directory and file list are combined into a single sprite.
 
-The complete list of options is available under [Configuration → React](../../README.md#react).
+The complete list of options is available under [React and Next.js configuration](reference.md#react-and-nextjs-configuration).
 
 ## 4. Add generation to package.json
 
@@ -83,7 +83,7 @@ TypeScript checks the `icon` value against the file names:
 <FileManagerIcon icon="unknown" /> // TypeScript error
 ```
 
-Types, rendering methods, and color controls are described in the [main documentation](../../README.md#rendering-methods).
+Types, rendering methods, and color controls are described in the [technical reference](reference.md#react-component-and-typescript).
 
 Vite emits the sprite as a separate file named like `assets/sprite-<hash>.svg`. SVG path data is not included in JavaScript.
 

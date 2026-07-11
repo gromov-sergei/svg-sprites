@@ -38,7 +38,7 @@ export default defineReactSpriteConfig({
 
 By default, SVG files are loaded from `./icons`. You can add shared icons from other directories through `inputFiles`: the directory and file list are combined into a single sprite.
 
-The complete list of options is available under [Configuration → React](../../README.md#react).
+The complete list of options is available under [React and Next.js configuration](reference.md#react-and-nextjs-configuration).
 
 ## 4. Add generation to package.json
 
@@ -81,11 +81,13 @@ TypeScript checks the `icon` value against the file names:
 <FileManagerIcon icon="missing" /> // TypeScript error
 ```
 
-Types, rendering methods, and color controls are described in the [main documentation](../../README.md#rendering-methods).
+Types, rendering methods, and color controls are described in the [technical reference](reference.md#react-component-and-typescript).
 
 Webpack processes the generated `new URL('./sprite.svg', import.meta.url)` through Asset Modules and emits a separate SVG asset.
 
 If the project already uses a custom SVG loader, make sure it does not intercept the generated `sprite.svg` instead of Asset Modules.
+
+The generated component imports `styles.module.css`, so Webpack must process CSS Modules through `css-loader` and `style-loader` or `MiniCssExtractPlugin`. If the TypeScript project does not include a declaration for CSS Modules, add one separately.
 
 ## 6. Add a debug page
 

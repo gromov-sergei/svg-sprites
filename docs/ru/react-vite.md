@@ -38,7 +38,7 @@ export default defineReactSpriteConfig({
 
 По умолчанию SVG берутся из `./icons`. Общие иконки из других папок можно добавить через `inputFiles`: папка и список объединяются в один спрайт.
 
-Полный список опций находится в разделе [Конфигурация → React](../../README_RU.md#react).
+Полный список опций находится в разделе [«Конфигурация React и Next.js»](reference.md#конфигурация-react-и-nextjs).
 
 ## 4. Добавьте генерацию в package.json
 
@@ -83,7 +83,7 @@ export const OpenFolderButton = () => (
 <FileManagerIcon icon="unknown" /> // ошибка TypeScript
 ```
 
-Типы, способы отображения и управление цветами описаны в [основной документации](../../README_RU.md#способы-отображения).
+Типы, способы отображения и управление цветами описаны в [техническом справочнике](reference.md#react-компонент-и-typescript).
 
 Vite выпустит спрайт отдельным файлом вида `assets/sprite-<hash>.svg`. SVG path-данные не попадут в JavaScript.
 

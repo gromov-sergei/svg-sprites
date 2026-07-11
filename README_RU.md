@@ -4,400 +4,261 @@
 
 ![npm](https://img.shields.io/npm/v/@gromlab/svg-sprites) ![license](https://img.shields.io/npm/l/@gromlab/svg-sprites)
 
-CLI для генерации SVG-спрайтов и типизированных компонентов иконок для React и Next.js.
+`@gromlab/svg-sprites` — генератор SVG-спрайтов для современных веб-приложений. Он собирает выбранные SVG-иконки в один или несколько внешних кешируемых спрайтов и подготавливает их для использования в интерфейсе.
 
-![Preview](https://raw.githubusercontent.com/gromov-sergei/svg-sprites/master/preview-image.png)
+Для React и Next.js пакет создаёт типизированные компоненты и поддерживает Vite, Webpack 5 и Turbopack. В основе при этом остаётся обычный SVG-спрайт, который можно использовать без фреймворка, в том числе в нативном HTML.
 
-## AI-скиллы
+## SVG-спрайт так же прост, как обычная SVG-иконка
 
-- [🇬🇧 Скачать английский скилл (последняя версия)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites.zip)
-- [🇷🇺 Скачать русский скилл (последняя версия)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
+Для всего спрайта генерируется один типизированный React-компонент. Выберите иконку через `icon`, а редактор покажет автокомплит всех доступных имён.
 
-## Навигация
-
-- [AI-скиллы](#ai-скиллы)
-- [Возможности](#возможности)
-- [Таблица поддержки](#таблица-поддержки)
-- [Требования](#требования)
-- [Быстрый старт](#быстрый-старт)
-  - [React + Vite](docs/ru/react-vite.md)
-  - [React + Webpack 5](docs/ru/react-webpack.md)
-  - [Next.js App Router](docs/ru/next-app.md)
-  - [Next.js Pages Router](docs/ru/next-pages.md)
-- [Конфигурация](#конфигурация)
-  - [React](#react)
-  - [Next.js](#nextjs)
-- [Множественные спрайты](#множественные-спрайты)
-- [TypeScript](#typescript)
-- [Форматы спрайтов](#форматы-спрайтов)
-- [Способы отображения](#способы-отображения)
-- [Трансформации](#трансформации)
-- [Управление цветом иконок](#управление-цветом-иконок)
-- [Кеширование](#кеширование)
-- [SpriteViewer](#spriteviewer)
-- [Миграция с 0.1.x](docs/ru/migration-1.md)
-- [Документация](#документация)
-
-## Возможности
-
-- **AI-agent friendly** — репозиторий содержит готовый skill с актуальной документацией для настройки, миграции и диагностики `@gromlab/svg-sprites`.
-- **TypeScript-friendly** — типизированные React-компоненты, union-типы и runtime-списки доступных иконок.
-- **Чистая генерация** — generated-файлы автоматически исключаются из Git, спрайт не нужно вручную размещать в `public`, а генератор обновляет только принадлежащие ему файлы.
-- **Общие иконки без копирования** — SVG из локальной папки и `inputFiles` объединяются в один спрайт; один файл можно использовать в нескольких спрайтах.
-- **Встроенное интерактивное превью** — `<SpriteViewer>` подключается как страница приложения и показывает переданные React- и Next.js-спрайты с поиском, настройкой цветов и примерами использования.
-- **Настраиваемые трансформации SVG** — удаление `width` и `height` с сохранением `viewBox`, замена исходных цветов на CSS-переменные и transitions для `fill` и `stroke`.
-- **Отдельный кешируемый SVG asset** — SVG path-данные не попадают в JavaScript chunks, а сборщик выпускает файл с content hash.
-- **Множественные спрайты** — независимые React- и Next.js-модули со своими компонентами, типами и SVG assets.
-- **Server-first Next.js** — generated-компоненты работают в Server Components, SSR и SSG без директивы `'use client'`.
-- **Форматы под разные сценарии** — React и Next.js используют `stack`, legacy-режим также поддерживает `symbol` для существующих интеграций.
-
-## Таблица поддержки
-
-| Среда | Ключ мода API | Статус |
-|---|---|---|
-| React + Vite | `react@vite` | Готово |
-| React + Webpack 5 | `react@webpack` | Готово |
-| Next.js + App Router + Turbopack | `next@app/turbopack` | Готово |
-| Next.js + App Router + Webpack 5 | `next@app/webpack` | Готово |
-| Next.js + Pages Router + Turbopack | `next@pages/turbopack` | Готово |
-| Next.js + Pages Router + Webpack 5 | `next@pages/webpack` | Готово |
-| Vue | — | Скоро |
-| Standalone | — | Скоро |
-
-## Требования
-
-- Node.js 18 или новее;
-- пакет распространяется только как ESM и подключается через `import`;
-- React 18 или 19 требуется только для generated-компонентов и точки входа `@gromlab/svg-sprites/react`;
-- для типизации subpath exports используйте TypeScript 5+ с `moduleResolution: "bundler"`, `"node16"` или `"nodenext"`.
-
-## Быстрый старт
-
-Для быстрого старта воспользуйтесь инструкцией для вашего стека:
-
-- [React + Vite](docs/ru/react-vite.md)
-- [React + Webpack 5](docs/ru/react-webpack.md)
-- [Next.js App Router](docs/ru/next-app.md)
-- [Next.js Pages Router](docs/ru/next-pages.md)
-
-## Конфигурация
-
-### React
-
-```ts
-import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineReactSpriteConfig({
-  name: 'file-manager',
-  description: 'Иконки файлового менеджера',
-  inputFolder: './icons',
-  inputFiles: [
-    '../../shared/icons/check.svg',
-  ],
-  transform: {
-    removeSize: true,
-    replaceColors: true,
-    addTransition: true,
-  },
-  generatedNotice: true,
-})
+```tsx
+<AppIcon icon="search" width={24} height={24} />
 ```
 
-| Опция | Тип | По умолчанию | Назначение |
-|---|---|---|---|
-| `name` | `string` | Имя папки | Имя спрайта, компонента и публичных типов |
-| `description` | `string` | Нет | Описание для типов и debug-манифеста |
-| `inputFolder` | `string` | `./icons` | Папка с исходными SVG относительно конфига |
-| `inputFiles` | `string[]` | `[]` | Дополнительные SVG-файлы относительно конфига |
-| `transform` | `TransformOptions` | Все включены | [Настройки трансформации](#трансформации) исходных SVG |
-| `generatedNotice` | `boolean` | `true` | Полное либо короткое предупреждение в generated-файлах |
+Компонент принимает привычные SVG-атрибуты: размеры, `color`, `className`, `style`, `aria-*` и обработчики событий. Если нужен внешний контейнер, добавьте `wrapped`.
 
-`inputFolder` и `inputFiles` объединяются в один спрайт, поэтому один SVG-файл можно использовать в нескольких спрайтах без копирования. Если неявной папки `./icons` нет, но `inputFiles` заполнен, генерация продолжается только по списку. Явно указанная отсутствующая папка считается ошибкой. Одинаковые пути дедуплицируются, а разные файлы с одинаковым именем иконки считаются ошибкой.
+```tsx
+<AppIcon icon="search" wrapped className="iconWrapper" />
+```
 
-`name` записывается в kebab-case и должно начинаться с латинской буквы. React и Next.js presets создают формат `stack`.
+В приложении не приходится работать со спрайтом напрямую. Вы используете его так же, как обычную SVG-иконку, но получаете один компонент, автокомплит и TypeScript-проверку всех имён.
 
-### Next.js
+## AI-friendly из коробки
 
-Next.js использует тот же `svg-sprite.config.ts` и набор опций. Для типизации можно использовать отдельный хелпер:
+`@gromlab/svg-sprites` сразу рассчитан на работу с AI-агентами. Подключите готовый skill и поручите агенту настройку, миграцию или диагностику без длинных инструкций и ручного изучения документации.
+
+[🇷🇺 Скачать AI skill (на русском)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
+
+[🇬🇧 Скачать AI skill (на английском)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites.zip)
+
+## От SVG до компонента за четыре шага
+
+Основной пример использует Next.js App Router и Turbopack.
+
+### 1. Установите пакет
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
+### 2. Укажите нужные иконки
+
+SVG могут оставаться в существующей структуре проекта:
+
+```text
+src/
+├── assets/icons/
+│   ├── search.svg
+│   └── settings.svg
+├── features/profile/
+│   └── user.svg
+└── ui/app-icons/
+    └── svg-sprite.config.ts
+```
+
+Создайте конфигурацию спрайта:
 
 ```ts
+// src/ui/app-icons/svg-sprite.config.ts
 import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
 
 export default defineNextSpriteConfig({
-  name: 'file-manager',
-  description: 'Иконки файлового менеджера',
-  inputFolder: './icons',
+  name: 'app',
+  inputFiles: [
+    '../../assets/icons/search.svg',
+    '../../assets/icons/settings.svg',
+    '../../features/profile/user.svg',
+  ],
 })
 ```
 
-Роутер и сборщик выбираются через mode key, поэтому переключение между Turbopack и Webpack всегда явно отражено в команде генерации.
+### 3. Добавьте генерацию
 
-## Множественные спрайты
-
-Приложение может содержать несколько независимых спрайтов с разной областью использования:
-
-**Проблема:** один глобальный спрайт загружает иконки, которые текущему экрану не нужны.
-
-**Решение:** общие иконки хранить глобально, а наборы страниц и крупных компонентов — в отдельных спрайтах, загружаемых вместе с ними.
-
-```text
-global            → GlobalIcon          → общие иконки приложения
-analytics-page    → AnalyticsPageIcon   → иконки отдельной страницы
-file-manager      → FileManagerIcon     → иконки крупного компонента
-```
-
-- **Глобальный спрайт** содержит небольшие общие иконки, используемые в разных частях приложения: навигацию, состояния и базовые действия.
-- **Спрайт страницы** загружается вместе с конкретным разделом и не увеличивает общий спрайт иконками, которые больше нигде не нужны.
-- **Спрайт крупного компонента** инкапсулирует собственный набор иконок сложного UI-модуля, например файлового менеджера или редактора.
-
-Каждая группа получает:
-
-- собственный SVG asset;
-- собственный типизированный компонент;
-- отдельный список имён иконок;
-- отдельный debug-манифест;
-- независимый cache lifecycle.
-
-
-## TypeScript
-
-Главная возможность TypeScript API — автодополнение имён иконок непосредственно в prop `icon`:
-
-```tsx
-<FileManagerIcon icon="folder" />
-//                        ↑ редактор предлагает все иконки спрайта
-```
-
-Имена SVG-файлов становятся допустимыми значениями `icon`. Опечатка или неизвестное имя сразу становятся ошибкой TypeScript:
-
-```tsx
-<FileManagerIcon icon="unknown" /> // ошибка TypeScript
-```
-
-Для программного доступа generated-модуль экспортирует readonly-массив всех доступных иконок конкретного спрайта:
-
-```ts
-import { fileManagerIconNames } from './svg-sprite'
-
-// readonly ['check', 'folder', ...]
-```
-
-Этот список можно использовать в собственных каталогах, select-компонентах, тестах и других runtime-сценариях. Из него также выводится union-тип `FileManagerIconName`.
-
-Имена файлов с пробелами и другими небезопасными для SVG ID символами остаются частью публичного TypeScript API. Для внутреннего `<symbol id>` генератор создаёт стабильный hash ID.
-
-```text
-folder open.svg → icon="folder open" → id="icon-<stable-hash>"
-```
-
-Для таких имён используйте generated-компонент или `id` из debug-манифеста. Ручные примеры ниже с `#<имя>` подходят только для имён, которые уже являются безопасными SVG ID.
-
-## Форматы спрайтов
-
-`stack` — более современный формат, поэтому он используется по умолчанию. Иконки можно отображать через `<svg><use>`, `<img>` и CSS `background-image`.
-
-`symbol` сохраняется для совместимости с существующими интеграциями и поддерживает отображение только через `<svg><use>`.
-
-## Способы отображения
-
-### React-компонент — рекомендуется
-
-Generated-компонент предоставляет типизацию, автодополнение имён иконок и сам формирует URL SVG asset.
-
-```tsx
-<FileManagerIcon icon="check" width={24} height={24} />
-```
-
-Через `color` и `--icon-color-N` доступны одноцветные и многоцветные иконки.
-
-### Самостоятельно через `<svg><use>`
-
-Хороший низкоуровневый способ с полным управлением размерами и цветами. React-компонент под капотом использует именно его.
-
-Способ получения `spriteUrl` зависит от сборщика.
-
-**Vite:**
-
-```tsx
-import spriteUrl from './svg-sprite/generated/sprite.svg?no-inline'
-```
-
-**Webpack 5:**
-
-```tsx
-const spriteUrl = new URL(
-  './svg-sprite/generated/sprite.svg',
-  import.meta.url,
-).href
-```
-
-**Next.js с Webpack 5 или Turbopack:**
-
-```tsx
-const spriteUrl = new URL(
-  './svg-sprite/generated/sprite.svg',
-  import.meta.url,
-).href
-```
-
-После получения URL иконка отображается одинаково:
-
-```tsx
-<svg width={24} height={24}>
-  <use href={`${spriteUrl}#check`} />
-</svg>
-```
-
-Vite, Webpack 5 и Next.js сами заменяют исходный путь на итоговый URL asset с hash.
-
-### Через `<img>` — менее эффективно
-
-```tsx
-<img src={`${spriteUrl}#check`} width={24} height={24} alt="Готово" />
-```
-
-SVG загружается как изолированное изображение: изменить его цвета через `color` или `--icon-color-N` нельзя.
-
-### Через CSS `background-image` — менее эффективно
-
-```css
-.icon {
-  background: url('./svg-sprite/generated/sprite.svg#check') center / contain no-repeat;
+```json
+{
+  "scripts": {
+    "sprites": "svg-sprites --mode next@app/turbopack src/ui/app-icons",
+    "predev": "npm run sprites",
+    "prebuild": "npm run sprites"
+  }
 }
 ```
 
-Как и `<img>`, этот способ не позволяет управлять внутренними цветами SVG. Путь указывается относительно CSS-файла, а Vite/Webpack заменяет его на итоговый URL с hash при сборке.
+Первый запуск:
 
-### Через CSS mask — менее эффективно
+```bash
+npm run sprites
+```
 
-```css
-.icon {
-  background-color: currentColor;
-  mask: url('./svg-sprite/generated/sprite.svg#check') center / contain no-repeat;
+Пакет создаст `AppIcon`, TypeScript-типы и отдельный SVG-спрайт.
+
+### 4. Используйте как обычную иконку
+
+```tsx
+import { AppIcon } from '@/ui/app-icons'
+
+export default function SearchButton() {
+  return (
+    <button type="button">
+      <AppIcon icon="search" width={20} height={20} />
+      Найти
+    </button>
+  )
 }
 ```
 
-Mask оставляет только силуэт и окрашивает его одним цветом. Исходные цвета, gradients и различия между `fill` и `stroke` теряются.
+Это Server Component. Для иконки не нужны provider, `'use client'` или ручная сборка URL.
 
-## Трансформации
+## Типизированный React-компонент с автокомплитом
 
-Все трансформации включены по умолчанию и настраиваются независимо через `transform`.
+Каждый спрайт получает собственный готовый компонент. Свойство `icon` формируется из реальных имён SVG, поэтому редактор показывает точный список доступных иконок, а TypeScript сразу обнаруживает опечатки.
 
-| Опция | По умолчанию | Что делает |
-|---|---|---|
-| `removeSize` | `true` | Удаляет `width` и `height` с корневого `<svg>`, сохраняя существующий `viewBox`. Размер иконки после этого задаётся снаружи. |
-| `replaceColors` | `true` | Заменяет цвета `fill` и `stroke` на `--icon-color-N`. Для одноцветной иконки fallback становится `currentColor`, для многоцветной сохраняются исходные цвета. |
-| `addTransition` | `true` | Добавляет `style="transition:fill 0.3s,stroke 0.3s;"` непосредственно цветным элементам SVG. Существующий `transition` не перезаписывается. |
-
-Чтобы отключить преобразование, передайте для соответствующей опции `false`. Подробнее о результате `replaceColors` — в разделе [«Управление цветом иконок»](#управление-цветом-иконок).
-
-## Управление цветом иконок
-
-При включённой замене цветов генератор анализирует `fill` и `stroke` и преобразует их в CSS custom properties.
-
-### Монохромные иконки
-
-Если найден один цвет, fallback заменяется на `currentColor`:
-
-```svg
-stroke="var(--icon-color-1, currentColor)"
+```tsx
+<AppIcon icon="search" />  // доступная иконка
+<AppIcon icon="serach" />  // ошибка TypeScript
 ```
 
-Цветом управляет CSS-свойство `color` внешнего `<svg>` или его родителя.
+После добавления новой SVG-иконки и повторной генерации её имя автоматически появляется в типах и автокомплите. Не нужно вручную поддерживать компоненты, union-типы или реестр имён.
 
-### Многоцветные иконки
+## Next.js App Router и SSR из коробки
 
-Каждый уникальный цвет получает отдельную переменную с исходным fallback:
+Generated-компоненты работают в Server Components, SSR и SSG без `'use client'`.
 
-```svg
-fill="var(--icon-color-1, #798198)"
-fill="var(--icon-color-2, #ffffff)"
-fill="var(--icon-color-3, #129d9d)"
+Подключение иконки не переносит страницу на клиент, не требует provider и не создаёт дополнительную границу гидратации.
+
+Один и тот же компонент можно использовать в `page.tsx`, `layout.tsx`, серверных и клиентских компонентах.
+
+## Множественные спрайты вместо одного глобального
+
+Проект не ограничен одним набором иконок. Создавайте независимые спрайты для общих элементов, отдельных страниц и крупных UI-модулей.
+
+```tsx
+<AppIcon icon="search" />
+<AnalyticsIcon icon="chart" />
+<EditorIcon icon="bold" />
 ```
 
-Страница может заменить только необходимые цвета:
+Каждый набор получает собственный типизированный компонент и SVG asset, поэтому разделы приложения не несут иконки, которые им не нужны.
 
-```css
-.icon {
-  --icon-color-1: #4b5563;
-  --icon-color-3: #14b8a6;
-}
-```
+## Каждая иконка хранится в одном экземпляре
 
-### Ограничения цветов
-
-- `none`, `transparent`, `inherit`, `unset` и `initial` не заменяются;
-- цвета в атрибутах `fill`, `stroke` и inline `style` обрабатываются надёжнее всего;
-- CSS-классы и внешние stylesheets внутри исходного SVG не являются основным сценарием трансформации;
-- gradients, patterns, filters и значения `url(#...)` требуют отдельной проверки и могут быть несовместимы с автоматической заменой цветов;
-- CSS-переменные страницы доступны при `<svg><use>`, но недоступны внутри `<img>` и `background-image`.
-
-## Кеширование
-
-Vite, Webpack и Next.js target выпускают спрайт отдельным asset с content hash:
+В библиотеке исходников каждая SVG-иконка хранится в одном экземпляре и может входить в любое количество спрайтов. Общие иконки не приходится копировать между страницами и модулями: они обновляются для всех наборов из одного места.
 
 ```text
-/assets/sprite-<hash>.svg
+search.svg ─┬─→ AppIcon
+            ├─→ AnalyticsIcon
+            └─→ EditorIcon
 ```
 
-Это даёт следующие свойства:
+Спрайты разделяются ради производительности, но библиотека исходных иконок остаётся единой.
 
-- SVG кешируется независимо от JavaScript;
-- изменение React-кода не меняет содержимое спрайта;
-- изменение иконок создаёт новый hash asset;
-- один файл используется всеми экземплярами generated-компонента;
-- SVG path-данные отсутствуют в JavaScript chunks.
+## Браузерное кеширование
 
-Vite target запрещает inline через `?no-inline`. Webpack 5 target использует Asset Modules через `new URL(..., import.meta.url)`.
+При стандартной конфигурации Vite, Webpack или Next.js каждый спрайт выпускается отдельным версионированным SVG-файлом.
 
-## SpriteViewer
+Пока набор иконок не меняется, браузер может использовать сохранённую копию независимо от обновлений JavaScript приложения.
 
-`SpriteViewer` — React-компонент для просмотра generated-спрайтов внутри debug-маршрута приложения.
+Изменение React-компонентов не требует повторно загружать геометрию всех иконок.
 
-Он использует отдельные манифесты и показывает:
+## JavaScript без SVG-балласта
 
-- группы спрайтов;
-- список и количество иконок;
-- поиск и системную светлую/тёмную тему;
-- модальное превью с `viewBox` и настройкой цветовых переменных;
-- примеры React, SVG, IMG и CSS с копированием кода.
+Контуры иконок остаются во внешних SVG assets и не увеличивают chunks приложения.
 
-Production-компоненты не импортируют debug-манифесты. Способ подключения Viewer зависит от сборщика:
-
-- [React + Vite: автоматический `import.meta.glob`](docs/ru/react-vite.md#6-добавьте-debug-страницу);
-- [React + Webpack 5: статические `import()`](docs/ru/react-webpack.md#6-добавьте-debug-страницу);
-- [Next.js App Router](docs/ru/next-app.md#5-добавьте-spriteviewer);
-- [Next.js Pages Router](docs/ru/next-pages.md#5-добавьте-spriteviewer).
-
-Viewer подключается из отдельной клиентской точки входа `@gromlab/svg-sprites/react` и не попадает в production-компоненты иконок.
-
-### Тема Viewer
-
-По умолчанию `colorTheme="auto"`: Viewer следует `prefers-color-scheme` и реагирует на смену системной темы. Тему приложения можно передать явно:
-
-```tsx
-<SpriteViewer sources={sources} colorTheme="dark" />
+```text
+React-код   → JavaScript chunks
+SVG-иконки  → отдельные SVG assets
 ```
 
-Допустимые значения `colorTheme`: `auto`, `light`, `dark`. При управлении темой извне встроенный переключатель скрывается. Чтобы оставить его и обновлять тему приложения через Viewer, передайте callback:
+JavaScript отвечает за интерфейс и поведение, а графика загружается и кешируется отдельно.
+
+## Трансформации SVG из коробки
+
+Во время генерации пакет автоматически подготавливает исходные SVG для интерфейса:
+
+- удаляет фиксированные `width` и `height`;
+- сохраняет существующий `viewBox`;
+- преобразует `fill` и `stroke` в CSS-переменные;
+- добавляет плавные transitions непосредственно в цветные элементы иконки.
+
+Каждую трансформацию можно настроить или отключить независимо.
+
+## Каждый цвет под контролем CSS
+
+При генерации цвета `fill` и `stroke` автоматически преобразуются в CSS-переменные `--icon-color-N`.
+
+Монохромная иконка наследует `currentColor`:
 
 ```tsx
-<SpriteViewer
-  sources={sources}
-  colorTheme={appTheme}
-  onColorThemeChange={setAppTheme}
+<AppIcon icon="search" color="rebeccapurple" />
+```
+
+В многоцветной иконке каждый цвет можно менять отдельно:
+
+```tsx
+<AppIcon
+  icon="user"
+  style={{
+    '--icon-color-1': '#2563eb',
+    '--icon-color-2': '#dbeafe',
+  }}
 />
 ```
 
+Темы, состояния и hover-эффекты создаются без редактирования SVG и дополнительных копий иконки.
+
+## SpriteViewer: все спрайты на одной debug-странице
+
+`SpriteViewer` рендерит все спрайты проекта в одном месте и показывает, какие иконки вошли в каждый набор и как они выглядят.
+
+Для каждой иконки видны созданные CSS-переменные и их fallback-цвета. Значения можно менять прямо в Viewer и сразу наблюдать результат.
+
+Здесь же доступны готовые примеры подключения через:
+
+- React;
+- `<svg><use>`;
+- `<img>`;
+- CSS.
+
+![SpriteViewer](https://raw.githubusercontent.com/gromov-sergei/svg-sprites/master/preview-image.png)
+
+Viewer подключается только к внутренней debug-странице и не становится частью generated-компонентов иконок.
+
+## От нативного HTML до Next.js
+
+В основе остаётся обычный SVG-спрайт, который можно использовать даже без фреймворка и сборщика.
+
+Для React и Next.js пакет генерирует типизированные компоненты и поддерживает Vite, Webpack 5 и Turbopack. Список готовых интеграций будет расширяться новыми фреймворками.
+
+## Чистый Git
+
+Генератор создаёт локальный `.gitignore`, который исключает generated-файлы и не позволяет им засорять историю, pull requests и код проекта.
+
+В репозитории остаются исходные SVG, конфигурация и правило `.gitignore`, а локально и в CI спрайты, компоненты и типы заново создаются через `prebuild`.
+
+## В production только иконки
+
+`@gromlab/svg-sprites` выполняет основную работу на этапе генерации и остаётся в `devDependencies`.
+
+Production-компоненты используют только локальный generated-код, стили и внешний SVG-файл. Compiler и CLI не попадают в клиентское приложение, а `SpriteViewer` подключается отдельно только там, где нужна debug-страница.
+
 ## Документация
 
-- [React + Vite](docs/ru/react-vite.md)
-- [React + Webpack 5](docs/ru/react-webpack.md)
+README знакомит с возможностями проекта и показывает основной сценарий использования. Для настройки выберите руководство под свой стек.
+
+### Быстрый старт
+
 - [Next.js App Router](docs/ru/next-app.md)
 - [Next.js Pages Router](docs/ru/next-pages.md)
-- [Legacy mode](docs/ru/legacy.md)
-- [Миграция с 0.1.x](docs/ru/migration-1.md)
+- [React + Vite](docs/ru/react-vite.md)
+- [React + Webpack 5](docs/ru/react-webpack.md)
+- [Нативный HTML и классические SVG-спрайты](docs/ru/legacy.md)
+
+### Технические материалы
+
+- [Технический справочник](docs/ru/reference.md)
 - [Программный API](docs/ru/programmatic-api.md)
+- [Миграция с 0.1.x](docs/ru/migration-1.md)
 
 ## Лицензия
 
