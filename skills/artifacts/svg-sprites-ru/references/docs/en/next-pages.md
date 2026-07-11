@@ -1,23 +1,23 @@
 # Next.js Pages Router
 
-[← Главная](../../README_RU.md)
+[← Back to home](../../README.md)
 
-Поддерживаются два явных режима:
+Two explicit modes are supported:
 
-| Сборщик | Mode key | Версия Next.js |
+| Bundler | Mode key | Next.js version |
 |---|---|---|
 | Turbopack | `next@pages/turbopack` | 16.2+ |
 | Webpack 5 | `next@pages/webpack` | 12.2+ |
 
-Для Next.js 12.2 требуется React 18.
+Next.js 12.2 requires React 18.
 
-## 1. Установите пакет
+## 1. Install the package
 
 ```bash
 npm install @gromlab/svg-sprites
 ```
 
-## 2. Создайте sprite-модуль
+## 2. Create a sprite module
 
 ```text
 src/ui/file-manager/svg-sprite/
@@ -33,11 +33,11 @@ import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
 
 export default defineNextSpriteConfig({
   name: 'file-manager',
-  description: 'Иконки файлового менеджера',
+  description: 'File manager icons',
 })
 ```
 
-## 3. Добавьте генерацию
+## 3. Add generation
 
 ```json
 {
@@ -49,9 +49,9 @@ export default defineNextSpriteConfig({
 }
 ```
 
-Для Next.js 16.2 с Turbopack замените mode key на `next@pages/turbopack`.
+For Next.js 16.2 with Turbopack, replace the mode key with `next@pages/turbopack`.
 
-## 4. Используйте на странице
+## 4. Use it on a page
 
 ```tsx
 import { FileManagerIcon } from '@/ui/file-manager/svg-sprite'
@@ -65,9 +65,9 @@ export function getServerSideProps() {
 }
 ```
 
-Компонент одинаково работает при SSR, SSG и клиентских переходах. Next.js выпускает отдельный SVG asset с content hash.
+The component works the same way with SSR, SSG, and client-side navigation. Next.js emits a separate SVG asset with a content hash.
 
-## 5. Добавьте SpriteViewer
+## 5. Add SpriteViewer
 
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
@@ -81,7 +81,7 @@ export default function SpritesPage() {
 }
 ```
 
-## Проверка сборщика
+## Verify the bundler
 
 ```bash
 # Turbopack
@@ -91,6 +91,6 @@ npx next build --turbopack
 npx next build --webpack
 ```
 
-Для Next 12–15 с Webpack используйте `npx next build` без флага.
+For Next 12–15 with Webpack, use `npx next build` without the flag.
 
-Команда Next.js и mode key генератора должны указывать один и тот же сборщик.
+The Next.js command and the generator mode key must target the same bundler.

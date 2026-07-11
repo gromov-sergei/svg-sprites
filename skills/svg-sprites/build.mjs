@@ -13,10 +13,9 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import config from './skill.config.mjs'
+import configs from './skill.config.mjs'
 
 const skillDir = path.dirname(fileURLToPath(import.meta.url))
-const outputDir = path.resolve(skillDir, config.output)
 const artifactsDir = path.resolve(skillDir, '../artifacts')
 const isCheck = process.argv.slice(2).includes('--check')
 
@@ -37,7 +36,7 @@ function assertInside(parentDir, childPath) {
   throw new Error(`Path is outside ${parentDir}: ${childPath}`)
 }
 
-function validateConfig() {
+function validateConfig(config, outputDir) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(config.name)) {
     throw new Error(`Invalid skill name: ${config.name}`)
   }
@@ -68,7 +67,7 @@ function readRegularFile(filePath) {
   return readFileSync(filePath, 'utf8')
 }
 
-function renderSkill() {
+function renderSkill(config) {
   const sourcePath = path.resolve(skillDir, config.source)
   assertInside(skillDir, sourcePath)
   const body = readRegularFile(sourcePath).trim()
@@ -80,17 +79,17 @@ function renderSkill() {
     `description: ${JSON.stringify(config.description)}`,
     '---',
     '',
-    '<!-- Generated from skills/svg-sprites/src/SKILL.md. Do not edit manually. -->',
+    `<!-- Generated from skills/svg-sprites/${config.source}. Do not edit manually. -->`,
     '',
     body,
     '',
   ].join('\n')
 }
 
-function buildSkill(targetDir) {
+function buildSkill(config, targetDir) {
   rmSync(targetDir, { recursive: true, force: true })
   mkdirSync(targetDir, { recursive: true })
-  writeFileSync(path.join(targetDir, 'SKILL.md'), renderSkill())
+  writeFileSync(path.join(targetDir, 'SKILL.md'), renderSkill(config))
 
   for (const reference of config.references) {
     const sourcePath = path.resolve(skillDir, reference.from)
@@ -133,7 +132,7 @@ function validateMarkdown(skillRoot, relativePath) {
   }
 }
 
-function validateArtifact(skillRoot) {
+function validateArtifact(config, skillRoot) {
   const expectedFiles = [
     'SKILL.md',
     ...config.references.map((reference) => reference.to),
@@ -174,21 +173,36 @@ function compareArtifacts(expectedDir, actualDir) {
   }
 }
 
-validateConfig()
+if (!Array.isArray(configs) || configs.length === 0) {
+  throw new Error('Skill configs must be a non-empty array')
+}
 
-if (isCheck) {
-  const temporaryRoot = mkdtempSync(path.join(tmpdir(), 'svg-sprites-skill-'))
-  try {
-    const expectedDir = path.join(temporaryRoot, config.name)
-    buildSkill(expectedDir)
-    validateArtifact(expectedDir)
-    compareArtifacts(expectedDir, outputDir)
-    console.log(`Skill is up to date: ${path.relative(process.cwd(), outputDir)}`)
-  } finally {
-    rmSync(temporaryRoot, { recursive: true, force: true })
+const names = new Set()
+const outputs = new Set()
+
+for (const config of configs) {
+  const outputDir = path.resolve(skillDir, config.output)
+  validateConfig(config, outputDir)
+
+  if (names.has(config.name)) throw new Error(`Duplicate skill name: ${config.name}`)
+  if (outputs.has(outputDir)) throw new Error(`Duplicate skill output: ${config.output}`)
+  names.add(config.name)
+  outputs.add(outputDir)
+
+  if (isCheck) {
+    const temporaryRoot = mkdtempSync(path.join(tmpdir(), `${config.name}-skill-`))
+    try {
+      const expectedDir = path.join(temporaryRoot, config.name)
+      buildSkill(config, expectedDir)
+      validateArtifact(config, expectedDir)
+      compareArtifacts(expectedDir, outputDir)
+      console.log(`Skill is up to date: ${path.relative(process.cwd(), outputDir)}`)
+    } finally {
+      rmSync(temporaryRoot, { recursive: true, force: true })
+    }
+  } else {
+    buildSkill(config, outputDir)
+    validateArtifact(config, outputDir)
+    console.log(`Built skill: ${path.relative(process.cwd(), outputDir)}`)
   }
-} else {
-  buildSkill(outputDir)
-  validateArtifact(outputDir)
-  console.log(`Built skill: ${path.relative(process.cwd(), outputDir)}`)
 }
