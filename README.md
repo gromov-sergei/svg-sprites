@@ -28,9 +28,9 @@ You do not have to work with the sprite directly in your application. Use it lik
 
 `@gromlab/svg-sprites` is designed to work with AI agents from the start. Add the ready-made skill and ask an agent to configure, migrate, or troubleshoot the package without lengthy instructions or manual documentation research.
 
-[🇬🇧 Download AI skill (English)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites.zip)
+[🇬🇧 Download AI skill (English)](https://github.com/gromlab-ru/svg-sprites/releases/latest/download/svg-sprites.zip)
 
-[🇷🇺 Download AI skill (Russian)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
+[🇷🇺 Download AI skill (Russian)](https://github.com/gromlab-ru/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
 
 ## From SVG to component in four steps
 
@@ -220,7 +220,7 @@ It also provides ready-to-use integration examples for:
 - `<img>`;
 - CSS.
 
-![SpriteViewer](https://raw.githubusercontent.com/gromov-sergei/svg-sprites/master/preview-image.png)
+![SpriteViewer](https://raw.githubusercontent.com/gromlab-ru/svg-sprites/master/preview-image.png)
 
 The Viewer is added only to an internal debug page and does not become part of the generated icon components.
 
