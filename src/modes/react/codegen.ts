@@ -16,7 +16,7 @@ const GENERATED_NOTICE = [
   '## Для изменений перегенерируйте SVG-спрайт.                        ##',
   '##                                                                  ##',
   '## Генератор: @gromlab/svg-sprites                                  ##',
-  '## Репозиторий: https://github.com/gromov-sergei/svg-sprites        ##',
+  '## Репозиторий: https://github.com/gromlab-ru/svg-sprites            ##',
   '----------------------------------------------------------------------',
 ]
 

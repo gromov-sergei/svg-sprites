@@ -28,9 +28,9 @@
 
 `@gromlab/svg-sprites` сразу рассчитан на работу с AI-агентами. Подключите готовый skill и поручите агенту настройку, миграцию или диагностику без длинных инструкций и ручного изучения документации.
 
-[🇷🇺 Скачать AI skill (на русском)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
+[🇷🇺 Скачать AI skill (на русском)](https://github.com/gromlab-ru/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
 
-[🇬🇧 Скачать AI skill (на английском)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites.zip)
+[🇬🇧 Скачать AI skill (на английском)](https://github.com/gromlab-ru/svg-sprites/releases/latest/download/svg-sprites.zip)
 
 ## От SVG до компонента за четыре шага
 
@@ -220,7 +220,7 @@ JavaScript отвечает за интерфейс и поведение, а г
 - `<img>`;
 - CSS.
 
-![SpriteViewer](https://raw.githubusercontent.com/gromov-sergei/svg-sprites/master/preview-image.png)
+![SpriteViewer](https://raw.githubusercontent.com/gromlab-ru/svg-sprites/master/preview-image.png)
 
 Viewer подключается только к внутренней debug-странице и не становится частью generated-компонентов иконок.
 

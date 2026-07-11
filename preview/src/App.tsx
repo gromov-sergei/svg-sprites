@@ -96,7 +96,7 @@ export const App = () => {
         <span className={styles.footerText}>@gromlab/svg-sprites</span>
         <a
           className={styles.footerLink}
-          href="https://github.com/gromov-sergei/svg-sprites"
+          href="https://github.com/gromlab-ru/svg-sprites"
           target="_blank"
           rel="noreferrer"
         >

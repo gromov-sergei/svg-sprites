@@ -284,7 +284,7 @@ export function SpriteViewer({
 
       <footer className="gromlab-sprite-viewer__footer">
         <span>@gromlab/svg-sprites</span>
-        <a href="https://github.com/gromov-sergei/svg-sprites" target="_blank" rel="noreferrer">Repository</a>
+        <a href="https://github.com/gromlab-ru/svg-sprites" target="_blank" rel="noreferrer">Repository</a>
       </footer>
 
       {selected && (
