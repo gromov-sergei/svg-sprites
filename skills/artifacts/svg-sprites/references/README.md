@@ -6,7 +6,7 @@
 
 A CLI for generating SVG sprites and typed icon components for React and Next.js.
 
-![Preview](https://gromlab.ru/gromov/svg-sprites/media/branch/master/preview-image.png)
+![Preview](https://raw.githubusercontent.com/gromov-sergei/svg-sprites/master/preview-image.png)
 
 ## Navigation
 

@@ -6,7 +6,7 @@
 
 CLI для генерации SVG-спрайтов и типизированных компонентов иконок для React и Next.js.
 
-![Preview](https://gromlab.ru/gromov/svg-sprites/media/branch/master/preview-image.png)
+![Preview](https://raw.githubusercontent.com/gromov-sergei/svg-sprites/master/preview-image.png)
 
 ## Навигация
 

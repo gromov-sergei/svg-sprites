@@ -65,11 +65,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://gromlab.ru/gromov/svg-sprites"
+    "url": "https://github.com/gromov-sergei/svg-sprites"
   },
-  "homepage": "https://gromlab.ru/gromov/svg-sprites",
+  "homepage": "https://github.com/gromov-sergei/svg-sprites",
   "bugs": {
-    "url": "https://gromlab.ru/gromov/svg-sprites/issues"
+    "url": "https://github.com/gromov-sergei/svg-sprites/issues"
   },
   "engines": {
     "node": ">=18"
