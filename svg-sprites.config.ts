@@ -1,21 +1,19 @@
-import { defineConfig } from './src/index.js'
+import { defineLegacyConfig } from './src/index.js'
 
-export default defineConfig({
+export default defineLegacyConfig({
   output: 'preview/public',
-  publicPath: '',
   preview: true,
-  react: 'test/ui/svg-sprite',
 
   sprites: [
     {
       name: 'icons',
       input: 'test/assets/icons',
-      mode: 'stack',
+      format: 'stack',
     },
     {
       name: 'logos',
       input: 'test/assets/logos',
-      mode: 'stack',
+      format: 'stack',
     },
   ],
 })

@@ -126,7 +126,7 @@ export function generatePreview(
       return {
         id,
         group: r.name,
-        mode: r.mode,
+        mode: r.format,
         spriteFile,
         viewBox: extractViewBox(fragment),
         vars: extractIconVars(fragment).map((v) => ({
@@ -138,7 +138,7 @@ export function generatePreview(
       }
     })
 
-    return { name: r.name, mode: r.mode, spriteFile, icons }
+    return { name: r.name, mode: r.format, spriteFile, icons }
   })
 
   // Inline SVG спрайтов

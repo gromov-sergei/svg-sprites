@@ -1,4 +1,4 @@
-import { green, red, yellow, cyan, bold } from 'colorette'
+import { green, red, yellow, cyan, bold, dim } from 'colorette'
 
 export const log = {
   success: (msg: string) => console.log(green(msg)),
@@ -6,4 +6,5 @@ export const log = {
   warn: (msg: string) => console.warn(yellow(msg)),
   info: (msg: string) => console.log(cyan(msg)),
   title: (msg: string) => console.log(bold(cyan(msg))),
+  detail: (msg: string) => console.log(dim(msg)),
 }

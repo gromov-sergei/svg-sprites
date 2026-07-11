@@ -1,14 +1,18 @@
 {
   "name": "@gromlab/svg-sprites",
-  "version": "0.1.4",
-  "description": "Generate SVG sprites (stack/symbol) and TypeScript icon name types from folders of SVG files",
+  "version": "1.0.0",
+  "description": "Generate SVG sprites and typed icon components for React and Next.js",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
     }
   },
   "bin": {
@@ -18,31 +22,45 @@
     "dist/index.js",
     "dist/index.js.map",
     "dist/index.d.ts",
+    "dist/react.js",
+    "dist/react.js.map",
+    "dist/react.d.ts",
     "dist/cli.js",
     "dist/cli.js.map",
     "dist/cli.d.ts",
+    "dist/types-*.d.ts",
     "dist/chunk-*.js",
     "dist/chunk-*.js.map",
-    "dist/preview-template.html"
+    "dist/preview-template.html",
+    "docs/ru/*.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "scripts": {
     "build": "tsup && npm run build:preview",
-    "build:preview": "cd preview && npx vite build",
+    "build:preview": "npm ci --prefix preview && npm run build --prefix preview",
+    "build:skill": "node skills/svg-sprites/build.mjs",
+    "check:skill": "node skills/svg-sprites/build.mjs --check",
     "dev": "tsup --watch",
     "test": "tsup && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit",
-    "sprite": "node dist/cli.js",
-    "prepublishOnly": "npm run build"
+    "sprite": "node dist/cli.js --mode legacy .",
+    "verify": "npm run check:skill && npm run typecheck && npm test",
+    "prepack": "npm run verify && npm run build"
   },
   "keywords": [
     "svg",
     "sprite",
     "svg-sprite",
     "icons",
+    "nextjs",
     "typescript",
     "codegen"
   ],
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "https://gromlab.ru/gromov/svg-sprites"
@@ -59,10 +77,31 @@
     "jiti": "^2.6.1",
     "svg-sprite": "^2.0.4"
   },
+  "peerDependencies": {
+    "react": ">=18 <20"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
+  "overrides": {
+    "esbuild": "^0.28.1",
+    "postcss": "^8.5.10"
+  },
   "devDependencies": {
     "@types/node": "^22.15.3",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "@types/svg-sprite": "^0.0.39",
+    "jsdom": "^26.1.0",
+    "next": "16.2.10",
+    "react": "^19.2.5",
+    "react-colorful": "^5.6.1",
+    "react-dom": "^19.2.5",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vite": "^6.4.3",
+    "webpack": "^5.108.4"
   }
 }

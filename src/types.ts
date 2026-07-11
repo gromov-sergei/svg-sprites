@@ -1,5 +1,5 @@
-/** Режим спрайта: stack или symbol. */
-export type SpriteMode = 'stack' | 'symbol'
+/** Формат спрайта: stack или symbol. */
+export type SpriteFormat = 'stack' | 'symbol'
 
 /** Описание одного спрайта в конфиге. */
 export type SpriteEntry = {
@@ -12,10 +12,10 @@ export type SpriteEntry = {
    */
   input: string | string[]
   /**
-   * Режим спрайта.
+   * Формат спрайта.
    * По умолчанию: 'stack'.
    */
-  mode?: SpriteMode
+  format?: SpriteFormat
 }
 
 /** Параметры трансформации SVG. Все включены по умолчанию. */
@@ -44,21 +44,10 @@ export type SvgSpritesConfig = {
   /** Путь к папке для сгенерированных SVG-спрайтов. */
   output: string
   /**
-   * Публичный путь к спрайтам для использования в коде (href, src, url()).
-   * Используется в сгенерированном React-компоненте.
-   * Пример: '/img/sprites'.
-   */
-  publicPath?: string
-  /**
    * Генерировать HTML-превью со всеми иконками.
    * По умолчанию: true.
    */
   preview?: boolean
-  /**
-   * Путь для генерации React-компонента.
-   * Если не задан — компонент и типы не генерируются.
-   */
-  react?: string
   /**
    * Настройки трансформации SVG.
    * По умолчанию: все трансформации включены.
@@ -72,8 +61,8 @@ export type SvgSpritesConfig = {
 export type SpriteFolder = {
   /** Имя спрайта. */
   name: string
-  /** Режим спрайта. */
-  mode: SpriteMode
+  /** Формат спрайта. */
+  format: SpriteFormat
   /** Абсолютный путь к папке (для input-папки) или null (для input-массива). */
   path: string | null
   /** Абсолютные пути к SVG-файлам. */
@@ -84,8 +73,8 @@ export type SpriteFolder = {
 export type SpriteResult = {
   /** Имя спрайта. */
   name: string
-  /** Режим спрайта. */
-  mode: SpriteMode
+  /** Формат спрайта. */
+  format: SpriteFormat
   /** Путь к сгенерированному SVG-спрайту. */
   spritePath: string
   /** Количество иконок в спрайте. */

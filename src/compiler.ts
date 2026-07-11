@@ -1,16 +1,27 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import SVGSpriter from 'svg-sprite'
+import { getSpriteShapeId } from './shape-id.js'
 import { createShapeTransform } from './transforms.js'
-import type { SpriteFolder, SpriteMode, TransformOptions } from './types.js'
+import type { SpriteFolder, SpriteFormat, TransformOptions } from './types.js'
+
+export type CompileSpriteOptions = {
+  /** Добавлять вычисленный viewBox корневому stack-спрайту. */
+  rootViewBox?: boolean
+}
 
 /** Конфигурация режима для svg-sprite. */
-function getModeConfig(mode: SpriteMode, destDir: string, name: string) {
+function getModeConfig(
+  format: SpriteFormat,
+  destDir: string,
+  name: string,
+  options: CompileSpriteOptions,
+) {
   return {
     dest: destDir,
     sprite: `${name}.sprite.svg`,
     example: false,
-    rootviewbox: false,
+    rootviewbox: options.rootViewBox ?? false,
   }
 }
 
@@ -47,13 +58,35 @@ export async function compileSprite(
   folder: SpriteFolder,
   outputDir: string,
   transform: TransformOptions = {},
+  options: CompileSpriteOptions = {},
 ): Promise<string> {
+  const contents = await compileSpriteContent(folder, transform, options)
+  const spritePath = path.join(outputDir, `${folder.name}.sprite.svg`)
+
+  fs.mkdirSync(outputDir, { recursive: true })
+  fs.writeFileSync(spritePath, contents)
+
+  return spritePath
+}
+
+/** Компилирует SVG-спрайт в памяти, не изменяя файловую систему. */
+export async function compileSpriteContent(
+  folder: SpriteFolder,
+  transform: TransformOptions = {},
+  options: CompileSpriteOptions = {},
+): Promise<Uint8Array> {
   const config = {
     shape: {
+      id: {
+        generator: (filePath: string) => getSpriteShapeId(filePath),
+      },
+      dimension: {
+        attributes: transform.removeSize === false,
+      },
       transform: buildShapeTransforms(transform),
     },
     mode: {
-      [folder.mode]: getModeConfig(folder.mode, outputDir, folder.name),
+      [folder.format]: getModeConfig(folder.format, '.', folder.name, options),
     },
   }
 
@@ -70,21 +103,24 @@ export async function compileSprite(
         return
       }
 
-      let spritePath = ''
+      let spriteContents: Uint8Array | undefined
 
       for (const modeResult of Object.values(result)) {
         for (const resource of Object.values(
-          modeResult as Record<string, { path: string; contents: Buffer }>,
+          modeResult as Record<string, { path: string; contents: Uint8Array }>,
         )) {
-          fs.mkdirSync(path.dirname(resource.path), { recursive: true })
-          fs.writeFileSync(resource.path, resource.contents)
           if (resource.path.endsWith('.svg')) {
-            spritePath = resource.path
+            spriteContents = resource.contents
           }
         }
       }
 
-      resolve(spritePath)
+      if (!spriteContents) {
+        reject(new Error(`Failed to compile sprite "${folder.name}".`))
+        return
+      }
+
+      resolve(spriteContents)
     })
   })
 }

@@ -37,11 +37,36 @@ function resolveFiles(files: string[]): string[] {
   })
 }
 
+type ResolveSpriteSourcesOptions = {
+  name: string
+  format: SpriteFolder['format']
+  inputFolder: string | null
+  inputFiles: string[]
+}
+
+/** Объединяет SVG из папки и явного списка в один источник спрайта. */
+export function resolveSpriteSources(options: ResolveSpriteSourcesOptions): SpriteFolder {
+  const { name, format, inputFolder, inputFiles } = options
+  const folderFiles = inputFolder === null ? [] : scanDirectory(inputFolder)
+  const files = [...new Set([...folderFiles, ...resolveFiles(inputFiles)])]
+
+  if (files.length === 0) {
+    throw new Error(`Sprite "${name}" has no SVG files in configured inputs.`)
+  }
+
+  return {
+    name,
+    format,
+    path: inputFolder,
+    files,
+  }
+}
+
 /**
  * Преобразует SpriteEntry из конфига в SpriteFolder для компиляции.
  */
 export function resolveSpriteEntry(entry: SpriteEntry): SpriteFolder {
-  const mode = entry.mode ?? 'stack'
+  const format = entry.format ?? 'stack'
 
   if (Array.isArray(entry.input)) {
     const files = resolveFiles(entry.input)
@@ -52,7 +77,7 @@ export function resolveSpriteEntry(entry: SpriteEntry): SpriteFolder {
 
     return {
       name: entry.name,
-      mode,
+      format,
       path: null,
       files,
     }
@@ -67,7 +92,7 @@ export function resolveSpriteEntry(entry: SpriteEntry): SpriteFolder {
 
   return {
     name: entry.name,
-    mode,
+    format,
     path: dirPath,
     files,
   }
