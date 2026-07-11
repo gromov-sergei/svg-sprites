@@ -8,8 +8,15 @@ CLI для генерации SVG-спрайтов и типизированны
 
 ![Preview](https://raw.githubusercontent.com/gromov-sergei/svg-sprites/master/preview-image.png)
 
+## AI-скиллы
+
+- [🇬🇧 Скачать английский скилл (последняя версия)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites.zip)
+- [🇷🇺 Скачать русский скилл (последняя версия)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
+- [Проверить SHA-256-суммы файлов](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/SHA256SUMS)
+
 ## Навигация
 
+- [AI-скиллы](#ai-скиллы)
 - [Возможности](#возможности)
 - [Таблица поддержки](#таблица-поддержки)
 - [Требования](#требования)
