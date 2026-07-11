@@ -4,13 +4,21 @@
 
 Версия 1.0 разделяет локальную генерацию для React и Next.js и централизованный legacy-режим. Старый config нельзя смешивать с новым API в одном вызове CLI.
 
+## Установка
+
+Установите пакет как development dependency, чтобы миграция использовала версию из lockfile проекта:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 ## CLI
 
 CLI теперь всегда требует явный `--mode` и путь к каталогу конфигурации:
 
 ```text
-svg-sprites
-→ svg-sprites --mode <mode> <path>
+"sprites": "svg-sprites"
+→ "sprites": "svg-sprites --mode <mode> <path>"
 ```
 
 Выберите mode по окружению:
@@ -39,6 +47,18 @@ export default defineNextSpriteConfig({
 ```
 
 Для обычного React используйте `defineReactSpriteConfig`. Папку и явный список общих SVG можно объединить через `inputFolder` и `inputFiles`.
+
+Добавьте локальный CLI с выбранным mode в `package.json`, например:
+
+```json
+{
+  "scripts": {
+    "sprite:global": "svg-sprites --mode next@app/turbopack src/ui/global/svg-sprite"
+  }
+}
+```
+
+Запустите его командой `npm run sprite:global` до импорта generated-компонента.
 
 Старые `publicPath` и `react` больше не нужны. Generated-модуль создаётся рядом с конфигом, сам добавляет `.gitignore`, а Vite, Webpack или Next.js выпускает SVG как отдельный asset с content hash.
 
@@ -76,11 +96,17 @@ export default defineLegacyConfig({
 - `loadConfig` заменён на `loadLegacyConfig`;
 - `publicPath` и генерация старого общего React-компонента удалены.
 
-Запуск:
+Добавьте локальный CLI в `package.json`:
 
-```bash
-svg-sprites --mode legacy .
+```json
+{
+  "scripts": {
+    "sprites": "svg-sprites --mode legacy ."
+  }
+}
 ```
+
+Запустите его командой `npm run sprites`.
 
 ## Программный API
 
@@ -90,7 +116,7 @@ svg-sprites --mode legacy .
 
 ## После миграции
 
-1. Удалите старые generated-файлы и правила, которые игнорировали целиком каталог с исходными иконками.
-2. Добавьте явную команду генерации перед `dev`, `build` и `typecheck`.
-3. Запустите генерацию и проверку типов.
-4. Проверьте все иконки и цветовые переменные через `SpriteViewer` или legacy `preview.html`.
+1. Добавьте явную команду генерации перед `dev`, `build` и `typecheck`.
+2. Создайте новый output и запустите проверку типов, пока старые artifacts остаются доступны.
+3. Замените imports и проверьте иконки и цветовые переменные через `SpriteViewer` или legacy `preview.html`.
+4. Только после этого удалите подтверждённые старые generated-файлы и устаревшие ignore rules, не затрагивая исходные SVG.

@@ -10,13 +10,12 @@ First record the project's current contract:
 
 ```bash
 npm ls @gromlab/svg-sprites
-npx --yes @gromlab/svg-sprites@latest --help
 ```
 
-If this is an actual migration of imports, config helpers, or the programmatic API, install the current package locally. Installation is unnecessary for CLI generation alone:
+Install the current package as a development dependency before updating the config and scripts:
 
 ```bash
-npm install @gromlab/svg-sprites@latest
+npm install --save-dev @gromlab/svg-sprites
 ```
 
 Find and read:
@@ -41,10 +40,12 @@ API mapping:
 | `sprites[].mode` | `sprites[].format` |
 | `generate` | `generateLegacy` |
 | `loadConfig` | `loadLegacyConfig` |
-| CLI without mode | `npx --yes @gromlab/svg-sprites@latest --mode legacy <config-dir>` |
+| CLI without mode | `svg-sprites --mode legacy <config-dir>` in a package script |
 
 ```ts
-export default {
+import { defineLegacyConfig } from '@gromlab/svg-sprites'
+
+export default defineLegacyConfig({
   output: 'public/sprites',
   preview: true,
   sprites: [
@@ -54,12 +55,18 @@ export default {
       format: 'symbol',
     },
   ],
+})
+```
+
+```json
+{
+  "scripts": {
+    "sprites": "svg-sprites --mode legacy ."
+  }
 }
 ```
 
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode legacy .
-```
+Run it with `npm run sprites`.
 
 `publicPath` and generation of the old shared React component were removed. If the application used that component, legacy mode preserves the SVG asset, but the React wrapper must be replaced separately. The complete legacy workflow is in [legacy.md](legacy.md).
 
@@ -70,14 +77,16 @@ Choose this path when typed components, bundler-hashed assets, Server Components
 For each required sprite, create a project directory with local `svg-sprite.config.ts` and, when using a folder, `icons/`. The directory does not have to be a module/feature directory; each config describes one of potentially many sprites:
 
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'global',
   inputFolder: './icons',
   inputFiles: ['../../../shared/icons/check.svg'],
-}
+})
 ```
 
-When the package is installed locally, the object may optionally be wrapped in `defineReactSpriteConfig(...)` or, for Next.js, `defineNextSpriteConfig(...)`. Then select exactly one mode:
+For Next.js, use `defineNextSpriteConfig(...)` instead. Then select exactly one mode:
 
 | Environment | Mode |
 |---|---|
@@ -90,9 +99,16 @@ When the package is installed locally, the object may optionally be wrapped in `
 
 Example:
 
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/global/svg-sprite
+```json
+{
+  "scripts": {
+    "sprite:global": "svg-sprites --mode react@vite src/ui/global/svg-sprite",
+    "sprites": "npm run sprite:global"
+  }
+}
 ```
+
+Run it with `npm run sprite:global`.
 
 Replace the old generic component:
 

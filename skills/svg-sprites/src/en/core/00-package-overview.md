@@ -12,4 +12,4 @@ The package supports multiple independent sprites in one project. Each selected 
 
 The project determines how many sprite directories exist and where they live. For example, `name: 'file-manager'` produces `FileManagerIcon`, while another directory with `name: 'navigation'` produces a separate `NavigationIcon`. The names `FileManagerIcon` and `fileManagerIconNames` used below are examples of the API for one possible sprite, not fixed package exports.
 
-Generated production components do not import `@gromlab/svg-sprites` at runtime. For routine generation, run the latest CLI through `npx`; install the package in the project only when `SpriteViewer`, the programmatic API, or a local config helper is required.
+Generated production components do not import `@gromlab/svg-sprites` at runtime. Install the package as a development dependency so configuration helpers and the local CLI use the version recorded in the project's lockfile.

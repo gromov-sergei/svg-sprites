@@ -23,18 +23,25 @@ src/ui/file-manager/svg-sprite/
 
 ## Setup
 
+Install the package as a development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 `src/ui/file-manager/svg-sprite/svg-sprite.config.ts`:
 
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'file-manager',
   description: 'File manager icons',
   inputFolder: './icons',
   inputFiles: ['../../../../shared/icons/check.svg'],
-}
+})
 ```
 
-- The package does not need to be installed for normal CLI generation. If it is already installed locally for SpriteViewer or the programmatic API, `defineReactSpriteConfig(...)` may be used as an optional autocomplete helper.
 - Each config describes one specific sprite; an application may contain many independent configs and sprites.
 - Every config path is resolved relative to the directory containing `svg-sprite.config.ts`.
 - `inputFolder` defaults to `./icons`; folder scanning is shallow and includes files ending in `.svg`.
@@ -46,18 +53,12 @@ export default {
 
 ## Command and scripts
 
-Exact command for the example above:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-sprite
-```
-
-Add it to `package.json` and run it before processes that need generated imports:
+Add the local CLI to `package.json` and run it before processes that need generated imports:
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode react@vite src/ui/file-manager/svg-sprite",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -66,6 +67,8 @@ Add it to `package.json` and run it before processes that need generated imports
 ```
 
 If the project already has `predev` or `prebuild`, integrate generation into the existing orchestration instead of overwriting the script.
+
+Run `npm run sprite:file-manager` for the first generation.
 
 ## Usage
 
@@ -118,11 +121,7 @@ A manual `#check` fragment is safe only for names matching `^[a-zA-Z][a-zA-Z0-9_
 
 ## SpriteViewer
 
-After generation, install the package if needed and add the Viewer only to a debug route:
-
-```bash
-npm install @gromlab/svg-sprites@latest
-```
+After generation, add the Viewer only to a debug route:
 
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'

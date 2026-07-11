@@ -7,7 +7,7 @@
 ## 1. Установите пакет
 
 ```bash
-npm install @gromlab/svg-sprites
+npm install --save-dev @gromlab/svg-sprites
 ```
 
 ## 2. Подготовьте иконки и конфиг
@@ -37,10 +37,21 @@ export default defineLegacyConfig({
 })
 ```
 
-## 3. Запустите генерацию
+## 3. Добавьте генерацию
+
+```json
+{
+  "scripts": {
+    "sprites": "svg-sprites --mode legacy .",
+    "prebuild": "npm run sprites"
+  }
+}
+```
+
+Запустите локально установленный пакет через script:
 
 ```bash
-npx svg-sprites --mode legacy .
+npm run sprites
 ```
 
 Результат:
@@ -59,17 +70,6 @@ public/sprites/
 <svg width="24" height="24" aria-label="Готово">
   <use href="/sprites/icons.sprite.svg#check"></use>
 </svg>
-```
-
-## 5. Добавьте package script
-
-```json
-{
-  "scripts": {
-    "sprites": "svg-sprites --mode legacy .",
-    "prebuild": "npm run sprites"
-  }
-}
 ```
 
 ## Несколько спрайтов

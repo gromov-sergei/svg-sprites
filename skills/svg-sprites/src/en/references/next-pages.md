@@ -6,12 +6,12 @@ Use this document for pages under `pages/` or `src/pages/`, including SSR with `
 
 ## Selecting a target
 
-| Bundler | CLI mode | Minimum Next.js version | Conditional build check |
-|---|---|---:|---|
-| Turbopack | `next@pages/turbopack` | 16.2 | `npx next build --turbopack` |
-| Webpack 5 | `next@pages/webpack` | 12.2 | Next 12-15: `npx next build`; Next 16: `npx next build --webpack` |
+| Bundler | CLI mode |
+|---|---|
+| Turbopack | `next@pages/turbopack` |
+| Webpack 5 | `next@pages/webpack` |
 
-Next.js 12.2 requires React 18. Determine the installed version and the actual script flags before selecting a mode. The presence of the Pages Router does not automatically imply Webpack: Next 16.2 supports Turbopack.
+Determine the actual script flags before selecting a mode. The presence of the Pages Router does not automatically imply Webpack; select the target from the bundler used by the project.
 
 ## Structure and config
 
@@ -23,16 +23,24 @@ src/ui/file-manager/svg-sprite/
 └── svg-sprite.config.ts
 ```
 
+Install the package as a development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 ```ts
-export default {
+import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineNextSpriteConfig({
   name: 'file-manager',
   description: 'File manager icons',
   inputFolder: './icons',
   inputFiles: ['../../../../shared/icons/check.svg'],
-}
+})
 ```
 
-The package does not need to be installed for normal CLI generation. When installed locally for SpriteViewer or the programmatic API, the config may optionally be wrapped in `defineNextSpriteConfig(...)` for autocomplete. The project chooses the directory containing each specific sprite config, and it does not have to be a module/feature directory; each config describes one of potentially many application sprites.
+The project chooses the directory containing each specific sprite config, and it does not have to be a module/feature directory; each config describes one of potentially many application sprites.
 
 All source paths are resolved from the config directory. `inputFolder` defaults to `./icons`, and scanning is shallow. `inputFiles` is merged with the folder. The same path is deduplicated, but two different `check.svg` files conflict. An explicitly configured missing folder is an error even when `inputFiles` is non-empty.
 
@@ -40,24 +48,12 @@ All source paths are resolved from the config directory. `inputFolder` defaults 
 
 ## Commands
 
-Webpack 5:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode next@pages/webpack src/ui/file-manager/svg-sprite
-```
-
-Turbopack:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode next@pages/turbopack src/ui/file-manager/svg-sprite
-```
-
 Example lifecycle scripts for Webpack:
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode next@pages/webpack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode next@pages/webpack src/ui/file-manager/svg-sprite",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -65,7 +61,7 @@ Example lifecycle scripts for Webpack:
 }
 ```
 
-If pre-scripts already exist, add generation to their current command chain. Generated imports are absent from Git, so generation must precede TypeScript and Next compilation.
+If pre-scripts already exist, add generation to their current command chain. Generated imports are absent from Git, so generation must precede TypeScript and Next compilation. For Turbopack, replace the complete mode with `next@pages/turbopack`. Run `npm run sprite:file-manager` for the first generation.
 
 ## Usage in the Pages Router
 
@@ -89,12 +85,6 @@ Import the component and types only from the local `svg-sprite/index.ts`. Do not
 
 Pages Router components run on the client as well, so a separate `'use client'` directive is unnecessary:
 
-Install the package locally for SpriteViewer:
-
-```bash
-npm install @gromlab/svg-sprites@latest
-```
-
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 
@@ -114,22 +104,14 @@ Use literal imports and expose the page only as a debug/internal tool. If the pa
 
 ```bash
 npm run sprite:file-manager
-npx tsc --noEmit
+npm run typecheck
 ```
 
-If the target or Next build/deployment pipeline changed, or a runtime issue is being diagnosed, run a production build for the selected bundler:
+If the target or Next build/deployment pipeline changed, or a runtime issue is being diagnosed, run the project's production build configured for the selected bundler:
 
 ```bash
-npx next build --turbopack
+npm run build
 ```
-
-or, for Webpack on Next 16:
-
-```bash
-npx next build --webpack
-```
-
-For Webpack on Next 12-15, run `npx next build`.
 
 After the required generation and typecheck, verify that:
 
@@ -146,8 +128,7 @@ After the conditional production build, and only when browser tools are availabl
 ## Common failures
 
 - Mode uses `next@app/...`: the module may generate, but its manifest and target contract are wrong; use `next@pages/...`.
-- On Next 16, the command and mode select different bundlers: add the matching build flag and regenerate.
-- Next 12.2 uses React 17: upgrade React to 18 before diagnosing the sprite runtime.
+- The command and mode select different bundlers: use the project's matching build command and regenerate.
 - Viewer manifest is missing from the chunk: the `import()` path must be a string literal and must exist before the Next build.
 - Icon appears after a full reload but disappears during navigation: check external asset availability with `basePath`, `assetPrefix`, and the production origin.
 - `Refusing to overwrite a user file`: the sprite directory contains an unmanaged file with a reserved name; move it.

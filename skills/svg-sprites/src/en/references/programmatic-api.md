@@ -3,10 +3,10 @@
 ## Required installation
 
 ```bash
-npm install @gromlab/svg-sprites@latest
+npm install --save-dev @gromlab/svg-sprites
 ```
 
-Programmatic imports require a local dependency; `npx` does not replace it. This reference always describes the package's latest API.
+Programmatic imports require the local development dependency shown above. This reference describes the installed package API.
 
 ## When to use this reference
 

@@ -57,10 +57,10 @@ A CLI for generating SVG sprites and typed icon components for React and Next.js
 |---|---|---|
 | React + Vite | `react@vite` | Ready |
 | React + Webpack 5 | `react@webpack` | Ready |
-| Next.js 16.2+ App Router + Turbopack | `next@app/turbopack` | Ready |
-| Next.js 13.4+ App Router + Webpack 5 | `next@app/webpack` | Ready |
-| Next.js 16.2+ Pages Router + Turbopack | `next@pages/turbopack` | Ready |
-| Next.js 12.2+ Pages Router + Webpack 5 | `next@pages/webpack` | Ready |
+| Next.js + App Router + Turbopack | `next@app/turbopack` | Ready |
+| Next.js + App Router + Webpack 5 | `next@app/webpack` | Ready |
+| Next.js + Pages Router + Turbopack | `next@pages/turbopack` | Ready |
+| Next.js + Pages Router + Webpack 5 | `next@pages/webpack` | Ready |
 | Vue | - | Coming soon |
 | Standalone | - | Coming soon |
 

@@ -4,17 +4,15 @@
 
 Two explicit modes are supported:
 
-| Bundler | Mode key | Next.js version |
-|---|---|---|
-| Turbopack | `next@pages/turbopack` | 16.2+ |
-| Webpack 5 | `next@pages/webpack` | 12.2+ |
-
-Next.js 12.2 requires React 18.
+| Bundler | Mode key |
+|---|---|
+| Turbopack | `next@pages/turbopack` |
+| Webpack 5 | `next@pages/webpack` |
 
 ## 1. Install the package
 
 ```bash
-npm install @gromlab/svg-sprites
+npm install --save-dev @gromlab/svg-sprites
 ```
 
 ## 2. Create a sprite module
@@ -49,7 +47,13 @@ export default defineNextSpriteConfig({
 }
 ```
 
-For Next.js 16.2 with Turbopack, replace the mode key with `next@pages/turbopack`.
+For Turbopack, replace the mode key with `next@pages/turbopack`.
+
+Run the first generation before importing the generated module:
+
+```bash
+npm run sprite:file-manager
+```
 
 ## 4. Use it on a page
 
@@ -83,14 +87,10 @@ export default function SpritesPage() {
 
 ## Verify the bundler
 
-```bash
-# Turbopack
-npx next build --turbopack
+Run the project's build script configured for the selected bundler:
 
-# Webpack 5
-npx next build --webpack
+```bash
+npm run build
 ```
 
-For Next 12–15 with Webpack, use `npx next build` without the flag.
-
-The Next.js command and the generator mode key must target the same bundler.
+The build script and the generator mode key must target the same bundler.

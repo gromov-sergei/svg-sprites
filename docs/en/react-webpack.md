@@ -9,7 +9,7 @@ The result is a typed React component and a separate SVG asset emitted through W
 ## 1. Install the package
 
 ```bash
-npm install @gromlab/svg-sprites
+npm install --save-dev @gromlab/svg-sprites
 ```
 
 ## 2. Create the sprite directory

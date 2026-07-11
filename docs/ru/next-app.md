@@ -4,15 +4,15 @@
 
 Поддерживаются два явных режима:
 
-| Сборщик | Mode key | Версия Next.js |
-|---|---|---|
-| Turbopack | `next@app/turbopack` | 16.2+ |
-| Webpack 5 | `next@app/webpack` | 13.4+ |
+| Сборщик | Mode key |
+|---|---|
+| Turbopack | `next@app/turbopack` |
+| Webpack 5 | `next@app/webpack` |
 
 ## 1. Установите пакет
 
 ```bash
-npm install @gromlab/svg-sprites
+npm install --save-dev @gromlab/svg-sprites
 ```
 
 ## 2. Создайте sprite-модуль
@@ -49,7 +49,13 @@ export default defineNextSpriteConfig({
 }
 ```
 
-Для Webpack замените mode key на `next@app/webpack`. В Next 13–15 Webpack используется обычной командой `next build`, в Next 16 — командой `next build --webpack`.
+Для Webpack замените mode key на `next@app/webpack`.
+
+До импорта generated-модуля выполните первую генерацию:
+
+```bash
+npm run sprite:file-manager
+```
 
 ## 4. Используйте в Server Component
 
@@ -89,14 +95,10 @@ export default function SpritesPage() {
 
 ## Проверка сборщика
 
-```bash
-# Turbopack
-npx next build --turbopack
+Запустите build script проекта, настроенный на выбранный сборщик:
 
-# Webpack 5
-npx next build --webpack
+```bash
+npm run build
 ```
 
-Для Next 13–15 с Webpack используйте `npx next build` без флага.
-
-Команда Next.js и mode key генератора должны указывать один и тот же сборщик.
+Build script и mode key генератора должны указывать один и тот же сборщик.

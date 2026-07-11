@@ -12,18 +12,26 @@ src/ui/file-manager/svg-sprite/
 
 One `svg-sprite.config.ts` creates one independent sprite. For multiple sets, choose multiple directories and assign each a unique `name`.
 
-When running through `npx`, the config may export a plain object without importing the package:
+Install the package as a development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
+Use the configuration helper for autocomplete and type checking:
 
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'file-manager',
   description: 'File manager icons',
   inputFolder: './icons',
   inputFiles: ['../../shared/icons/close.svg'],
-}
+})
 ```
 
-The object contract is the same for React and Next.js. If the package is already installed, the object may be wrapped in `defineReactSpriteConfig(...)` or `defineNextSpriteConfig(...)` for autocomplete. A helper is not required for normal CLI generation.
+The object contract is the same for React and Next.js. Use `defineNextSpriteConfig(...)` instead for a Next.js sprite.
 
 `name` must begin with an ASCII letter and use kebab-case. The example `file-manager` produces `FileManagerIcon`, `FileManagerIconName`, and `fileManagerIconNames`. Another sprite gets its own names. If `name` is omitted, the generator derives it from the directory.
 
@@ -32,7 +40,7 @@ Add a separate command with the selected mode key and one path:
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode react@vite src/ui/file-manager/svg-sprite",
     "sprites": "npm run sprite:file-manager"
   }
 }

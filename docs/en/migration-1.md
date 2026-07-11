@@ -4,13 +4,21 @@
 
 Version 1.0 separates local generation for React and Next.js from the centralized legacy mode. The old config cannot be mixed with the new API in a single CLI invocation.
 
+## Installation
+
+Install the package as a development dependency so the migration uses the version recorded in the project lockfile:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 ## CLI
 
 The CLI now always requires an explicit `--mode` and a path to the configuration directory:
 
 ```text
-svg-sprites
-→ svg-sprites --mode <mode> <path>
+"sprites": "svg-sprites"
+→ "sprites": "svg-sprites --mode <mode> <path>"
 ```
 
 Choose a mode based on your environment:
@@ -39,6 +47,18 @@ export default defineNextSpriteConfig({
 ```
 
 For regular React, use `defineReactSpriteConfig`. A folder and an explicit list of shared SVG files can be combined using `inputFolder` and `inputFiles`.
+
+Add the local CLI with the selected mode to `package.json`, for example:
+
+```json
+{
+  "scripts": {
+    "sprite:global": "svg-sprites --mode next@app/turbopack src/ui/global/svg-sprite"
+  }
+}
+```
+
+Run it with `npm run sprite:global` before importing the generated component.
 
 The old `publicPath` and `react` options are no longer needed. The generated module is created next to the config and adds its own `.gitignore`, while Vite, Webpack, or Next.js emits the SVG as a separate asset with a content hash.
 
@@ -76,11 +96,17 @@ export default defineLegacyConfig({
 - `loadConfig` has been replaced with `loadLegacyConfig`;
 - `publicPath` and generation of the old shared React component have been removed.
 
-Run:
+Add the local CLI to `package.json`:
 
-```bash
-svg-sprites --mode legacy .
+```json
+{
+  "scripts": {
+    "sprites": "svg-sprites --mode legacy ."
+  }
+}
 ```
+
+Run it with `npm run sprites`.
 
 ## Programmatic API
 
@@ -90,7 +116,7 @@ The package is distributed as ESM only. Replace `require()` with `import`.
 
 ## After migration
 
-1. Remove the old generated files and rules that ignored the entire directory containing the source icons.
-2. Add an explicit generation command before `dev`, `build`, and `typecheck`.
-3. Run generation and type checking.
-4. Check all icons and color variables using `SpriteViewer` or the legacy `preview.html`.
+1. Add an explicit generation command before `dev`, `build`, and `typecheck`.
+2. Generate the new output and run type checking while the old artifacts are still available.
+3. Replace imports and verify the icons and color variables using `SpriteViewer` or the legacy `preview.html`.
+4. Only then remove confirmed old generated files and obsolete ignore rules without deleting source SVGs.

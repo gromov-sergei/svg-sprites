@@ -3,10 +3,10 @@
 ## Обязательная установка
 
 ```bash
-npm install @gromlab/svg-sprites@latest
+npm install --save-dev @gromlab/svg-sprites
 ```
 
-Программные imports требуют локальной dependency: `npx` их не заменяет. Этот reference всегда относится к latest API пакета.
+Программные imports требуют локальной development dependency, установленной выше. Этот reference описывает API установленной версии пакета.
 
 ## Когда открывать
 

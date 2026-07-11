@@ -7,7 +7,7 @@ A quick guide to generating centralized SVG sprites in `symbol` and `stack` form
 ## 1. Install the package
 
 ```bash
-npm install @gromlab/svg-sprites
+npm install --save-dev @gromlab/svg-sprites
 ```
 
 ## 2. Prepare the icons and config
@@ -37,10 +37,21 @@ export default defineLegacyConfig({
 })
 ```
 
-## 3. Run generation
+## 3. Add generation
+
+```json
+{
+  "scripts": {
+    "sprites": "svg-sprites --mode legacy .",
+    "prebuild": "npm run sprites"
+  }
+}
+```
+
+Run the local package through the script:
 
 ```bash
-npx svg-sprites --mode legacy .
+npm run sprites
 ```
 
 Result:
@@ -59,17 +70,6 @@ With `preview: false`, the HTML file is not created. For the `stack` format, spe
 <svg width="24" height="24" aria-label="Done">
   <use href="/sprites/icons.sprite.svg#check"></use>
 </svg>
-```
-
-## 5. Add a package script
-
-```json
-{
-  "scripts": {
-    "sprites": "svg-sprites --mode legacy .",
-    "prebuild": "npm run sprites"
-  }
-}
 ```
 
 ## Multiple sprites

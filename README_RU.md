@@ -57,10 +57,10 @@ CLI для генерации SVG-спрайтов и типизированны
 |---|---|---|
 | React + Vite | `react@vite` | Готово |
 | React + Webpack 5 | `react@webpack` | Готово |
-| Next.js 16.2+ App Router + Turbopack | `next@app/turbopack` | Готово |
-| Next.js 13.4+ App Router + Webpack 5 | `next@app/webpack` | Готово |
-| Next.js 16.2+ Pages Router + Turbopack | `next@pages/turbopack` | Готово |
-| Next.js 12.2+ Pages Router + Webpack 5 | `next@pages/webpack` | Готово |
+| Next.js + App Router + Turbopack | `next@app/turbopack` | Готово |
+| Next.js + App Router + Webpack 5 | `next@app/webpack` | Готово |
+| Next.js + Pages Router + Turbopack | `next@pages/turbopack` | Готово |
+| Next.js + Pages Router + Webpack 5 | `next@pages/webpack` | Готово |
 | Vue | — | Скоро |
 | Standalone | — | Скоро |
 

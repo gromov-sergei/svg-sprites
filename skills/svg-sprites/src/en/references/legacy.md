@@ -15,10 +15,18 @@ Use this document when the project already has a root `svg-sprites.config.ts`, c
 
 ## Config and execution
 
+Install the package as a development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 `svg-sprites.config.ts`:
 
 ```ts
-export default {
+import { defineLegacyConfig } from '@gromlab/svg-sprites'
+
+export default defineLegacyConfig({
   output: 'public/sprites',
   preview: true,
   transform: {
@@ -41,27 +49,23 @@ export default {
       format: 'stack',
     },
   ],
-}
+})
 ```
 
-The package does not need to be installed for normal CLI use. If it is installed locally for the programmatic API, the config may optionally be wrapped in `defineLegacyConfig(...)` for autocomplete. Unlike local React/Next configs, each of which describes one of potentially many sprites, a single legacy config retains the specific ability to manage one or more sprite entries.
-
-Run from the project root:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode legacy .
-```
+Unlike local React/Next configs, each of which describes one of potentially many sprites, a single legacy config retains the specific ability to manage one or more sprite entries.
 
 Script:
 
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes @gromlab/svg-sprites@latest --mode legacy .",
+    "sprites": "svg-sprites --mode legacy .",
     "prebuild": "npm run sprites"
   }
 }
 ```
+
+Run `npm run sprites` from the project root.
 
 The CLI path points to the directory containing `svg-sprites.config.ts`. Do not pass the file itself. For a config in another directory, pass that directory explicitly.
 
@@ -116,7 +120,7 @@ Run a production build and browser/Network checks additionally only when the out
 ## Common failures
 
 - `Config file not found`: the CLI path is not a directory containing `svg-sprites.config.ts`.
-- `Config file must have a default export`: add plain `export default { ... }`; a locally installed helper is optional.
+- `Config file must have a default export`: export the config through `defineLegacyConfig(...)`.
 - Deprecated `mode`: the `sprites[].mode` field was renamed to `format`.
 - `sprites must be a non-empty array`: a legacy config cannot be empty.
 - `Input directory does not exist` or `SVG file does not exist`: remember that paths are resolved from the config directory when loaded by the CLI.

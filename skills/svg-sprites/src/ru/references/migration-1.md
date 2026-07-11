@@ -10,13 +10,12 @@
 
 ```bash
 npm ls @gromlab/svg-sprites
-npx --yes @gromlab/svg-sprites@latest --help
 ```
 
-Если это реальная миграция импортов, config helpers или программного API, установи актуальный пакет локально. Для одной только CLI-генерации установка не нужна:
+Перед обновлением config и scripts установи актуальный пакет как development dependency:
 
 ```bash
-npm install @gromlab/svg-sprites@latest
+npm install --save-dev @gromlab/svg-sprites
 ```
 
 Найди и прочитай:
@@ -41,10 +40,12 @@ npm install @gromlab/svg-sprites@latest
 | `sprites[].mode` | `sprites[].format` |
 | `generate` | `generateLegacy` |
 | `loadConfig` | `loadLegacyConfig` |
-| CLI без mode | `npx --yes @gromlab/svg-sprites@latest --mode legacy <config-dir>` |
+| CLI без mode | `svg-sprites --mode legacy <config-dir>` в package script |
 
 ```ts
-export default {
+import { defineLegacyConfig } from '@gromlab/svg-sprites'
+
+export default defineLegacyConfig({
   output: 'public/sprites',
   preview: true,
   sprites: [
@@ -54,12 +55,18 @@ export default {
       format: 'symbol',
     },
   ],
+})
+```
+
+```json
+{
+  "scripts": {
+    "sprites": "svg-sprites --mode legacy ."
+  }
 }
 ```
 
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode legacy .
-```
+Запусти его командой `npm run sprites`.
 
 `publicPath` и генерация старого общего React-компонента удалены. Если приложение использовало этот компонент, legacy сохранит SVG asset, но React wrapper придётся заменить отдельно. Полный legacy workflow находится в [legacy.md](legacy.md).
 
@@ -70,14 +77,16 @@ npx --yes @gromlab/svg-sprites@latest --mode legacy .
 Для каждого нужного спрайта создай каталог проекта с локальным `svg-sprite.config.ts` и, при использовании папки, `icons/`. Каталог не обязан быть module/feature-каталогом; каждый config описывает один из потенциально многих спрайтов:
 
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'global',
   inputFolder: './icons',
   inputFiles: ['../../../shared/icons/check.svg'],
-}
+})
 ```
 
-При локальной установке package объект можно опционально обернуть в `defineReactSpriteConfig(...)` или, для Next.js, `defineNextSpriteConfig(...)`. Затем выбери ровно один mode:
+Для Next.js используй `defineNextSpriteConfig(...)`. Затем выбери ровно один mode:
 
 | Среда | Mode |
 |---|---|
@@ -90,9 +99,16 @@ export default {
 
 Пример:
 
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/global/svg-sprite
+```json
+{
+  "scripts": {
+    "sprite:global": "svg-sprites --mode react@vite src/ui/global/svg-sprite",
+    "sprites": "npm run sprite:global"
+  }
+}
 ```
+
+Запусти его командой `npm run sprite:global`.
 
 Замени старый generic component:
 
