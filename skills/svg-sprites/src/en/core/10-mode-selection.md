@@ -12,10 +12,14 @@ Select exactly one supported mode key:
 | Next.js Pages Router + Webpack 5 | `next@pages/webpack` |
 | Existing shared config | `legacy` |
 
-Do not use the incomplete `react`, `next@app`, or `next@pages` keys, the future `standalone` mode, or a mode for a different bundler. The CLI always requires a mode and exactly one path to a configuration directory:
+Do not use the incomplete `react`, `next@app`, or `next@pages` keys, the future `standalone` mode, or a mode for a different bundler. Install the package as a development dependency and add the local CLI to a package script. The CLI always requires a mode and exactly one path to a configuration directory:
 
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode <mode-key> <sprite-directory>
+```json
+{
+  "scripts": {
+    "sprite:<name>": "svg-sprites --mode <mode-key> <sprite-directory>"
+  }
+}
 ```
 
 Do not pass multiple paths, a glob, or the path to the config file itself. For multiple modern sprites, create a separate command for each directory.

@@ -23,18 +23,25 @@ src/ui/file-manager/svg-sprite/
 
 ## Настройка
 
+Установи пакет как development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 `src/ui/file-manager/svg-sprite/svg-sprite.config.ts`:
 
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'file-manager',
   description: 'Иконки файлового менеджера',
   inputFolder: './icons',
   inputFiles: ['../../../../shared/icons/check.svg'],
-}
+})
 ```
 
-- Для обычной CLI-генерации пакет устанавливать не нужно. Если он уже установлен локально ради SpriteViewer или программного API, `defineReactSpriteConfig(...)` можно использовать как необязательный helper для autocomplete.
 - Каждый такой config описывает один конкретный спрайт; в приложении может быть много независимых config и спрайтов.
 - Все пути в конфиге разрешаются относительно каталога `svg-sprite.config.ts`.
 - `inputFolder` по умолчанию равен `./icons`; сканирование папки не рекурсивно и включает файлы с окончанием `.svg`.
@@ -46,18 +53,12 @@ export default {
 
 ## Команда и scripts
 
-Точная команда для примера выше:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-sprite
-```
-
-Закрепи её в `package.json` и запускай до процессов, которым нужны generated imports:
+Добавь локальный CLI в `package.json` и запускай до процессов, которым нужны generated imports:
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode react@vite src/ui/file-manager/svg-sprite",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -66,6 +67,8 @@ npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-
 ```
 
 Если в проекте уже есть `predev` или `prebuild`, объедини команды в существующем orchestration вместо перезаписи script.
+
+Для первой генерации запусти `npm run sprite:file-manager`.
 
 ## Использование
 
@@ -118,11 +121,7 @@ import spriteUrl from './svg-sprite/generated/sprite.svg?no-inline'
 
 ## SpriteViewer
 
-После генерации при необходимости установи пакет и добавь Viewer только на debug-маршрут:
-
-```bash
-npm install @gromlab/svg-sprites@latest
-```
+После генерации добавь Viewer только на debug-маршрут:
 
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'

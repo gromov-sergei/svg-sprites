@@ -70,4 +70,4 @@ Automatic replacement targets `fill`/`stroke` attributes and inline `style`. The
 - in Webpack, pass an array of static `() => import('.../manifest')` loaders;
 - in Next.js, use the same static loaders, and for the App Router put the Viewer in a separate file with `'use client'`.
 
-The Viewer accepts manifests/loaders and provides search, themes, colors, and examples, but production components do not depend on it. To import `@gromlab/svg-sprites/react`, install the package using the project's package manager.
+The Viewer accepts manifests/loaders and provides search, themes, colors, and examples, but production components do not depend on it. Import it from the package already installed as a development dependency.

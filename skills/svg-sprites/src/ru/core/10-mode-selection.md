@@ -12,10 +12,14 @@
 | Next.js Pages Router + Webpack 5 | `next@pages/webpack` |
 | Старый общий конфиг | `legacy` |
 
-Не используй неполные `react`, `next@app`, `next@pages`, будущий `standalone` или mode другого сборщика. CLI всегда требует mode и ровно один путь к каталогу конфигурации:
+Не используй неполные `react`, `next@app`, `next@pages`, будущий `standalone` или mode другого сборщика. Установи пакет как development dependency и добавь локальный CLI в package script. CLI всегда требует mode и ровно один путь к каталогу конфигурации:
 
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode <mode-key> <sprite-directory>
+```json
+{
+  "scripts": {
+    "sprite:<name>": "svg-sprites --mode <mode-key> <sprite-directory>"
+  }
+}
 ```
 
 Не передавай несколько путей, glob или путь к самому файлу конфигурации. Для нескольких современных спрайтов создай отдельную команду для каждого каталога.

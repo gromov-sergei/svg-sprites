@@ -9,10 +9,10 @@
 Проверь исходный SVG до редактирования:
 
 ```bash
-npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-sprite
+npm run sprite:file-manager
 ```
 
-Замени mode и path на фактические. Затем сравни source с `generated/sprite.svg` и manifest, не делая вывод только по успешному exit code.
+Используй фактический package script нужного спрайта. Затем сравни source с `generated/sprite.svg` и manifest, не делая вывод только по успешному exit code.
 
 Особого внимания требуют:
 
@@ -36,17 +36,19 @@ npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-
 Все три опции по умолчанию `true` и применяются ко всему спрайту, не к отдельной иконке.
 
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'illustrations',
   transform: {
     removeSize: false,
     replaceColors: false,
     addTransition: false,
   },
-}
+})
 ```
 
-Это plain config для одного из потенциально многих проектов спрайтов; его каталог не обязан совпадать с module/feature-каталогом. Для Next используй тот же `transform`; для legacy он находится на верхнем уровне config. При локальной установке пакета ради SpriteViewer или программного API объект можно опционально обернуть в подходящий `define*Config(...)` helper.
+Это config для одного из потенциально многих проектов спрайтов; его каталог не обязан совпадать с module/feature-каталогом. Для Next используй `defineNextSpriteConfig(...)` с тем же `transform`; для legacy он находится на верхнем уровне `defineLegacyConfig(...)`.
 
 ## Размеры и viewBox
 

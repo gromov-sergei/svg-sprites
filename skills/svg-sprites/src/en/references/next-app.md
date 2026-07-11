@@ -6,12 +6,12 @@ Use this document when the application uses `app/` or `src/app/` and needs a gen
 
 ## Target matrix
 
-| Bundler | CLI mode | Minimum Next.js version | Conditional verification build |
-|---|---|---:|---|
-| Turbopack | `next@app/turbopack` | 16.2 | `npx next build --turbopack` |
-| Webpack 5 | `next@app/webpack` | 13.4 | Next 13-15: `npx next build`; Next 16: `npx next build --webpack` |
+| Bundler | CLI mode |
+|---|---|
+| Turbopack | `next@app/turbopack` |
+| Webpack 5 | `next@app/webpack` |
 
-Do not infer the target only from the presence of `next.config.*`. Check the installed Next.js version and the actual flags in `dev`/`build`. The generator mode and verification-build bundler must agree.
+Do not infer the target only from the presence of `next.config.*`. Check the actual flags in `dev`/`build`. The generator mode and verification-build bundler must agree.
 
 ## Prepare the sprite directory
 
@@ -23,16 +23,23 @@ src/ui/file-manager/svg-sprite/
 └── svg-sprite.config.ts
 ```
 
+Install the package as a development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 ```ts
-export default {
+import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineNextSpriteConfig({
   name: 'file-manager',
   description: 'File manager icons',
   inputFolder: './icons',
   inputFiles: ['../../../../shared/icons/check.svg'],
-}
+})
 ```
 
-- The package does not need to be installed for normal CLI generation. When installed locally for SpriteViewer or the programmatic API, the object may optionally be wrapped in `defineNextSpriteConfig(...)` for autocomplete.
 - The project chooses the directory for each specific sprite; it does not have to be a module/feature directory. Each config describes one of potentially many application sprites.
 - The config filename is singular: `svg-sprite.config.ts`.
 - Paths are relative to its directory; `inputFolder` scanning is shallow.
@@ -44,24 +51,12 @@ export default {
 
 ## Generation
 
-For Turbopack:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode next@app/turbopack src/ui/file-manager/svg-sprite
-```
-
-For Webpack 5:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode next@app/webpack src/ui/file-manager/svg-sprite
-```
-
 Example scripts for Turbopack:
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode next@app/turbopack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode next@app/turbopack src/ui/file-manager/svg-sprite",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -69,7 +64,7 @@ Example scripts for Turbopack:
 }
 ```
 
-For Webpack, replace only the complete mode with `next@app/webpack`. Do not run both targets sequentially for one directory: the second generation overwrites the first target's files.
+For Webpack, replace only the complete mode with `next@app/webpack`. Do not run both targets sequentially for one directory: the second generation overwrites the first target's files. Run `npm run sprite:file-manager` for the first generation.
 
 ## Server Component
 
@@ -95,12 +90,6 @@ Do not import from `generated/` or move the SVG into `public`. Managed files (`g
 
 The Viewer is interactive and imported from a client-only entry. Create a separate Client Component page or child component:
 
-Install the package locally for the Viewer:
-
-```bash
-npm install @gromlab/svg-sprites@latest
-```
-
 ```tsx
 'use client'
 
@@ -124,22 +113,14 @@ Start with generation and typechecking:
 
 ```bash
 npm run sprite:file-manager
-npx tsc --noEmit
+npm run typecheck
 ```
 
-If the target or Next build/deployment pipeline changed, or a runtime issue is being diagnosed, then run exactly one production build matching the target:
+If the target or Next build/deployment pipeline changed, or a runtime issue is being diagnosed, run the project's production build configured for the selected bundler:
 
 ```bash
-npx next build --turbopack
+npm run build
 ```
-
-or:
-
-```bash
-npx next build --webpack
-```
-
-For Webpack on Next 13-15, use `npx next build` without a flag.
 
 After the required generation and typecheck, verify that:
 
@@ -157,7 +138,7 @@ During a conditional production/runtime check, also verify that:
 
 - `Next.js mode requires a router and bundler`: `--mode next` is invalid; specify the full mode.
 - Build passes with one bundler but the runtime asset breaks with another: regenerate for the target actually used by the build.
-- Webpack was selected on Next 16, but the build used Turbopack: use `next build --webpack` and `next@app/webpack`.
+- Webpack was selected, but the build used Turbopack: use the project's Webpack build command and `next@app/webpack`.
 - Viewer causes a Server Component error: the Viewer file needs `'use client'`; the generated icon component does not.
 - `React config file not found`: the command received the path to `app/`, `icons/`, or the config file instead of the sprite directory.
 - Two CI jobs generate different targets in one checkout: separate their directories or ensure each job uses one consistent target.

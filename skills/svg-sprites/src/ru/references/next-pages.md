@@ -6,12 +6,12 @@
 
 ## Выбор target
 
-| Сборщик | CLI mode | Минимальная версия Next.js | Условная проверка build |
-|---|---|---:|---|
-| Turbopack | `next@pages/turbopack` | 16.2 | `npx next build --turbopack` |
-| Webpack 5 | `next@pages/webpack` | 12.2 | Next 12-15: `npx next build`; Next 16: `npx next build --webpack` |
+| Сборщик | CLI mode |
+|---|---|
+| Turbopack | `next@pages/turbopack` |
+| Webpack 5 | `next@pages/webpack` |
 
-Для Next.js 12.2 требуется React 18. Определи установленную версию и реальные flags scripts до выбора mode. Наличие Pages Router не означает автоматически Webpack: в Next 16.2 поддерживается Turbopack.
+Определи реальные flags scripts до выбора mode. Наличие Pages Router не означает автоматически Webpack: выбирай target по сборщику проекта.
 
 ## Структура и конфиг
 
@@ -23,16 +23,24 @@ src/ui/file-manager/svg-sprite/
 └── svg-sprite.config.ts
 ```
 
+Установи пакет как development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 ```ts
-export default {
+import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineNextSpriteConfig({
   name: 'file-manager',
   description: 'Иконки файлового менеджера',
   inputFolder: './icons',
   inputFiles: ['../../../../shared/icons/check.svg'],
-}
+})
 ```
 
-Для обычной CLI-генерации пакет устанавливать не нужно. При локальной установке ради SpriteViewer или программного API config можно опционально обернуть в `defineNextSpriteConfig(...)` для autocomplete. Каталог с config выбирает проект конкретного спрайта и не обязан быть module/feature-каталогом; каждый config описывает один из потенциально многих спрайтов приложения.
+Каталог с config выбирает проект конкретного спрайта и не обязан быть module/feature-каталогом; каждый config описывает один из потенциально многих спрайтов приложения.
 
 Все source paths разрешаются от каталога конфига. `inputFolder` по умолчанию `./icons`, сканирование не рекурсивно. `inputFiles` объединяется с папкой. Один и тот же путь дедуплицируется, но два разных `check.svg` конфликтуют. Явная отсутствующая папка считается ошибкой даже при заполненном `inputFiles`.
 
@@ -40,24 +48,12 @@ export default {
 
 ## Команды
 
-Webpack 5:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode next@pages/webpack src/ui/file-manager/svg-sprite
-```
-
-Turbopack:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode next@pages/turbopack src/ui/file-manager/svg-sprite
-```
-
 Пример lifecycle для Webpack:
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode next@pages/webpack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode next@pages/webpack src/ui/file-manager/svg-sprite",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -65,7 +61,7 @@ npx --yes @gromlab/svg-sprites@latest --mode next@pages/turbopack src/ui/file-ma
 }
 ```
 
-Если pre-scripts уже существуют, добавь генерацию в текущую цепочку. Generated imports отсутствуют в Git, поэтому генерация должна предшествовать TypeScript и Next compilation.
+Если pre-scripts уже существуют, добавь генерацию в текущую цепочку. Generated imports отсутствуют в Git, поэтому генерация должна предшествовать TypeScript и Next compilation. Для Turbopack замени mode целиком на `next@pages/turbopack`. Для первой генерации запусти `npm run sprite:file-manager`.
 
 ## Использование в Pages Router
 
@@ -89,12 +85,6 @@ export function getServerSideProps() {
 
 Pages Router компоненты выполняются и на клиенте, поэтому отдельная директива `'use client'` не нужна:
 
-Для SpriteViewer установи пакет локально:
-
-```bash
-npm install @gromlab/svg-sprites@latest
-```
-
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 
@@ -114,22 +104,14 @@ export default function SpritesPage() {
 
 ```bash
 npm run sprite:file-manager
-npx tsc --noEmit
+npm run typecheck
 ```
 
-Если менялись target или Next build/deployment pipeline либо диагностируется runtime, запусти production build для выбранного bundler:
+Если менялись target или Next build/deployment pipeline либо диагностируется runtime, запусти production build проекта, настроенный на выбранный сборщик:
 
 ```bash
-npx next build --turbopack
+npm run build
 ```
-
-или для Next 16 Webpack:
-
-```bash
-npx next build --webpack
-```
-
-В Next 12-15 Webpack запускай `npx next build`.
 
 После обязательных генерации и typecheck проверь:
 
@@ -146,8 +128,7 @@ npx next build --webpack
 ## Типовые ошибки
 
 - В mode указан `next@app/...`: модуль может сгенерироваться, но manifest и контракт target неверны; используй `next@pages/...`.
-- В Next 16 command и mode выбирают разные bundler: добавь соответствующий build flag и перегенерируй.
-- На Next 12.2 используется React 17: обнови React до 18 прежде, чем диагностировать sprite runtime.
+- Command и mode выбирают разные bundler: используй соответствующую build-команду проекта и перегенерируй.
 - Viewer manifest не попадает в chunk: путь `import()` должен быть строковым литералом и существовать до Next build.
 - Иконка есть после full reload, но пропадает при переходе: проверь доступность внешнего asset с `basePath`, `assetPrefix` и production origin.
 - `Refusing to overwrite a user file`: sprite-каталог содержит неуправляемый файл с зарезервированным именем; перенеси его.

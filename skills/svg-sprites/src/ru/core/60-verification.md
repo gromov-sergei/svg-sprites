@@ -5,7 +5,7 @@
 1. Запусти точную sprite-команду, например `npm run sprite:file-manager`; процесс должен завершиться с кодом `0` и сообщить имя, число иконок, mode и каталог `generated`.
 2. Проверь наличие `index.ts`, `manifest.ts`, `generated/sprite.svg`, `generated/react-component.tsx`, `generated/types.ts`, `generated/styles.module.css` и `generated/.svg-sprites.manifest.json`.
 3. Убедись, что новая иконка присутствует в readonly-массиве имён и принимается prop `icon`.
-4. Запусти существующую проверку типов проекта, например `npm run typecheck` или `npx tsc --noEmit`.
+4. Запусти существующую проверку типов проекта, например `npm run typecheck`.
 5. Проверь в `manifest.ts`, что `target` совпадает с выбранным mode key; generated asset expression должен быть `?no-inline` для Vite и `new URL(...)` для Webpack/Next.
 
 Не запускай полную production-сборку только ради проверки изменения списка иконок. Она нужна, если менялся bundler target, конфигурация asset pipeline, Next router/bundler, Webpack loader или диагностируется ошибка URL в runtime.

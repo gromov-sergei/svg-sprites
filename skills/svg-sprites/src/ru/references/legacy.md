@@ -15,10 +15,18 @@
 
 ## Конфиг и запуск
 
+Установи пакет как development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 `svg-sprites.config.ts`:
 
 ```ts
-export default {
+import { defineLegacyConfig } from '@gromlab/svg-sprites'
+
+export default defineLegacyConfig({
   output: 'public/sprites',
   preview: true,
   transform: {
@@ -41,27 +49,23 @@ export default {
       format: 'stack',
     },
   ],
-}
+})
 ```
 
-Для обычного CLI пакет устанавливать не нужно. Если он установлен локально ради программного API, config можно опционально обернуть в `defineLegacyConfig(...)` для autocomplete. В отличие от локальных React/Next config, каждый из которых описывает один из потенциально многих спрайтов, один legacy config сохраняет специфическую возможность управлять одним или несколькими entries спрайтов.
-
-Запуск из project root:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode legacy .
-```
+В отличие от локальных React/Next config, каждый из которых описывает один из потенциально многих спрайтов, один legacy config сохраняет специфическую возможность управлять одним или несколькими entries спрайтов.
 
 Script:
 
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes @gromlab/svg-sprites@latest --mode legacy .",
+    "sprites": "svg-sprites --mode legacy .",
     "prebuild": "npm run sprites"
   }
 }
 ```
+
+Запусти `npm run sprites` из project root.
 
 CLI path указывает каталог с `svg-sprites.config.ts`. Не передавай сам файл. Для config в другом каталоге передай этот каталог явно.
 
@@ -116,7 +120,7 @@ Production build и браузер/Network запускай дополнител
 ## Типовые ошибки
 
 - `Config file not found`: CLI path не является каталогом с `svg-sprites.config.ts`.
-- `Config file must have a default export`: добавь plain `export default { ... }`; локально установленный helper здесь необязателен.
+- `Config file must have a default export`: экспортируй config через `defineLegacyConfig(...)`.
 - Deprecated `mode`: поле `sprites[].mode` переименовано в `format`.
 - `sprites must be a non-empty array`: legacy config не допускает пустую конфигурацию.
 - `Input directory does not exist` или `SVG file does not exist`: помни, что paths считаются от каталога config при загрузке CLI.

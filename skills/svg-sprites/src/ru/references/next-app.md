@@ -6,12 +6,12 @@
 
 ## Матрица target
 
-| Сборщик | CLI mode | Минимальная версия Next.js | Команда условной контрольной сборки |
-|---|---|---:|---|
-| Turbopack | `next@app/turbopack` | 16.2 | `npx next build --turbopack` |
-| Webpack 5 | `next@app/webpack` | 13.4 | Next 13-15: `npx next build`; Next 16: `npx next build --webpack` |
+| Сборщик | CLI mode |
+|---|---|
+| Turbopack | `next@app/turbopack` |
+| Webpack 5 | `next@app/webpack` |
 
-Не выводи target только из наличия `next.config.*`. Проверь установленную версию Next.js и фактические flags в `dev`/`build`. Mode генератора и сборщик контрольной сборки должны совпадать.
+Не выводи target только из наличия `next.config.*`. Проверь фактические flags в `dev`/`build`. Mode генератора и сборщик контрольной сборки должны совпадать.
 
 ## Подготовка каталога спрайта
 
@@ -23,16 +23,23 @@ src/ui/file-manager/svg-sprite/
 └── svg-sprite.config.ts
 ```
 
+Установи пакет как development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 ```ts
-export default {
+import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineNextSpriteConfig({
   name: 'file-manager',
   description: 'Иконки файлового менеджера',
   inputFolder: './icons',
   inputFiles: ['../../../../shared/icons/check.svg'],
-}
+})
 ```
 
-- Для обычной CLI-генерации пакет устанавливать не нужно. При локальной установке ради SpriteViewer или программного API объект можно опционально обернуть в `defineNextSpriteConfig(...)` для autocomplete.
 - Каталог выбирает проект конкретного спрайта и не обязан быть module/feature-каталогом. Каждый config описывает один из потенциально многих спрайтов приложения.
 - Конфиг называется в единственном числе: `svg-sprite.config.ts`.
 - Пути считаются от его каталога; `inputFolder` сканируется нерекурсивно.
@@ -44,24 +51,12 @@ export default {
 
 ## Генерация
 
-Для Turbopack:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode next@app/turbopack src/ui/file-manager/svg-sprite
-```
-
-Для Webpack 5:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode next@app/webpack src/ui/file-manager/svg-sprite
-```
-
 Пример scripts для Turbopack:
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode next@app/turbopack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode next@app/turbopack src/ui/file-manager/svg-sprite",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -69,7 +64,7 @@ npx --yes @gromlab/svg-sprites@latest --mode next@app/webpack src/ui/file-manage
 }
 ```
 
-Для Webpack замени только mode целиком на `next@app/webpack`. Не запускай два target последовательно для одного каталога: второй перезапишет generated target первого.
+Для Webpack замени только mode целиком на `next@app/webpack`. Не запускай два target последовательно для одного каталога: второй перезапишет generated target первого. Для первой генерации запусти `npm run sprite:file-manager`.
 
 ## Server Component
 
@@ -95,12 +90,6 @@ export default function Page() {
 
 Viewer интерактивен и импортируется из client-only entry. Создай отдельную Client Component страницу или дочерний компонент:
 
-Для Viewer установи пакет локально:
-
-```bash
-npm install @gromlab/svg-sprites@latest
-```
-
 ```tsx
 'use client'
 
@@ -124,22 +113,14 @@ export default function SpritesPage() {
 
 ```bash
 npm run sprite:file-manager
-npx tsc --noEmit
+npm run typecheck
 ```
 
-Если менялись target или Next build/deployment pipeline либо диагностируется runtime, затем запусти ровно одну production-сборку, соответствующую target:
+Если менялись target или Next build/deployment pipeline либо диагностируется runtime, запусти production-сборку проекта, настроенную на выбранный сборщик:
 
 ```bash
-npx next build --turbopack
+npm run build
 ```
-
-или:
-
-```bash
-npx next build --webpack
-```
-
-Для Next 13-15 Webpack используй `npx next build` без flag.
 
 После обязательных генерации и typecheck проверь:
 
@@ -157,7 +138,7 @@ npx next build --webpack
 
 - `Next.js mode requires a router and bundler`: нельзя использовать `--mode next`; укажи полный mode.
 - Сборка проходит на одном bundler, а runtime asset ломается на другом: перегенерируй тем target, которым реально выполняется build.
-- В Next 16 выбран Webpack, но build ушёл в Turbopack: используй `next build --webpack` и `next@app/webpack`.
+- Выбран Webpack, но build ушёл в Turbopack: используй Webpack-команду проекта и `next@app/webpack`.
 - Viewer вызывает ошибку Server Component: файл с Viewer должен иметь `'use client'`; generated icon component этого не требует.
 - `React config file not found`: команда получила путь к `app/`, `icons/` или конфигу вместо каталога спрайта.
 - Две CI jobs генерируют разные target в одном checkout: раздели каталоги или обеспечь один согласованный target на job.

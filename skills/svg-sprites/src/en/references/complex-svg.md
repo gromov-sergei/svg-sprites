@@ -9,10 +9,10 @@ Use this document when a source contains `<defs>`, gradients, patterns, filters,
 Inspect the source SVG before editing it:
 
 ```bash
-npx --yes @gromlab/svg-sprites@latest --mode react@vite src/ui/file-manager/svg-sprite
+npm run sprite:file-manager
 ```
 
-Replace the mode and path with the actual values. Then compare the source with `generated/sprite.svg` and the manifest; do not draw conclusions from a successful exit code alone.
+Use the actual package script for the sprite. Then compare the source with `generated/sprite.svg` and the manifest; do not draw conclusions from a successful exit code alone.
 
 Pay particular attention to:
 
@@ -36,17 +36,19 @@ The compiler first applies SVGO `preset-default` while preserving `viewBox`, the
 All three options default to `true` and apply to the entire sprite, not to individual icons.
 
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'illustrations',
   transform: {
     removeSize: false,
     replaceColors: false,
     addTransition: false,
   },
-}
+})
 ```
 
-This is a plain config for one of potentially many sprite directories in a project; its directory does not have to match a module/feature directory. Use the same `transform` for Next; in legacy mode it belongs at the top level of the config. When the package is installed locally for SpriteViewer or the programmatic API, the object may optionally be wrapped in the appropriate `define*Config(...)` helper.
+This is a config for one of potentially many sprite directories in a project; its directory does not have to match a module/feature directory. Use `defineNextSpriteConfig(...)` with the same `transform` for Next; in legacy mode it belongs at the top level of `defineLegacyConfig(...)`.
 
 ## Dimensions and viewBox
 

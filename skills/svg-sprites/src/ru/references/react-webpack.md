@@ -23,31 +23,33 @@ src/ui/file-manager/svg-sprite/
 
 ## Конфигурация и генерация
 
+Установи пакет как development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'file-manager',
   description: 'Иконки файлового менеджера',
   inputFolder: './icons',
   inputFiles: ['../../../../shared/icons/check.svg'],
-}
+})
 ```
 
-Для обычной CLI-генерации пакет устанавливать не нужно. При локальной установке ради SpriteViewer или программного API config можно опционально обернуть в `defineReactSpriteConfig(...)` для autocomplete. Каждый config описывает один из потенциально многих независимых спрайтов приложения.
+Каждый config описывает один из потенциально многих независимых спрайтов приложения.
 
 Пути считаются от `svg-sprite.config.ts`. Папка сканируется только на первом уровне. `inputFolder` и `inputFiles` объединяются; одинаковый путь дедуплицируется, но одинаковые basename у разных файлов вызывают конфликт ID. Неявный `./icons` можно не создавать, если заполнен `inputFiles`; явно заданная отсутствующая папка является ошибкой. `FileManagerIcon` ниже — только пример generated-имени из `name: 'file-manager'`.
-
-Точная команда:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode react@webpack src/ui/file-manager/svg-sprite
-```
 
 Рекомендуемые lifecycle hooks:
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode react@webpack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode react@webpack src/ui/file-manager/svg-sprite",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -55,7 +57,7 @@ npx --yes @gromlab/svg-sprites@latest --mode react@webpack src/ui/file-manager/s
 }
 ```
 
-Не затирай уже существующие pre-scripts: включи генерацию в их текущую цепочку. React preset всегда выпускает `stack`.
+Не затирай уже существующие pre-scripts: включи генерацию в их текущую цепочку. Для первой генерации запусти `npm run sprite:file-manager`. React preset всегда выпускает `stack`.
 
 ## Публичный компонент
 
@@ -104,12 +106,6 @@ Webpack 5 распознаёт его как Asset Module и заменяет н
 ## SpriteViewer
 
 Webpack не предоставляет `import.meta.glob`. Передай статические lazy imports со строковыми литералами:
-
-Для SpriteViewer пакет должен быть установлен локально:
-
-```bash
-npm install @gromlab/svg-sprites@latest
-```
 
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'

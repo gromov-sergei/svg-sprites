@@ -23,31 +23,33 @@ src/ui/file-manager/svg-sprite/
 
 ## Configuration and generation
 
+Install the package as a development dependency:
+
+```bash
+npm install --save-dev @gromlab/svg-sprites
+```
+
 ```ts
-export default {
+import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineReactSpriteConfig({
   name: 'file-manager',
   description: 'File manager icons',
   inputFolder: './icons',
   inputFiles: ['../../../../shared/icons/check.svg'],
-}
+})
 ```
 
-The package does not need to be installed for normal CLI generation. When installed locally for SpriteViewer or the programmatic API, the config may optionally be wrapped in `defineReactSpriteConfig(...)` for autocomplete. Each config describes one of potentially many independent application sprites.
+Each config describes one of potentially many independent application sprites.
 
 Paths are relative to `svg-sprite.config.ts`. The folder is scanned only at its top level. `inputFolder` and `inputFiles` are merged; duplicate paths are deduplicated, but equal basenames from different files cause an ID conflict. The implicit `./icons` folder may be absent when `inputFiles` is non-empty; an explicitly configured missing folder is an error. `FileManagerIcon` below is only an example generated name for `name: 'file-manager'`.
-
-Exact command:
-
-```bash
-npx --yes @gromlab/svg-sprites@latest --mode react@webpack src/ui/file-manager/svg-sprite
-```
 
 Recommended lifecycle hooks:
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "npx --yes @gromlab/svg-sprites@latest --mode react@webpack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites --mode react@webpack src/ui/file-manager/svg-sprite",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -55,7 +57,7 @@ Recommended lifecycle hooks:
 }
 ```
 
-Do not overwrite existing pre-scripts; add generation to their current command chain. The React preset always emits `stack`.
+Do not overwrite existing pre-scripts; add generation to their current command chain. Run `npm run sprite:file-manager` for the first generation. The React preset always emits `stack`.
 
 ## Public component
 
@@ -104,12 +106,6 @@ Integrate this rule with the project's current configuration; do not add a dupli
 ## SpriteViewer
 
 Webpack does not provide `import.meta.glob`. Pass static lazy imports with string-literal paths:
-
-SpriteViewer requires the package to be installed locally:
-
-```bash
-npm install @gromlab/svg-sprites@latest
-```
 
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'

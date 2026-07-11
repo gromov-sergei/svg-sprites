@@ -9,7 +9,7 @@
 ## 1. Установите пакет
 
 ```bash
-npm install @gromlab/svg-sprites
+npm install --save-dev @gromlab/svg-sprites
 ```
 
 ## 2. Создайте папку спрайта

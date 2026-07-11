@@ -12,4 +12,4 @@
 
 Количество и расположение каталогов определяет проект. Например, `name: 'file-manager'` создаёт `FileManagerIcon`, а другой каталог с `name: 'navigation'` создаст отдельный `NavigationIcon`. Имена `FileManagerIcon` и `fileManagerIconNames` ниже являются примерами API одного из возможных спрайтов, а не фиксированными экспортами пакета.
 
-Generated production-компоненты не импортируют `@gromlab/svg-sprites` во время выполнения. Для обычной генерации запускай latest CLI через `npx`; устанавливай пакет в проект, только если нужен `SpriteViewer`, программный API или локальный config helper.
+Generated production-компоненты не импортируют `@gromlab/svg-sprites` во время выполнения. Устанавливай пакет как development dependency, чтобы config helpers и локальный CLI использовали версию из lockfile проекта.
