@@ -28,15 +28,16 @@ jobs:
 
     steps:
       - name: Checkout release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.release.tag_name || inputs.tag }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: npm
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
 
       - name: Update npm
         run: npm install --global npm@latest
@@ -111,4 +112,4 @@ jobs:
             DIST_TAG=next
           fi
 
-          npm publish ./release/*.tgz --access public --provenance --tag "$DIST_TAG"
+          npm publish --ignore-scripts --access public --tag "$DIST_TAG"
