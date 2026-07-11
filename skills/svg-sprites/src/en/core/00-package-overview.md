@@ -1,0 +1,15 @@
+## What the package does
+
+`@gromlab/svg-sprites` is a CLI generator that builds SVG sprites from user-provided SVG files. The package does not include its own icon set: it compiles the project's SVGs into an external cacheable sprite asset and, for React/Next.js, creates a typed component, a list of valid names, and a debug manifest.
+
+The package supports multiple independent sprites in one project. Each selected directory containing `svg-sprite.config.ts` describes one sprite and gets its own:
+
+- SVG asset;
+- icon name types;
+- React component;
+- production entry point `index.ts`;
+- debug entry point `manifest.ts`.
+
+The project determines how many sprite directories exist and where they live. For example, `name: 'file-manager'` produces `FileManagerIcon`, while another directory with `name: 'navigation'` produces a separate `NavigationIcon`. The names `FileManagerIcon` and `fileManagerIconNames` used below are examples of the API for one possible sprite, not fixed package exports.
+
+Generated production components do not import `@gromlab/svg-sprites` at runtime. For routine generation, run the latest CLI through `npx`; install the package in the project only when `SpriteViewer`, the programmatic API, or a local config helper is required.

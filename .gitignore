@@ -3,6 +3,7 @@ dist/
 public/
 test/public/
 .tmp/
+skills/artifacts/
 *.generated.ts
 *.tgz
 .DS_Store
