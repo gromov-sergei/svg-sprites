@@ -1,0 +1,107 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: release-${{ github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish package and skills
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: npm
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Update npm
+        run: npm install --global npm@latest
+
+      - name: Check release version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs"
+
+            const packageJson = JSON.parse(readFileSync("package.json", "utf8"))
+            const expectedTag = `v${packageJson.version}`
+
+            if (process.env.RELEASE_TAG !== expectedTag) {
+              throw new Error(
+                `Release tag ${process.env.RELEASE_TAG} does not match package version ${expectedTag}`,
+              )
+            }
+          '
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify
+        run: npm run verify
+
+      - name: Build package
+        run: npm run build
+
+      - name: Build skills
+        run: npm run build:skill
+
+      - name: Prepare release files
+        run: mkdir release
+
+      - name: Pack npm package
+        run: npm pack --ignore-scripts --pack-destination release
+
+      - name: Pack skills
+        working-directory: skills/artifacts
+        run: |
+          zip -r ../../release/svg-sprites.zip svg-sprites
+          zip -r ../../release/svg-sprites-ru.zip svg-sprites-ru
+
+      - name: Create checksums
+        run: sha256sum release/* > release/SHA256SUMS
+
+      - name: Publish npm package
+        env:
+          IS_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          PACKAGE_SPEC=$(node -p "const pkg = require('./package.json'); pkg.name + '@' + pkg.version")
+
+          if npm view "$PACKAGE_SPEC" version --json > /dev/null 2>&1; then
+            echo "$PACKAGE_SPEC is already published"
+            exit 0
+          fi
+
+          DIST_TAG=latest
+          if [ "$IS_PRERELEASE" = "true" ]; then
+            DIST_TAG=next
+          fi
+
+          npm publish release/*.tgz --access public --provenance --tag "$DIST_TAG"
+
+      - name: Upload GitHub Release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/*.tgz
+            release/*.zip
+            release/SHA256SUMS
+          overwrite_files: true
