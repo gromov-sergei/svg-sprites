@@ -8,8 +8,15 @@ A CLI for generating SVG sprites and typed icon components for React and Next.js
 
 ![Preview](https://raw.githubusercontent.com/gromov-sergei/svg-sprites/master/preview-image.png)
 
+## AI Skills
+
+- [🇬🇧 Download the English skill (latest)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites.zip)
+- [🇷🇺 Download the Russian skill (latest)](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
+- [Verify downloads with SHA-256 checksums](https://github.com/gromov-sergei/svg-sprites/releases/latest/download/SHA256SUMS)
+
 ## Navigation
 
+- [AI Skills](#ai-skills)
 - [Features](#features)
 - [Support matrix](#support-matrix)
 - [Requirements](#requirements)
