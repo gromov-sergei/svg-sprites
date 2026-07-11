@@ -32,6 +32,8 @@
     "dist/chunk-*.js",
     "dist/chunk-*.js.map",
     "dist/preview-template.html",
+    "README_RU.md",
+    "docs/en/*.md",
     "docs/ru/*.md",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md"

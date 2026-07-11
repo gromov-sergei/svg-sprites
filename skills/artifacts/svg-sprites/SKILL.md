@@ -1,64 +1,64 @@
 ---
 name: svg-sprites
-description: "Используй при настройке, генерации, миграции или диагностике SVG-спрайтов через @gromlab/svg-sprites. Триггеры: SVG sprite, SVG-спрайт, svg-sprites, svg-sprite.config.ts, svg-sprites.config.ts, defineReactSpriteConfig, defineNextSpriteConfig, react@vite, react@webpack, next@app, next@pages, inputFiles, SpriteViewer, icon=\"...\", --icon-color-N, generated-компонент или иконка не появилась в превью и автодополнении. НЕ используй для favicon, растровых изображений, icon fonts, выбора набора иконок или inline SVG без спрайтов."
+description: "Use when configuring, generating, migrating, or troubleshooting SVG sprites with @gromlab/svg-sprites. Triggers: SVG sprite, svg-sprites, svg-sprite.config.ts, svg-sprites.config.ts, defineReactSpriteConfig, defineNextSpriteConfig, react@vite, react@webpack, next@app, next@pages, inputFiles, SpriteViewer, icon=\"...\", --icon-color-N, generated component, or an icon missing from preview or autocomplete. Do NOT use for favicons, raster images, icon fonts, choosing an icon set, or inline SVG without sprites."
 ---
 
 <!-- Generated from skills/svg-sprites/src/SKILL.md. Do not edit manually. -->
 
 # SVG Sprites
 
-## Назначение
+## Purpose
 
-Используй этот скил для работы с `@gromlab/svg-sprites`: первичной настройки, добавления и переиспользования иконок, генерации React-компонентов, подключения `SpriteViewer`, миграции legacy-конфигурации и диагностики ошибок.
+Use this skill when working with `@gromlab/svg-sprites`: initial setup, adding and reusing icons, generating React components, integrating `SpriteViewer`, migrating legacy configurations, and troubleshooting errors.
 
-Не навязывай проекту конкретную архитектуру каталогов. Сначала изучи существующие `package.json`, конфигурацию спрайта, используемый фреймворк, роутер и сборщик.
+Do not impose a specific directory architecture on the project. First inspect the existing `package.json`, sprite configuration, framework, router, and bundler.
 
-## Рабочий алгоритм
+## Workflow
 
-1. Определи существующий режим и не смешивай его API с другим режимом.
-2. Для React выбери `react@vite` или `react@webpack` и открой соответствующий reference.
-3. Для Next.js определи App Router или Pages Router, затем Turbopack или Webpack, и открой соответствующий reference.
-4. Для существующего `svg-sprites.config.ts` с несколькими спрайтами используй legacy-документацию. Не мигрируй такой проект без явного запроса.
-5. Изучи локальные scripts и добавляй генерацию перед `dev`, `build` и `typecheck`, если generated-файлы не хранятся в Git.
-6. После изменения конфигурации или SVG запусти генерацию, затем доступную проверку типов или сборку проекта.
+1. Identify the existing mode and do not mix its API with another mode.
+2. For React, choose `react@vite` or `react@webpack` and open the corresponding reference.
+3. For Next.js, identify the App Router or Pages Router, then Turbopack or Webpack, and open the corresponding reference.
+4. For an existing `svg-sprites.config.ts` with multiple sprites, use the legacy documentation. Do not migrate such a project unless explicitly requested.
+5. Inspect local scripts and run generation before `dev`, `build`, and `typecheck` when generated files are not committed to Git.
+6. After changing a configuration or SVG file, run generation followed by the available type check or project build.
 
-## Правила React и Next.js
+## React And Next.js Rules
 
-- Используй локальный `svg-sprite.config.ts` и подходящий config helper: `defineReactSpriteConfig` или `defineNextSpriteConfig`.
-- Не редактируй `generated/`, `index.ts`, `manifest.ts` и созданный генератором `.gitignore` вручную.
-- Имена исходных SVG становятся допустимыми значениями prop `icon`; используй generated-компонент и его публичные типы вместо deep imports.
-- Объединяй локальную папку и `inputFiles`, когда общая иконка нужна нескольким спрайтам. Не создавай копии одного SVG без необходимости.
-- В Next.js generated-компонент можно использовать в Server Components, SSR и SSG. Не добавляй `'use client'` только ради иконки.
-- Спрайт должен оставаться внешним asset сборщика: не переносить SVG path-данные в JavaScript и не класть generated-файл вручную в `public`.
+- Use a local `svg-sprite.config.ts` and the appropriate config helper: `defineReactSpriteConfig` or `defineNextSpriteConfig`.
+- Do not manually edit `generated/`, `index.ts`, `manifest.ts`, or the generator-created `.gitignore`.
+- Source SVG names become valid values for the `icon` prop; use the generated component and its public types instead of deep imports.
+- Combine the local folder with `inputFiles` when multiple sprites need a shared icon. Do not create unnecessary copies of the same SVG.
+- In Next.js, generated components work in Server Components, SSR, and SSG. Do not add `'use client'` only for an icon.
+- Keep the sprite as an external bundler asset: do not move SVG path data into JavaScript or manually place the generated file in `public`.
 
-## Цвета и трансформации
+## Colors And Transformations
 
-- По умолчанию генератор удаляет `width` и `height`, заменяет поддерживаемые `fill` и `stroke` на CSS-переменные и добавляет transitions.
-- Для монохромной иконки сначала управляй `color`; для многоцветной используй `--icon-color-N`.
-- Не обещай автоматическую замену цветов внутри внешних stylesheets, gradients, patterns, filters и значений `url(#...)` без проверки результата.
-- CSS-переменные страницы работают при `<svg><use>`, но не проникают внутрь `<img>` и `background-image`.
+- By default, the generator removes `width` and `height`, replaces supported `fill` and `stroke` values with CSS variables, and adds transitions.
+- For a monochrome icon, control `color` first; for a multicolor icon, use `--icon-color-N`.
+- Do not promise automatic color replacement inside external stylesheets, gradients, patterns, filters, or `url(#...)` values without checking the result.
+- Page CSS variables work with `<svg><use>`, but do not propagate into `<img>` or `background-image`.
 
-## Превью
+## Preview
 
-Для React и Next.js подключай `<SpriteViewer>` отдельной debug-страницей приложения. Передай ему manifests или lazy loaders спрайтов. Viewer поддерживает поиск, светлую и тёмную темы, настройку цветов и примеры React, SVG, IMG и CSS.
+For React and Next.js, add `<SpriteViewer>` as a separate debug page in the application. Pass sprite manifests or lazy loaders to it. The Viewer supports search, light and dark themes, color controls, and React, SVG, IMG, and CSS examples.
 
-`SpriteViewer` является клиентским debug-инструментом и импортируется из `@gromlab/svg-sprites/react`; production-компоненты иконок от него не зависят.
+`SpriteViewer` is a client-side debug tool imported from `@gromlab/svg-sprites/react`; production icon components do not depend on it.
 
-## Диагностика
+## Troubleshooting
 
-- Если имя иконки отсутствует в автодополнении, проверь входную папку и `inputFiles`, затем перезапусти генерацию.
-- Если два файла имеют одинаковое имя иконки, устрани конфликт вместо выбора одного файла неявно.
-- Если генератор отказывается перезаписывать файл, не удаляй защитный marker и не обходи writer: перенеси пользовательский файл или выбери другой каталог спрайта.
-- Если asset не загружается, сначала проверь соответствие CLI mode реальному сборщику проекта и обработку generated SVG его asset pipeline.
-- Если проект использует старый API, сверь установленную версию пакета и legacy reference перед изменениями.
+- If an icon name is missing from autocomplete, check the input folder and `inputFiles`, then rerun generation.
+- If two files have the same icon name, resolve the conflict instead of implicitly selecting one file.
+- If the generator refuses to overwrite a file, do not remove the protection marker or bypass the writer: move the user file or choose another sprite directory.
+- If an asset fails to load, first confirm that the CLI mode matches the project's actual bundler and that its asset pipeline handles the generated SVG.
+- If the project uses the old API, check the installed package version and the legacy reference before making changes.
 
 ## References
 
-- [Основная документация и API](./references/README.md)
-- [React + Vite](./references/docs/ru/react-vite.md)
-- [React + Webpack 5](./references/docs/ru/react-webpack.md)
-- [Next.js App Router](./references/docs/ru/next-app.md)
-- [Next.js Pages Router](./references/docs/ru/next-pages.md)
-- [Legacy mode](./references/docs/ru/legacy.md)
-- [Миграция с 0.1.x](./references/docs/ru/migration-1.md)
-- [Программный API](./references/docs/ru/programmatic-api.md)
+- [Main documentation and API](./references/README.md)
+- [React + Vite](./references/docs/en/react-vite.md)
+- [React + Webpack 5](./references/docs/en/react-webpack.md)
+- [Next.js App Router](./references/docs/en/next-app.md)
+- [Next.js Pages Router](./references/docs/en/next-pages.md)
+- [Legacy mode](./references/docs/en/legacy.md)
+- [Migrating from 0.1.x](./references/docs/en/migration-1.md)
+- [Programmatic API](./references/docs/en/programmatic-api.md)

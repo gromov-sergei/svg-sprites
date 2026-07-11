@@ -1,6 +1,6 @@
 # React + Webpack 5
 
-[← Главная](../../README.md)
+[← Главная](../../README_RU.md)
 
 Краткая инструкция по установке и использованию SVG-спрайтов в проекте на React и Webpack 5.
 
@@ -38,7 +38,7 @@ export default defineReactSpriteConfig({
 
 По умолчанию SVG берутся из `./icons`. Общие иконки из других папок можно добавить через `inputFiles`: папка и список объединяются в один спрайт.
 
-Полный список опций находится в разделе [Конфигурация → React](../../README.md#react).
+Полный список опций находится в разделе [Конфигурация → React](../../README_RU.md#react).
 
 ## 4. Добавьте генерацию в package.json
 
@@ -81,7 +81,7 @@ export const OpenFolderButton = () => (
 <FileManagerIcon icon="missing" /> // ошибка TypeScript
 ```
 
-Типы, способы отображения и управление цветами описаны в [основной документации](../../README.md#способы-отображения).
+Типы, способы отображения и управление цветами описаны в [основной документации](../../README_RU.md#способы-отображения).
 
 Webpack обработает generated `new URL('./sprite.svg', import.meta.url)` через Asset Modules и выпустит отдельный SVG asset.
 

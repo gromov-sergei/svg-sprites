@@ -1,6 +1,6 @@
 # Legacy mode
 
-[← Главная](../../README.md)
+[← Главная](../../README_RU.md)
 
 Краткая инструкция по генерации централизованных SVG-спрайтов форматов `symbol` и `stack` с optional HTML preview.
 
