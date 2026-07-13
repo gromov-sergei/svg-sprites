@@ -31,8 +31,14 @@ export type NextAssetTarget = `next@${NextRouter}/${NextBundler}`
  */
 export type ReactAssetTarget = ViteAssetTarget | WebpackAssetTarget
 
+/** Полный ключ React mode, используемый конфигом, CLI и manifest. */
+export type ReactSpriteMode = `react@${ReactAssetTarget}`
+
 /** Любая среда, для которой может быть сгенерирован React sprite-модуль. */
 export type SpriteAssetTarget = ReactAssetTarget | NextAssetTarget
+
+/** Режим генерации sprite-модуля. В будущем расширяется standalone mode. */
+export type SpriteMode = ReactSpriteMode | NextAssetTarget
 
 /** Фрагменты кода, необходимые компоненту для получения URL SVG asset. */
 export type SpriteAssetUrlCode = {

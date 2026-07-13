@@ -31,7 +31,6 @@
     "dist/types-*.d.ts",
     "dist/chunk-*.js",
     "dist/chunk-*.js.map",
-    "dist/preview-template.html",
     "README_RU.md",
     "docs/en/*.md",
     "docs/ru/*.md",
@@ -39,14 +38,13 @@
     "THIRD_PARTY_NOTICES.md"
   ],
   "scripts": {
-    "build": "tsup && npm run build:preview",
-    "build:preview": "npm ci --prefix preview && npm run build --prefix preview",
+    "build": "npm run build:package",
+    "build:package": "tsup",
     "build:skill": "node skills/svg-sprites/build.mjs",
     "check:skill": "node skills/svg-sprites/build.mjs --check",
     "dev": "tsup --watch",
     "test": "tsup && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit",
-    "sprite": "node dist/cli.js --mode legacy .",
     "verify": "npm run check:skill && npm run typecheck && npm test",
     "prepack": "npm run verify && npm run build"
   },

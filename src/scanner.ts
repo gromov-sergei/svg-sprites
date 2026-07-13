@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import type { SpriteEntry, SpriteFolder } from './types.js'
+import type { SpriteFolder } from './types.js'
 
 /**
  * Сканирует папку и возвращает отсортированные абсолютные пути к SVG-файлам.
@@ -60,47 +60,4 @@ export function resolveSpriteSources(options: ResolveSpriteSourcesOptions): Spri
     path: inputFolder,
     files,
   }
-}
-
-/**
- * Преобразует SpriteEntry из конфига в SpriteFolder для компиляции.
- */
-export function resolveSpriteEntry(entry: SpriteEntry): SpriteFolder {
-  const format = entry.format ?? 'stack'
-
-  if (Array.isArray(entry.input)) {
-    const files = resolveFiles(entry.input)
-
-    if (files.length === 0) {
-      throw new Error(`Sprite "${entry.name}" has empty input array.`)
-    }
-
-    return {
-      name: entry.name,
-      format,
-      path: null,
-      files,
-    }
-  }
-
-  const dirPath = path.resolve(entry.input)
-  const files = scanDirectory(dirPath)
-
-  if (files.length === 0) {
-    throw new Error(`Sprite "${entry.name}" has no SVG files in "${dirPath}".`)
-  }
-
-  return {
-    name: entry.name,
-    format,
-    path: dirPath,
-    files,
-  }
-}
-
-/**
- * Преобразует массив SpriteEntry из конфига в массив SpriteFolder.
- */
-export function resolveSprites(entries: SpriteEntry[]): SpriteFolder[] {
-  return entries.map(resolveSpriteEntry)
 }

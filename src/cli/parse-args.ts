@@ -1,119 +1,143 @@
-import type { NextAssetTarget, ReactAssetTarget } from '../targets/types.js'
+import { isSpriteMode } from '../config.js'
+import type { SpriteConfig, TransformOptions } from '../types.js'
 import type { CliArgs } from './types.js'
-
-const REACT_TARGETS = new Set<ReactAssetTarget>(['vite', 'webpack'])
-const NEXT_TARGETS = new Set<NextAssetTarget>([
-  'next@app/turbopack',
-  'next@app/webpack',
-  'next@pages/turbopack',
-  'next@pages/webpack',
-])
 
 export const CLI_USAGE = [
   'Usage:',
-  '  svg-sprites --mode <mode> <path>',
+  '  svg-sprites [options] <config-file-or-directory>',
+  '',
+  'Config files:',
+  '  Any explicitly provided .js, .json or .ts file',
+  '  A directory enables config-less generation from CLI options',
   '',
   'Modes:',
-  '  legacy          Generate sprites through the legacy pipeline',
-  '  react@vite      Generate a React module for Vite',
-  '  react@webpack   Generate a React module for Webpack 5',
-  '  next@app/turbopack    Generate an App Router module for Turbopack',
-  '  next@app/webpack      Generate an App Router module for Webpack 5',
-  '  next@pages/turbopack  Generate a Pages Router module for Turbopack',
-  '  next@pages/webpack    Generate a Pages Router module for Webpack 5',
+  '  react@vite',
+  '  react@webpack',
+  '  next@app/turbopack',
+  '  next@app/webpack',
+  '  next@pages/turbopack',
+  '  next@pages/webpack',
+  '',
+  'Options:',
+  '  --mode <mode>',
+  '  --name <name>',
+  '  --description <text>',
+  '  --input-folder <path>',
+  '  --input-file <path>        Repeat for multiple files',
+  '  --[no-]remove-size',
+  '  --[no-]replace-colors',
+  '  --[no-]add-transition',
+  '  --[no-]generated-notice',
 ].join('\n')
 
-export function parseCliArgs(argv: string[]): CliArgs | { help: true } {
-  if (argv.includes('--help') || argv.includes('-h')) {
-    return { help: true }
+function optionValue(argv: string[], index: number, option: string): [string, number] {
+  const argument = argv[index]
+  const inlinePrefix = `${option}=`
+  if (argument.startsWith(inlinePrefix)) {
+    const value = argument.slice(inlinePrefix.length)
+    if (!value) throw new Error(`Missing value for ${option}.`)
+    return [value, index]
   }
 
-  let modeValue: string | undefined
+  const value = argv[index + 1]
+  if (!value || value.startsWith('-')) throw new Error(`Missing value for ${option}.`)
+  return [value, index + 1]
+}
+
+function setTransform(
+  overrides: SpriteConfig,
+  option: keyof TransformOptions,
+  value: boolean,
+): void {
+  overrides.transform = {
+    ...overrides.transform,
+    [option]: value,
+  }
+}
+
+export function parseCliArgs(argv: string[]): CliArgs | { help: true } {
+  if (argv.includes('--help') || argv.includes('-h')) return { help: true }
+
   const positional: string[] = []
+  const overrides: SpriteConfig = {}
 
   for (let index = 0; index < argv.length; index++) {
     const argument = argv[index]
 
-    if (argument === '--mode') {
-      modeValue = argv[index + 1]
-      index++
+    if (argument === '--mode' || argument.startsWith('--mode=')) {
+      const [value, nextIndex] = optionValue(argv, index, '--mode')
+      if (!isSpriteMode(value)) throw new Error(`Unsupported sprite mode: ${value}.\n\n${CLI_USAGE}`)
+      overrides.mode = value
+      index = nextIndex
+      continue
+    }
+    if (argument === '--name' || argument.startsWith('--name=')) {
+      const [value, nextIndex] = optionValue(argv, index, '--name')
+      overrides.name = value
+      index = nextIndex
+      continue
+    }
+    if (argument === '--description' || argument.startsWith('--description=')) {
+      const [value, nextIndex] = optionValue(argv, index, '--description')
+      overrides.description = value
+      index = nextIndex
+      continue
+    }
+    if (argument === '--input-folder' || argument.startsWith('--input-folder=')) {
+      const [value, nextIndex] = optionValue(argv, index, '--input-folder')
+      overrides.inputFolder = value
+      index = nextIndex
+      continue
+    }
+    if (argument === '--input-file' || argument.startsWith('--input-file=')) {
+      const [value, nextIndex] = optionValue(argv, index, '--input-file')
+      overrides.inputFiles = [...(overrides.inputFiles ?? []), value]
+      index = nextIndex
       continue
     }
 
-    if (argument.startsWith('--mode=')) {
-      modeValue = argument.slice('--mode='.length)
-      continue
+    switch (argument) {
+      case '--remove-size':
+        setTransform(overrides, 'removeSize', true)
+        continue
+      case '--no-remove-size':
+        setTransform(overrides, 'removeSize', false)
+        continue
+      case '--replace-colors':
+        setTransform(overrides, 'replaceColors', true)
+        continue
+      case '--no-replace-colors':
+        setTransform(overrides, 'replaceColors', false)
+        continue
+      case '--add-transition':
+        setTransform(overrides, 'addTransition', true)
+        continue
+      case '--no-add-transition':
+        setTransform(overrides, 'addTransition', false)
+        continue
+      case '--generated-notice':
+        overrides.generatedNotice = true
+        continue
+      case '--no-generated-notice':
+        overrides.generatedNotice = false
+        continue
     }
 
     if (argument.startsWith('-')) {
       throw new Error(`Unknown argument: ${argument}\n\n${CLI_USAGE}`)
     }
-
     positional.push(argument)
   }
 
-  if (!modeValue) {
-    throw new Error(`Missing required argument: --mode\n\n${CLI_USAGE}`)
-  }
-
   if (positional.length === 0) {
-    throw new Error(`Missing sprite path.\n\n${CLI_USAGE}`)
+    throw new Error(`Missing sprite config file or module directory.\n\n${CLI_USAGE}`)
   }
-
   if (positional.length > 1) {
-    throw new Error(`Expected one sprite path, received: ${positional.join(', ')}`)
+    throw new Error(`Expected one config file or module directory, received: ${positional.join(', ')}`)
   }
 
-  if (modeValue === 'legacy') {
-    return {
-      mode: 'legacy',
-      path: positional[0],
-    }
+  return {
+    path: positional[0],
+    overrides,
   }
-
-  if (modeValue === 'react') {
-    throw new Error(
-      'React mode requires a target. Supported: react@vite, react@webpack.',
-    )
-  }
-
-  if (modeValue.startsWith('react@')) {
-    const target = modeValue.slice('react@'.length)
-
-    if (!REACT_TARGETS.has(target as ReactAssetTarget)) {
-      throw new Error(
-        `Unsupported React target: ${target}. Supported: ${[...REACT_TARGETS].join(', ')}.`,
-      )
-    }
-
-    return {
-      mode: 'react',
-      path: positional[0],
-      target: target as ReactAssetTarget,
-    }
-  }
-
-  if (modeValue === 'next') {
-    throw new Error(
-      `Next.js mode requires a router and bundler. Supported: ${[...NEXT_TARGETS].join(', ')}.`,
-    )
-  }
-
-  if (modeValue.startsWith('next@')) {
-    if (!NEXT_TARGETS.has(modeValue as NextAssetTarget)) {
-      throw new Error(
-        `Unsupported Next.js target: ${modeValue}. Supported: ${[...NEXT_TARGETS].join(', ')}.`,
-      )
-    }
-
-    return {
-      mode: 'next',
-      path: positional[0],
-      target: modeValue as NextAssetTarget,
-    }
-  }
-
-  throw new Error(
-    `Unknown mode: ${modeValue}\nSupported modes: legacy, react@vite, react@webpack, ${[...NEXT_TARGETS].join(', ')}`,
-  )
 }

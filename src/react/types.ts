@@ -1,4 +1,4 @@
-import type { SpriteAssetTarget } from '../targets/types.js'
+import type { SpriteAssetTarget, SpriteMode } from '../targets/types.js'
 
 export type SpriteManifestColor = {
   variable: `--icon-color-${number}`
@@ -19,6 +19,7 @@ export type SpriteManifest = {
   name: string
   description?: string
   componentName: string
+  mode?: SpriteMode
   target: SpriteAssetTarget
   format: 'stack' | 'symbol'
   iconCount: number
