@@ -1,0 +1,16 @@
+node_modules/
+playwright-report/
+test-results/
+apps/*/dist/
+apps/*/.angular/
+apps/*/.astro/
+apps/*/.next/
+apps/*/.nuxt/
+apps/*/.output/
+apps/*/.svelte-kit/
+apps/*/build/
+apps/*/out-tsc/
+apps/*/public/sprites/
+apps/*/static/sprites/
+apps/*/*.tsbuildinfo
+apps/*/src/sprite/.svg-sprite/

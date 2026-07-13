@@ -45,6 +45,11 @@
     "dev": "tsup --watch",
     "test": "tsup && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit",
+    "integration:install": "npm ci --prefix integration",
+    "integration:generate": "npm run build:package && npm run generate --prefix integration",
+    "integration:build": "npm run build:package && npm run build --prefix integration",
+    "integration:test": "npm run test:e2e --prefix integration",
+    "integration:verify": "npm run build:package && npm run verify --prefix integration",
     "verify": "npm run check:skill && npm run typecheck && npm test",
     "prepack": "npm run verify && npm run build"
   },

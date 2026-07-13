@@ -1,0 +1,20 @@
+{
+  "name": "@svg-sprites-fixtures/integration",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "generate": "node scripts/run-workspaces.mjs sprites",
+    "typecheck": "node scripts/run-workspaces.mjs typecheck",
+    "build": "node scripts/run-workspaces.mjs build",
+    "test:e2e": "playwright test",
+    "verify": "npm run generate && npm run typecheck && npm run build && npm run test:e2e"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.1",
+    "pngjs": "7.0.0"
+  }
+}

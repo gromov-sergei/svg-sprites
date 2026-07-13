@@ -1,0 +1,44 @@
+---
+const title = 'Astro sprite fixture'
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main>
+      <h1>Astro</h1>
+      <svg
+        data-testid="icon"
+        data-app="astro"
+        aria-label="Check icon"
+        viewBox="0 0 24 24"
+      >
+        <use href="/sprites/icons.sprite.svg#check"></use>
+      </svg>
+    </main>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    font-family: system-ui, sans-serif;
+    color: #172033;
+    background: #fff;
+  }
+
+  body {
+    margin: 0;
+    padding: 40px;
+  }
+
+  [data-testid='icon'] {
+    width: 64px;
+    height: 64px;
+    color: #16a34a;
+  }
+</style>
