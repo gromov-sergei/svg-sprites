@@ -6,7 +6,7 @@
 
 `@gromlab/svg-sprites` is an SVG sprite generator for modern web applications. It combines selected SVG icons into one or more external, cacheable sprites and prepares them for use in the UI.
 
-For React and Next.js, the package generates typed components and supports Vite, Webpack 5, and Turbopack. At its core is a standard SVG sprite that can be used without a framework, including in native HTML.
+For React and Next.js, the package generates typed components and external SVG assets with support for Vite, Webpack 5, and Turbopack.
 
 ## An SVG sprite as simple as a regular SVG icon
 
@@ -61,9 +61,10 @@ Create the sprite configuration:
 
 ```ts
 // src/ui/app-icons/svg-sprite.config.ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineNextSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'next@app/turbopack',
   name: 'app',
   inputFiles: [
     '../../assets/icons/search.svg',
@@ -78,7 +79,7 @@ export default defineNextSpriteConfig({
 ```json
 {
   "scripts": {
-    "sprites": "svg-sprites --mode next@app/turbopack src/ui/app-icons",
+    "sprites": "svg-sprites src/ui/app-icons/svg-sprite.config.ts",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites"
   }
@@ -224,11 +225,9 @@ It also provides ready-to-use integration examples for:
 
 The Viewer is added only to an internal debug page and does not become part of the generated icon components.
 
-## From native HTML to Next.js
+## React and Next.js
 
-At its core is a standard SVG sprite that can be used even without a framework or bundler.
-
-For React and Next.js, the package generates typed components and supports Vite, Webpack 5, and Turbopack. The list of ready-made integrations will expand to include new frameworks.
+The package generates typed React components and supports Vite, Webpack 5, Next.js App Router, and Pages Router with Turbopack or Webpack.
 
 ## Clean Git history
 
@@ -252,13 +251,11 @@ This README introduces the project's capabilities and demonstrates the primary u
 - [Next.js Pages Router](docs/en/next-pages.md)
 - [React + Vite](docs/en/react-vite.md)
 - [React + Webpack 5](docs/en/react-webpack.md)
-- [Native HTML and classic SVG sprites](docs/en/legacy.md)
 
 ### Technical resources
 
 - [Technical reference](docs/en/reference.md)
 - [Programmatic API](docs/en/programmatic-api.md)
-- [Migrating from 0.1.x](docs/en/migration-1.md)
 
 ## License
 

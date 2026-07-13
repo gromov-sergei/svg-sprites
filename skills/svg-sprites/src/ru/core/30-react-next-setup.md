@@ -21,9 +21,10 @@ npm install --save-dev @gromlab/svg-sprites
 Используй config helper для autocomplete и проверки типов:
 
 ```ts
-import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineReactSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'react@vite',
   name: 'file-manager',
   description: 'Иконки файлового менеджера',
   inputFolder: './icons',
@@ -31,7 +32,7 @@ export default defineReactSpriteConfig({
 })
 ```
 
-Контракт объекта одинаков для React и Next.js. Для Next.js-спрайта используй `defineNextSpriteConfig(...)`.
+Контракт объекта одинаков для React и Next.js; отличается полный `mode`.
 
 `name` должен начинаться с латинской буквы и записываться в kebab-case; из примера `file-manager` будут созданы `FileManagerIcon`, `FileManagerIconName` и `fileManagerIconNames`. Другой спрайт получает собственные имена. Если `name` не задан, генератор выводит его из каталога.
 
@@ -40,15 +41,15 @@ export default defineReactSpriteConfig({
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "svg-sprites --mode react@vite src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites src/ui/file-manager/svg-sprite/svg-sprite.config.ts",
     "sprites": "npm run sprite:file-manager"
   }
 }
 ```
 
-Для Next.js подставь полный ключ, например `next@app/turbopack`. Для нескольких спрайтов добавь по команде `sprite:<name>` на каждый каталог и последовательно вызови их из `sprites`.
+Для Next.js укажи в config полный ключ, например `next@app/turbopack`. Для нескольких спрайтов добавь по команде `sprite:<name>` на каждый config-файл и последовательно вызови их из `sprites`.
 
-Generated-файлы по умолчанию исключаются из Git, поэтому запускай `sprites` до процессов, которым нужны `index.ts`, типы или asset. Добавь вызов к `predev`, `prebuild` и, если есть `typecheck`, к `pretypecheck`.
+Generated-файлы в `.svg-sprite` по умолчанию исключаются из Git, поэтому запускай `sprites` до процессов, которым нужны компонент, типы или asset. Если проект импортирует корень sprite-модуля, создай пользовательский `index.ts` с `export * from './.svg-sprite'`. Добавь генерацию к `predev`, `prebuild` и, если есть `typecheck`, к `pretypecheck`.
 
 Если lifecycle script отсутствует, создай его. Если он уже существует, сохрани его команду и допиши генерацию через `&&`, например преобразуй `"prebuild": "npm run lint"` в `"prebuild": "npm run lint && npm run sprites"`. Никогда не заменяй существующий `pre*` одной генерацией и не создавай второй одноимённый JSON key.
 

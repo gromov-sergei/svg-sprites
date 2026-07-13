@@ -22,17 +22,26 @@ src/ui/file-manager/svg-sprite/
 ├── icons/
 │   ├── check.svg
 │   └── folder.svg
+├── index.ts
 └── svg-sprite.config.ts
 ```
 
 ```ts
 // src/ui/file-manager/svg-sprite/svg-sprite.config.ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineNextSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'next@pages/webpack',
   name: 'file-manager',
   description: 'File manager icons',
 })
+```
+
+The root barrel is application-owned:
+
+```ts
+// src/ui/file-manager/svg-sprite/index.ts
+export * from './.svg-sprite'
 ```
 
 ## 3. Add generation
@@ -40,7 +49,7 @@ export default defineNextSpriteConfig({
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "svg-sprites --mode next@pages/webpack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites src/ui/file-manager/svg-sprite/svg-sprite.config.ts",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager"
   }
@@ -77,7 +86,7 @@ The component works the same way with SSR, SSG, and client-side navigation. Next
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 
 const sources = [
-  () => import('@/ui/file-manager/svg-sprite/manifest'),
+  () => import('@/ui/file-manager/svg-sprite/.svg-sprite/svg-sprite.manifest.js'),
 ]
 
 export default function SpritesPage() {

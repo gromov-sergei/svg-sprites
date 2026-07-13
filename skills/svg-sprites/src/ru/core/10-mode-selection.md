@@ -10,24 +10,18 @@
 | Next.js App Router + Webpack 5 | `next@app/webpack` |
 | Next.js Pages Router + Turbopack | `next@pages/turbopack` |
 | Next.js Pages Router + Webpack 5 | `next@pages/webpack` |
-| Старый общий конфиг | `legacy` |
 
-Не используй неполные `react`, `next@app`, `next@pages`, будущий `standalone` или mode другого сборщика. Установи пакет как development dependency и добавь локальный CLI в package script. CLI всегда требует mode и ровно один путь к каталогу конфигурации:
+Mode задаётся в config, CLI или программном API. Порядок применения: `defaults → config → CLI/API overrides`. После объединения mode обязателен.
+
+CLI принимает ровно один путь. Путь к файлу `.ts`, `.js` или `.json` загружает именно этот конфиг независимо от имени. Путь к каталогу включает config-less генерацию, и настройки передаются флагами CLI.
 
 ```json
 {
   "scripts": {
-    "sprite:<name>": "svg-sprites --mode <mode-key> <sprite-directory>"
+    "sprite:<name>": "svg-sprites <path-to-config>",
+    "sprite:<name>:cli": "svg-sprites --mode <mode-key> <sprite-directory>"
   }
 }
 ```
 
-Не передавай несколько путей, glob или путь к самому файлу конфигурации. Для нескольких современных спрайтов создай отдельную команду для каждого каталога.
-
-Определяй legacy по контракту, а не по количеству спрайтов:
-
-- `svg-sprites.config.ts` в переданном корне с верхнеуровневыми `output` и непустым массивом `sprites` является legacy-конфигурацией даже при одном элементе;
-- каждый legacy-элемент использует `name`, `input` и необязательный `format: 'stack' | 'symbol'`; поле `mode` устарело;
-- локальный `svg-sprite.config.ts` в каталоге одного спрайта с `name`, `description`, `inputFolder`, `inputFiles`, `transform` и `generatedNotice` относится к React/Next API даже если таких спрайтов в приложении много.
-
-Не мигрируй legacy-конфигурацию без явного запроса. Не смешивай `defineLegacyConfig` и поля `output`/`sprites` с `defineReactSpriteConfig` или `defineNextSpriteConfig`.
+Не используй неполные `react`, `next@app`, `next@pages`, удалённый `legacy` или ещё не реализованный `standalone`. Для нескольких спрайтов создай отдельную команду для каждого config-файла или каталога.

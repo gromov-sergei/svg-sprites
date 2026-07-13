@@ -6,7 +6,7 @@
 
 `@gromlab/svg-sprites` — генератор SVG-спрайтов для современных веб-приложений. Он собирает выбранные SVG-иконки в один или несколько внешних кешируемых спрайтов и подготавливает их для использования в интерфейсе.
 
-Для React и Next.js пакет создаёт типизированные компоненты и поддерживает Vite, Webpack 5 и Turbopack. В основе при этом остаётся обычный SVG-спрайт, который можно использовать без фреймворка, в том числе в нативном HTML.
+Для React и Next.js пакет создаёт типизированные компоненты и внешние SVG assets, поддерживая Vite, Webpack 5 и Turbopack.
 
 ## SVG-спрайт так же прост, как обычная SVG-иконка
 
@@ -61,9 +61,10 @@ src/
 
 ```ts
 // src/ui/app-icons/svg-sprite.config.ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineNextSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'next@app/turbopack',
   name: 'app',
   inputFiles: [
     '../../assets/icons/search.svg',
@@ -78,7 +79,7 @@ export default defineNextSpriteConfig({
 ```json
 {
   "scripts": {
-    "sprites": "svg-sprites --mode next@app/turbopack src/ui/app-icons",
+    "sprites": "svg-sprites src/ui/app-icons/svg-sprite.config.ts",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites"
   }
@@ -224,11 +225,9 @@ JavaScript отвечает за интерфейс и поведение, а г
 
 Viewer подключается только к внутренней debug-странице и не становится частью generated-компонентов иконок.
 
-## От нативного HTML до Next.js
+## React и Next.js
 
-В основе остаётся обычный SVG-спрайт, который можно использовать даже без фреймворка и сборщика.
-
-Для React и Next.js пакет генерирует типизированные компоненты и поддерживает Vite, Webpack 5 и Turbopack. Список готовых интеграций будет расширяться новыми фреймворками.
+Пакет генерирует типизированные React-компоненты и поддерживает Vite, Webpack 5, Next.js App Router и Pages Router с Turbopack или Webpack.
 
 ## Чистый Git
 
@@ -252,13 +251,11 @@ README знакомит с возможностями проекта и пока
 - [Next.js Pages Router](docs/ru/next-pages.md)
 - [React + Vite](docs/ru/react-vite.md)
 - [React + Webpack 5](docs/ru/react-webpack.md)
-- [Нативный HTML и классические SVG-спрайты](docs/ru/legacy.md)
 
 ### Технические материалы
 
 - [Технический справочник](docs/ru/reference.md)
 - [Программный API](docs/ru/programmatic-api.md)
-- [Миграция с 0.1.x](docs/ru/migration-1.md)
 
 ## Лицензия
 

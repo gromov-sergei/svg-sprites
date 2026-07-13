@@ -5,23 +5,33 @@ After generation, the selected directory has this structure:
 ```text
 svg-sprite/
 ├── icons/                              # user-owned sources
-├── svg-sprite.config.ts                # user-owned config
+├── svg-sprite.config.ts                # recommended config name
+├── index.ts                            # optional user-owned barrel
 ├── .gitignore                          # managed by the generator
-├── index.ts                            # public production entry point
-├── manifest.ts                         # separate debug entry point
-└── generated/
-    ├── .svg-sprites.manifest.json      # ownership registry
-    ├── react-component.tsx
+└── .svg-sprite/
+    ├── state.json                      # ownership registry and contract version
+    ├── index.js
+    ├── index.d.ts
+    ├── icon-data.js
+    ├── icon-data.d.ts
     ├── sprite.svg
-    ├── styles.module.css
-    └── types.ts
+    ├── svg-sprite.manifest.js
+    ├── svg-sprite.manifest.d.ts
+    └── react/
+        ├── react-component.js
+        ├── react-component.d.ts
+        └── react-component.module.css
 ```
 
-Edit only the source SVGs and `svg-sprite.config.ts`. Do not manually change `.gitignore`, `index.ts`, `manifest.ts`, or anything in `generated/`: the next generation will overwrite them. Import the production API from the root `index.ts`, not through a deep import from `generated/`.
+Edit the source SVGs, selected config, and user-owned `index.ts`. Do not manually change `.gitignore` or anything in `.svg-sprite`: the next generation will overwrite them. To import from the sprite-module root, create a barrel:
 
-The generator owns only the listed root files and immediate files in `generated/`. The `.svg-sprites.manifest.json` registry allows stale generated files to be removed, but the writer refuses to overwrite or delete any file without a generated marker. Do not remove the marker, bypass the refusal, or replace generated paths with symlinks: move the user-owned file or choose a different directory.
+```ts
+export * from './.svg-sprite'
+```
 
-The public entry point exports the component, props/style types, a readonly array of names, and the icon-name union type. `manifest.ts` contains the URL, target, icon list, and icon metadata for debug tools and is not imported by the production component.
+The generator owns `.gitignore` and files inside `.svg-sprite`. The `state.json` registry allows stale generated files to be removed, but the writer refuses to overwrite or delete any file without a generated marker. Do not remove the marker, bypass the refusal, or replace generated paths with symlinks: move the user-owned file or choose a different directory.
+
+The internal `index.js` exports the component from `react/react-component.js` and the readonly name array; the adjacent `index.d.ts` adds props/style types and the icon-name union. The manifest contains the mode, URL, target, icon list, and icon metadata for debug tools and is not imported by the production component.
 
 The sprite remains a separate content-hashed asset; SVG path data is not embedded in JavaScript:
 

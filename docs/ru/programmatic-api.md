@@ -2,100 +2,65 @@
 
 [← Главная](../../README_RU.md)
 
-Пакет предоставляет основную Node.js точку входа и отдельный React runtime entry. Обе точки распространяются только как ESM и подключаются через `import`.
+Пакет распространяется как ESM и предоставляет единый Node.js API генерации. React runtime с `SpriteViewer` находится в отдельной точке входа `@gromlab/svg-sprites/react`.
 
-Для разрешения `@gromlab/svg-sprites/react` в TypeScript используйте `moduleResolution: "bundler"`, `"node16"` или `"nodenext"`.
-
-## Основной entry
+## `generateSprite`
 
 ```ts
-import {
-  defineNextSpriteConfig,
-  defineReactSpriteConfig,
-  generateNextSprite,
-  generateReactSprite,
-} from '@gromlab/svg-sprites'
-```
+import { generateSprite } from '@gromlab/svg-sprites'
 
-Основной entry не импортирует React и может использоваться в CLI, build scripts и Node.js инструментах.
-
-## `generateReactSprite`
-
-```ts
-import { generateReactSprite } from '@gromlab/svg-sprites'
-
-const result = await generateReactSprite(
-  'src/ui/file-manager/svg-sprite',
-  'vite',
+const result = await generateSprite(
+  'src/ui/file-manager/svg-sprite/svg-sprite.config.ts',
 )
 ```
 
-Второй аргумент обязателен:
+Первый аргумент принимает полный путь к config-файлу с любым именем и расширением `.ts`, `.js` или `.json`. Каталог вместо файла включает config-less режим: корнем sprite-модуля становится этот каталог.
+
+Второй аргумент содержит необязательные overrides и всегда имеет приоритет над конфигом:
 
 ```ts
-type ReactAssetTarget = 'vite' | 'webpack'
-```
-
-Результат:
-
-```ts
-type ReactSpriteGenerationResult = {
-  name: string
-  rootDir: string
-  generatedDir: string
-  spritePath: string
-  manifestPath: string
-  iconCount: number
-  target: 'vite' | 'webpack'
-}
-```
-
-```ts
-console.log(result.name)
-console.log(result.iconCount)
-console.log(result.spritePath)
-console.log(result.manifestPath)
-```
-
-Функция загружает `svg-sprite.config.ts` из указанного корня, компилирует SVG и безопасно обновляет managed-файлы.
-
-## `generateNextSprite`
-
-```ts
-import { generateNextSprite } from '@gromlab/svg-sprites'
-
-const result = await generateNextSprite(
-  'src/ui/file-manager/svg-sprite',
-  {
-    router: 'app',
-    bundler: 'turbopack',
+await generateSprite('src/ui/file-manager/svg-sprite/custom-config.json', {
+  mode: 'react@webpack',
+  name: 'documents',
+  inputFolder: './assets',
+  inputFiles: ['../../shared/search.svg'],
+  transform: {
+    addTransition: false,
   },
-)
+  generatedNotice: false,
+})
 ```
 
-Доступные значения:
+Порядок разрешения настроек:
 
-```ts
-type NextSpriteGenerationOptions = {
-  router: 'app' | 'pages'
-  bundler: 'turbopack' | 'webpack'
-}
+```text
+defaults → config → API overrides
 ```
 
-Результат дополнительно содержит выбранные `router`, `bundler` и полный target вида `next@app/turbopack`.
-
-## `defineReactSpriteConfig`
+Для полностью программной генерации передайте каталог и все обязательные настройки через overrides:
 
 ```ts
-import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+await generateSprite('src/ui/file-manager/svg-sprite', {
+  mode: 'react@vite',
+  name: 'file-manager',
+  inputFiles: [
+    '../../shared/search.svg',
+    '../../shared/settings.svg',
+  ],
+})
+```
 
-export default defineReactSpriteConfig({
+## Конфигурация
+
+```ts
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
+
+export default defineSpriteConfig({
+  mode: 'react@vite',
   name: 'file-manager',
   description: 'Иконки файлового менеджера',
   inputFolder: './icons',
-  inputFiles: [
-    '../../shared/icons/check.svg',
-  ],
+  inputFiles: ['../../shared/check.svg'],
   transform: {
     removeSize: true,
     replaceColors: true,
@@ -105,99 +70,54 @@ export default defineReactSpriteConfig({
 })
 ```
 
-`inputFolder` и `inputFiles` объединяются. Хелпер возвращает конфиг без runtime-преобразований и предоставляет TypeScript autocomplete.
+`defineSpriteConfig` является identity helper для TypeScript autocomplete. JS может экспортировать тот же объект через `export default`, а JSON содержит объект непосредственно.
 
-## `defineNextSpriteConfig`
+## Специализированные обёртки
+
+Специализированные функции доступны как обёртки над `generateSprite`:
 
 ```ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+import { generateNextSprite, generateReactSprite } from '@gromlab/svg-sprites'
 
-export default defineNextSpriteConfig({
-  name: 'file-manager',
-  description: 'Иконки файлового менеджера',
-  inputFolder: './icons',
+await generateReactSprite('path/to/config.ts', 'vite')
+await generateNextSprite('path/to/config.ts', {
+  router: 'app',
+  bundler: 'turbopack',
 })
 ```
 
-Next.js использует тот же контракт конфигурации, что и React presets.
+Явно переданный target перекрывает `mode` из файла. Для нового кода используйте `generateSprite`.
 
-## `generateLegacy`
-
-```ts
-import { generateLegacy } from '@gromlab/svg-sprites'
-
-const results = await generateLegacy({
-  output: 'public/sprites',
-  preview: false,
-  sprites: [
-    {
-      name: 'icons',
-      input: 'src/assets/icons',
-      format: 'symbol',
-    },
-  ],
-})
-```
-
-Возвращается массив:
+## Config API
 
 ```ts
-type SpriteResult = {
-  name: string
-  format: 'symbol' | 'stack'
-  spritePath: string
-  iconCount: number
-}
+import {
+  loadSpriteConfig,
+  resolveSpriteConfig,
+  validateSpriteConfig,
+} from '@gromlab/svg-sprites'
 ```
 
-Подробнее: [Legacy mode](legacy.md).
+- `loadSpriteConfig(file)` загружает явно указанный `.ts`, `.js` или `.json` файл.
+- `validateSpriteConfig(value)` выполняет runtime-валидацию объекта.
+- `resolveSpriteConfig(root, config, overrides)` объединяет значения, добавляет defaults и разрешает пути относительно `root`.
 
-## Низкоуровневые функции
-
-Основная точка входа также экспортирует:
+## Низкоуровневый compiler
 
 ```ts
 import {
   compileSprite,
   compileSpriteContent,
   createShapeTransform,
-  generatePreview,
-  loadLegacyConfig,
-  loadReactSpriteConfig,
-  resolveSpriteEntry,
-  resolveSprites,
 } from '@gromlab/svg-sprites'
 ```
 
-Эти функции предназначены для собственного orchestration поверх существующего compiler и writer. Для стандартного использования предпочтительны `generateReactSprite` и `generateLegacy`.
+Эти функции предназначены для собственного orchestration. Стандартная генерация должна выполняться через `generateSprite`.
 
-## React runtime entry
+## React runtime
 
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 ```
 
-Типы:
-
-```ts
-import type {
-  SpriteManifest,
-  SpriteManifestColor,
-  SpriteManifestIcon,
-  SpriteManifestLoader,
-  SpriteManifestModule,
-  SpriteViewerColorTheme,
-  SpriteViewerProps,
-  SpriteViewerSource,
-  SpriteViewerSources,
-} from '@gromlab/svg-sprites/react'
-```
-
-React entry содержит `'use client'` и предназначен для debug-инструментов. Generated production-компоненты импортируются из локальных sprite-модулей приложения, а не из React entry пакета.
-
-`SpriteViewerProps.colorTheme` принимает `auto | light | dark`. Значение `auto` используется по умолчанию и следует `prefers-color-scheme`; для синхронизации с темой приложения передавайте вычисленное `light` или `dark`.
-
-## Связанные руководства
-
-- [React + Vite](react-vite.md)
-- [React + Webpack 5](react-webpack.md)
+`SpriteViewer` принимает generated manifests, lazy loaders или результат `import.meta.glob`. Эта точка входа содержит `'use client'` и предназначена для debug-инструментов; production-компоненты импортируются из локальных sprite-модулей приложения.

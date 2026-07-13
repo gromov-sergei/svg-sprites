@@ -5,23 +5,33 @@
 ```text
 svg-sprite/
 ├── icons/                              # пользовательские исходники
-├── svg-sprite.config.ts                # пользовательский конфиг
+├── svg-sprite.config.ts                # рекомендуемое имя конфига
+├── index.ts                            # необязательный пользовательский barrel
 ├── .gitignore                          # управляет генератор
-├── index.ts                            # публичная production-точка входа
-├── manifest.ts                         # отдельная debug-точка входа
-└── generated/
-    ├── .svg-sprites.manifest.json      # реестр владения
-    ├── react-component.tsx
+└── .svg-sprite/
+    ├── state.json                      # реестр владения и версия контракта
+    ├── index.js
+    ├── index.d.ts
+    ├── icon-data.js
+    ├── icon-data.d.ts
     ├── sprite.svg
-    ├── styles.module.css
-    └── types.ts
+    ├── svg-sprite.manifest.js
+    ├── svg-sprite.manifest.d.ts
+    └── react/
+        ├── react-component.js
+        ├── react-component.d.ts
+        └── react-component.module.css
 ```
 
-Редактируй только исходные SVG и `svg-sprite.config.ts`. Не изменяй вручную `.gitignore`, `index.ts`, `manifest.ts` и содержимое `generated/`: повторная генерация их перезапишет. Импортируй production API из корневого `index.ts`, а не deep import из `generated/`.
+Редактируй исходные SVG, config-файл и пользовательский `index.ts`. Не изменяй вручную `.gitignore` и содержимое `.svg-sprite`: повторная генерация их перезапишет. Для импорта из корня sprite-модуля создай barrel:
 
-Генератор владеет только перечисленными корневыми файлами и непосредственными файлами `generated/`. Реестр `.svg-sprites.manifest.json` позволяет удалить устаревший generated-файл, но writer откажется перезаписывать или удалять файл без generated-маркера. Не удаляй маркер, не обходи отказ и не подменяй generated-пути symlink: перенеси пользовательский файл или выбери другой каталог.
+```ts
+export * from './.svg-sprite'
+```
 
-Публичная точка входа экспортирует компонент, props/style-типы, readonly-массив имён и union-тип имени. `manifest.ts` содержит URL, target, список и метаданные иконок для debug-инструментов и не импортируется production-компонентом.
+Генератор владеет `.gitignore` и файлами внутри `.svg-sprite`. Реестр `state.json` позволяет удалить устаревший generated-файл, но writer откажется перезаписывать или удалять файл без generated-маркера. Не удаляй маркер, не обходи отказ и не подменяй generated-пути symlink: перенеси пользовательский файл или выбери другой каталог.
+
+Внутренний `index.js` экспортирует компонент из `react/react-component.js` и readonly-массив имён; соседний `index.d.ts` добавляет props/style-типы и union имени. Manifest содержит mode, URL, target, список и метаданные иконок для debug-инструментов и не импортируется production-компонентом.
 
 Спрайт остаётся отдельным asset с content hash; SVG path-данные не встраиваются в JavaScript:
 

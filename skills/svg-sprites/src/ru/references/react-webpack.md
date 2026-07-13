@@ -30,9 +30,10 @@ npm install --save-dev @gromlab/svg-sprites
 ```
 
 ```ts
-import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineReactSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'react@webpack',
   name: 'file-manager',
   description: 'Иконки файлового менеджера',
   inputFolder: './icons',
@@ -49,7 +50,7 @@ export default defineReactSpriteConfig({
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "svg-sprites --mode react@webpack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites src/ui/file-manager/svg-sprite/svg-sprite.config.ts",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -74,7 +75,7 @@ export function OpenFolderButton() {
 }
 ```
 
-`width` и `height` в JSX необязательны: размер можно задать CSS-классом или через `wrapped`. Публичный entry также экспортирует `FileManagerIconProps`, `FileManagerIconStyle`, `FileManagerIconName` и `fileManagerIconNames`. Не импортируй файлы напрямую из `generated/` и не редактируй `generated/`, `index.ts`, `manifest.ts` или созданный `.gitignore`.
+`width` и `height` в JSX необязательны: размер можно задать CSS-классом или через `wrapped`. Пользовательский barrel также экспортирует `FileManagerIconProps`, `FileManagerIconStyle`, `FileManagerIconName` и `fileManagerIconNames`. Не редактируй `.svg-sprite` или созданный `.gitignore`.
 
 ## Нюанс Webpack target
 
@@ -88,7 +89,7 @@ Webpack 5 распознаёт его как Asset Module и заменяет н
 
 - не оборачивай путь в переменную и не меняй generated expression;
 - убедись, что Babel/TypeScript не преобразует `import.meta.url` до Webpack;
-- не позволяй `@svgr/webpack`, `svg-inline-loader`, `raw-loader` или общему SVG rule перехватить `svg-sprite/generated/sprite.svg`;
+- не позволяй `@svgr/webpack`, `svg-inline-loader`, `raw-loader` или общему SVG rule перехватить `svg-sprite/.svg-sprite/sprite.svg`;
 - при custom rule либо исключи generated sprite из component/raw loader, либо добавь отдельное правило `type: 'asset/resource'`;
 - проверь `output.publicPath`, особенно при CDN, subpath deployment и dev-server.
 
@@ -96,7 +97,7 @@ Webpack 5 распознаёт его как Asset Module и заменяет н
 
 ```js
 {
-  test: /svg-sprite[\\/]generated[\\/]sprite\.svg$/,
+  test: /svg-sprite[\\/]\.svg-sprite[\\/]sprite\.svg$/,
   type: 'asset/resource',
 }
 ```
@@ -131,7 +132,7 @@ npm run typecheck
 
 Это быстрые обязательные проверки. После генерации проверь:
 
-- `manifest.ts` содержит `target: "webpack"` и `format: "stack"`;
+- `.svg-sprite/svg-sprite.manifest.js` содержит `target: "webpack"` и `format: "stack"`;
 - generated component содержит `new URL('./sprite.svg', import.meta.url).href`;
 
 Production build и браузер/Network нужны дополнительно, если менялись target, Webpack asset rules, `publicPath`/deployment pipeline или диагностируется runtime. Тогда проверь отдельный hashed SVG asset, HTTP(S)-URL `.svg#id`, content type, fragment ID и корректный CDN/subpath URL. Не утверждай визуальную или a11y корректность без доступных инструментов.
@@ -145,7 +146,7 @@ Production build и браузер/Network нужны дополнительно
 - URL ведёт на неверный host/subpath: исправь `output.publicPath` и настройки runtime deployment, не generated-файл.
 - `import.meta` не поддержан: проверь, что сборка действительно Webpack 5 и промежуточный transpiler сохраняет выражение.
 - Viewer не загружает manifest: проверь literal path, chunk loading и наличие генерации до компиляции.
-- `Refusing to overwrite a user file`: каталог уже содержит пользовательский `index.ts`, `manifest.ts`, `.gitignore` или файл в `generated/`; перенеси его, не обходи защиту.
+- `Refusing to overwrite a user file`: каталог уже содержит пользовательский `.gitignore` или файл в `.svg-sprite`; перенеси его, не обходи защиту.
 - Иконка не меняет цвет: используй `color` для монохромной либо `--icon-color-N` через `<svg><use>`; CSS страницы не проникает внутрь `<img>`.
 
 Для custom build orchestration см. [programmatic-api.md](programmatic-api.md).

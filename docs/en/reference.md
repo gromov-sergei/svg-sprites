@@ -8,7 +8,6 @@ Reference for the configuration, generated API, and behavior of `@gromlab/svg-sp
 - [Next.js Pages Router](next-pages.md)
 - [React + Vite](react-vite.md)
 - [React + Webpack 5](react-webpack.md)
-- [Native HTML and classic SVG sprites](legacy.md)
 
 ## Requirements
 
@@ -25,10 +24,10 @@ npm install --save-dev @gromlab/svg-sprites
 
 ## CLI and generation modes
 
-The CLI accepts one mode and a path to the configuration directory:
+The CLI accepts exactly one path: an explicitly selected config file or a directory for config-less generation:
 
 ```text
-svg-sprites --mode <mode> <path>
+svg-sprites [options] <config-file-or-directory>
 ```
 
 | Environment | Mode |
@@ -39,20 +38,24 @@ svg-sprites --mode <mode> <path>
 | Next.js App Router + Webpack 5 | `next@app/webpack` |
 | Next.js Pages Router + Turbopack | `next@pages/turbopack` |
 | Next.js Pages Router + Webpack 5 | `next@pages/webpack` |
-| Classic `stack` and `symbol` sprites | `legacy` |
 
-Modern React and Next.js modes use a local `svg-sprite.config.ts`. Legacy mode uses a separate `svg-sprites.config.ts` and is covered in [its own guide](legacy.md).
+The config file may have any name and use the `.ts`, `.js`, or `.json` extension. The CLI does not discover it by convention: pass the file explicitly. The guides use `svg-sprite.config.ts` as the recommended name.
+
+When a directory is passed, all settings come from CLI options. When a config file is passed, CLI options override the file. The full order is `defaults → config → CLI`.
+
+Available options are `--mode`, `--name`, `--description`, `--input-folder`, repeatable `--input-file`, plus the `--remove-size`/`--no-remove-size`, `--replace-colors`/`--no-replace-colors`, `--add-transition`/`--no-add-transition`, and `--generated-notice`/`--no-generated-notice` pairs. Transform flags override individual fields, while supplying at least one `--input-file` replaces the complete config `inputFiles` array.
 
 The mode must match the application's bundler. The generator creates different SVG asset integration code for Vite and for bundlers compatible with Webpack Asset Modules.
 
-## React and Next.js configuration
+## Unified configuration
 
-Each directory containing `svg-sprite.config.ts` defines one independent sprite.
+Each config file defines one independent sprite.
 
 ```ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineNextSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'next@app/turbopack',
   name: 'app',
   description: 'Shared application icons',
   inputFolder: './local-icons',
@@ -69,18 +72,13 @@ export default defineNextSpriteConfig({
 })
 ```
 
-For React, use `defineReactSpriteConfig`. The configuration contract is the same:
-
-```ts
-import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
-```
-
 | Option | Type | Default | Purpose |
 |---|---|---|---|
+| `mode` | `SpriteMode` | None | Generation mode; may be supplied by CLI/API |
 | `name` | `string` | Derived from the directory | Name of the sprite, component, and public types |
 | `description` | `string` | None | Description for types and the debug manifest |
-| `inputFolder` | `string` | `./icons` | SVG directory relative to the configuration file |
-| `inputFiles` | `string[]` | `[]` | Paths to individual SVG files relative to the configuration file |
+| `inputFolder` | `string` | `./icons` | SVG directory relative to the module root |
+| `inputFiles` | `string[]` | `[]` | Paths to individual SVG files relative to the module root |
 | `transform` | `TransformOptions` | All enabled | SVG preparation settings |
 | `generatedNotice` | `boolean` | `true` | Full or abbreviated warning in generated files |
 
@@ -112,28 +110,41 @@ After generation, the sprite directory looks like this:
 ```text
 app-icons/
 ├── .gitignore
-├── index.ts
-├── manifest.ts
 ├── svg-sprite.config.ts
-└── generated/
-    ├── .svg-sprites.manifest.json
-    ├── react-component.tsx
+├── index.ts                         # optional user-owned barrel
+└── .svg-sprite/
+    ├── state.json
+    ├── index.js
+    ├── index.d.ts
+    ├── icon-data.js
+    ├── icon-data.d.ts
     ├── sprite.svg
-    ├── styles.module.css
-    └── types.ts
+    ├── svg-sprite.manifest.js
+    ├── svg-sprite.manifest.d.ts
+    └── react/
+        ├── react-component.js
+        ├── react-component.d.ts
+        └── react-component.module.css
 ```
 
 | File | Purpose |
 |---|---|
-| `index.ts` | Production exports for the component, props, styles, and icon names |
-| `manifest.ts` | Debug metadata and the asset URL for `SpriteViewer` |
-| `generated/sprite.svg` | Compiled SVG sprite |
-| `generated/react-component.tsx` | Typed React component |
-| `generated/styles.module.css` | Base styles and transitions |
-| `generated/types.ts` | Runtime list and union type of icon names |
-| `generated/.svg-sprites.manifest.json` | List of files managed by the generator |
+| `.svg-sprite/index.js` | Production exports for the component and runtime icon-name list |
+| `.svg-sprite/index.d.ts` | Public declarations for the component, props, styles, and icon-name union |
+| `.svg-sprite/svg-sprite.manifest.js` | Debug metadata and the asset URL for `SpriteViewer` |
+| `.svg-sprite/sprite.svg` | Compiled SVG sprite |
+| `.svg-sprite/react/react-component.js` | React component runtime without TypeScript or JSX |
+| `.svg-sprite/react/react-component.d.ts` | React component props, style, and declaration |
+| `.svg-sprite/react/react-component.module.css` | Styles for the React implementation |
+| `.svg-sprite/icon-data.js` | Runtime icon-name list and internal IDs |
+| `.svg-sprite/*.d.ts` | TypeScript declarations for the corresponding JavaScript modules |
+| `.svg-sprite/state.json` | Mode, contract version, and managed file list |
 
-The generator overwrites and deletes only files that contain its marker. If a user file occupies a managed path, generation fails.
+The generator overwrites and deletes only files that contain its marker. If a user file occupies a managed path, generation fails. The root `index.ts` is user-owned; create a barrel when needed:
+
+```ts
+export * from './.svg-sprite'
+```
 
 ## React component and TypeScript
 
@@ -224,12 +235,11 @@ For multiple sprites, add a separate CLI command for each directory or combine t
 
 ## Formats and rendering methods
 
-Modern React and Next.js modes generate the `stack` format. Legacy mode supports both `stack` and `symbol`.
+React and Next.js modes generate the `stack` format.
 
 | Format | `<svg><use>` | `<img>` | CSS background |
 |---|---:|---:|---:|
 | `stack` | Yes | Yes | Yes |
-| `symbol` | Yes | No | No |
 
 ### Generated component
 
@@ -246,13 +256,13 @@ How you obtain `spriteUrl` depends on the bundler.
 Vite:
 
 ```ts
-import spriteUrl from './generated/sprite.svg?no-inline'
+import spriteUrl from './.svg-sprite/sprite.svg?no-inline'
 ```
 
 Webpack 5, Turbopack, and Next.js:
 
 ```ts
-const spriteUrl = new URL('./generated/sprite.svg', import.meta.url).href
+const spriteUrl = new URL('./.svg-sprite/sprite.svg', import.meta.url).href
 ```
 
 After obtaining the URL, use it in JSX:
@@ -277,7 +287,7 @@ An SVG inside `<img>` is isolated from the page's CSS. Setting `color` or `--ico
 
 ```css
 .icon {
-  background: url('./generated/sprite.svg#search') center / contain no-repeat;
+  background: url('./.svg-sprite/sprite.svg#search') center / contain no-repeat;
 }
 ```
 
@@ -286,7 +296,7 @@ For a single-color silhouette, you can use a mask:
 ```css
 .icon {
   background-color: currentColor;
-  mask: url('./generated/sprite.svg#search') center / contain no-repeat;
+  mask: url('./.svg-sprite/sprite.svg#search') center / contain no-repeat;
 }
 ```
 
@@ -300,7 +310,7 @@ The generated component passes the SVG to the bundler as a separate asset:
 
 - Vite uses a static import with `?no-inline`;
 - Webpack 5, Turbopack, and Next.js use `new URL(..., import.meta.url)`;
-- SVG path data is not serialized into the generated TSX.
+- SVG path data is not serialized into generated JavaScript.
 
 With standard asset naming, the bundler adds a content hash:
 
@@ -325,7 +335,8 @@ All transformations are enabled by default and can be configured independently:
 To disable an individual operation:
 
 ```ts
-export default defineNextSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'next@app/turbopack',
   transform: {
     removeSize: false,
     replaceColors: false,
@@ -399,7 +410,7 @@ import { SpriteViewer } from '@gromlab/svg-sprites/react'
 import type { SpriteManifestModule } from '@gromlab/svg-sprites/react'
 
 const sources = import.meta.glob<SpriteManifestModule>(
-  '/src/**/svg-sprite/manifest.ts',
+  '/src/**/svg-sprite/.svg-sprite/svg-sprite.manifest.js',
 )
 
 export const IconsDebugPage = () => (
@@ -411,8 +422,8 @@ Webpack and Next.js:
 
 ```tsx
 const sources = [
-  () => import('@/ui/app-icons/manifest'),
-  () => import('@/features/analytics/icons/manifest'),
+  () => import('@/ui/app-icons/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('@/features/analytics/icons/.svg-sprite/svg-sprite.manifest.js'),
 ]
 
 export const IconsDebugPage = () => (
@@ -447,9 +458,7 @@ To synchronize it with the application theme:
 A modern sprite module creates a local `.gitignore` for:
 
 ```text
-/generated/
-/index.ts
-/manifest.ts
+/.svg-sprite/
 ```
 
 Commit the local `.gitignore` to the repository once. It excludes the other generated files, so generation must run before commands that import the sprite module:
@@ -457,7 +466,7 @@ Commit the local `.gitignore` to the repository once. It excludes the other gene
 ```json
 {
   "scripts": {
-    "sprites": "svg-sprites --mode next@app/turbopack src/ui/app-icons",
+    "sprites": "svg-sprites src/ui/app-icons/svg-sprite.config.ts",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites",
     "pretypecheck": "npm run sprites"
@@ -467,18 +476,19 @@ Commit the local `.gitignore` to the repository once. It excludes the other gene
 
 CI must install development dependencies and run the generation script before building or type-checking.
 
-If the sprite directory already contains a user-created `.gitignore`, `index.ts`, or `manifest.ts`, the generator will not overwrite it. Move the user file or choose a separate sprite directory.
+If the sprite directory already contains a user-created `.gitignore` or a user-owned file inside `.svg-sprite`, the generator will not overwrite it. The root `index.ts` remains user-owned and may re-export the generated API.
 
 ## Troubleshooting
 
-- Missing `index.ts`: run the generation script before importing the module.
-- Configuration not found: check the CLI path and the `svg-sprite.config.ts` file name.
+- Missing `.svg-sprite/index.js`: run the generation script before importing the generated module.
+- Source not found: pass an existing config file or sprite module directory.
+- Mode missing: add `mode` to the config or pass `--mode`.
 - Icon missing from the type: check `inputFiles`, the `.svg` extension, and the nesting level under `inputFolder`.
 - Name conflict: two different SVG files have the same basename; rename one of them.
 - `Refusing to overwrite a user file`: a file without the generated marker occupies a managed path.
 - The icon does not change color: use `<svg><use>` or the generated component and check `replaceColors`.
 - Webpack emits an incorrect URL: check Asset Modules, `output.publicPath`, and SVG loaders.
-- The Viewer cannot find the sprite: check the path to `manifest.ts` and run generation before starting the application.
+- The Viewer cannot find the sprite: check the path to `.svg-sprite/svg-sprite.manifest.js` and run generation before starting the application.
 - Build and mode do not match: use the target that corresponds to the actual bundler.
 
 For custom orchestration and low-level compilation, see the [Programmatic API](programmatic-api.md).

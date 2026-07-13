@@ -13,7 +13,6 @@
 
 - For React + Vite, open [React + Vite](./references/react-vite.md); for React with a custom Webpack 5 setup, open [React + Webpack](./references/react-webpack.md).
 - For Next.js, open the guide for the [App Router](./references/next-app.md) or [Pages Router](./references/next-pages.md), then select the section for the bundler actually in use.
-- If the project has `svg-sprites.config.ts`, open [legacy mode](./references/legacy.md); when upgrading from `0.1.x`, also open the [migration guide](./references/migration-1.md).
 - To invoke the generator from Node.js, open the [programmatic API](./references/programmatic-api.md).
 - For gradients, filters, `url(#...)`, unusual colors, and `viewBox` issues, open [complex SVGs](./references/complex-svg.md).
 - Use the complete user documentation as a secondary source: [package README](./references/upstream/README.md).

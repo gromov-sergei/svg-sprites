@@ -19,6 +19,7 @@ src/ui/file-manager/svg-sprite/
 ├── icons/
 │   ├── check.svg
 │   └── folder.svg
+├── index.ts
 └── svg-sprite.config.ts
 ```
 
@@ -28,24 +29,32 @@ Place the source SVG files in `icons/`.
 
 ```ts
 // src/ui/file-manager/svg-sprite/svg-sprite.config.ts
-import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineReactSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'react@vite',
   name: 'file-manager',
   description: 'File manager icons',
 })
 ```
 
+The root barrel is application-owned and explicitly re-exports the generated API:
+
+```ts
+// src/ui/file-manager/svg-sprite/index.ts
+export * from './.svg-sprite'
+```
+
 By default, SVG files are loaded from `./icons`. You can add shared icons from other directories through `inputFiles`: the directory and file list are combined into a single sprite.
 
-The complete list of options is available under [React and Next.js configuration](reference.md#react-and-nextjs-configuration).
+The complete list of options is available under [Unified configuration](reference.md#unified-configuration).
 
 ## 4. Add generation to package.json
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "svg-sprites --mode react@vite src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites src/ui/file-manager/svg-sprite/svg-sprite.config.ts",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -96,7 +105,7 @@ import { SpriteViewer } from '@gromlab/svg-sprites/react'
 import type { SpriteManifestModule } from '@gromlab/svg-sprites/react'
 
 const sources = import.meta.glob<SpriteManifestModule>(
-  '/src/**/svg-sprite/manifest.ts',
+  '/src/**/svg-sprite/.svg-sprite/svg-sprite.manifest.js',
 )
 
 export const IconsDebugPage = () => (
@@ -104,13 +113,13 @@ export const IconsDebugPage = () => (
 )
 ```
 
-Vite automatically finds the generated `manifest.ts` for each React sprite. The `import.meta.glob` pattern must be a string literal, and generation must run before Vite starts.
+Vite automatically finds the generated manifest for each React sprite. The `import.meta.glob` pattern must be a string literal, and generation must run before Vite starts.
 
 Only include the Viewer on a debug route or in an internal tool.
 
 ## Troubleshooting
 
-- Missing `index.ts`: run `npm run sprite:file-manager`.
-- The Viewer cannot find the sprite: check the glob path and make sure `manifest.ts` exists.
+- Missing `.svg-sprite/index.js`: run `npm run sprite:file-manager`.
+- The Viewer cannot find the sprite: check the glob path to `.svg-sprite/svg-sprite.manifest.js`.
 - `Refusing to overwrite a user file` error: there is a user file at a generated path.
 - The icon does not change color: use `color` or `--icon-color-N`.

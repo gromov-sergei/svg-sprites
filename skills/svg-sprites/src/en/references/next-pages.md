@@ -30,9 +30,10 @@ npm install --save-dev @gromlab/svg-sprites
 ```
 
 ```ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineNextSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'next@pages/webpack',
   name: 'file-manager',
   description: 'File manager icons',
   inputFolder: './icons',
@@ -53,7 +54,7 @@ Example lifecycle scripts for Webpack:
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "svg-sprites --mode next@pages/webpack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites src/ui/file-manager/svg-sprite/svg-sprite.config.ts",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -79,7 +80,7 @@ export function getServerSideProps() {
 
 `width` and `height` are optional in JSX; set the size with a CSS class or `wrapped`. The component works during SSR, SSG, and client navigation. It uses `new URL('./sprite.svg', import.meta.url).href` so Next emits an external hashed asset. Do not copy the generated SVG into `public` or construct the URL manually.
 
-Import the component and types only from the local `svg-sprite/index.ts`. Do not edit `generated/`, `index.ts`, `manifest.ts`, or the generated `.gitignore`.
+Import the component and types from the local user-owned `svg-sprite/index.ts`, which re-exports `.svg-sprite`. Do not edit `.svg-sprite` or the generated `.gitignore`.
 
 ## SpriteViewer
 
@@ -115,7 +116,7 @@ npm run build
 
 After the required generation and typecheck, verify that:
 
-- `manifest.ts` contains `next@pages/turbopack` or `next@pages/webpack`;
+- `.svg-sprite/svg-sprite.manifest.js` contains `next@pages/turbopack` or `next@pages/webpack`;
 - `getServerSideProps`/`getStaticProps` does not import the package React Viewer entry.
 
 After the conditional production build, and only when browser tools are available, inspect the SSR route and navigation to it:

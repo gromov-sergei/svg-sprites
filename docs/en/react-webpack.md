@@ -19,6 +19,7 @@ src/ui/file-manager/svg-sprite/
 ├── icons/
 │   ├── check.svg
 │   └── folder.svg
+├── index.ts
 └── svg-sprite.config.ts
 ```
 
@@ -28,24 +29,32 @@ Place the source SVG files in `icons/`.
 
 ```ts
 // src/ui/file-manager/svg-sprite/svg-sprite.config.ts
-import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineReactSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'react@webpack',
   name: 'file-manager',
   description: 'File manager icons',
 })
 ```
 
+The root barrel is application-owned and explicitly re-exports the generated API:
+
+```ts
+// src/ui/file-manager/svg-sprite/index.ts
+export * from './.svg-sprite'
+```
+
 By default, SVG files are loaded from `./icons`. You can add shared icons from other directories through `inputFiles`: the directory and file list are combined into a single sprite.
 
-The complete list of options is available under [React and Next.js configuration](reference.md#react-and-nextjs-configuration).
+The complete list of options is available under [Unified configuration](reference.md#unified-configuration).
 
 ## 4. Add generation to package.json
 
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "svg-sprites --mode react@webpack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites src/ui/file-manager/svg-sprite/svg-sprite.config.ts",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -87,7 +96,7 @@ Webpack processes the generated `new URL('./sprite.svg', import.meta.url)` throu
 
 If the project already uses a custom SVG loader, make sure it does not intercept the generated `sprite.svg` instead of Asset Modules.
 
-The generated component imports `styles.module.css`, so Webpack must process CSS Modules through `css-loader` and `style-loader` or `MiniCssExtractPlugin`. If the TypeScript project does not include a declaration for CSS Modules, add one separately.
+The generated component imports `react/react-component.module.css`, so Webpack must process CSS Modules through `css-loader` and `style-loader` or `MiniCssExtractPlugin`. If the TypeScript project does not include a declaration for CSS Modules, add one separately.
 
 ## 6. Add a debug page
 
@@ -97,8 +106,8 @@ Webpack does not support Vite's `import.meta.glob` API, so provide static loader
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 
 const sources = [
-  () => import('./ui/file-manager/svg-sprite/manifest'),
-  () => import('./ui/navigation/svg-sprite/manifest'),
+  () => import('./ui/file-manager/svg-sprite/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('./ui/navigation/svg-sprite/.svg-sprite/svg-sprite.manifest.js'),
 ]
 
 export const IconsDebugPage = () => (
@@ -112,8 +121,8 @@ Only include the Viewer on a debug route or in an internal tool.
 
 ## Troubleshooting
 
-- Missing `index.ts`: run `npm run sprite:file-manager`.
-- The Viewer does not load the sprite: check the path in `import()` and make sure `manifest.ts` exists.
+- Missing `.svg-sprite/index.js`: run `npm run sprite:file-manager`.
+- The Viewer does not load the sprite: check the `import()` path to `.svg-sprite/svg-sprite.manifest.js`.
 - Incorrect asset URL: check `output.publicPath`.
 - Another loader intercepts the SVG: exclude the generated sprite from the incompatible rule.
 

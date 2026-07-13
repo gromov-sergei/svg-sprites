@@ -21,8 +21,6 @@ src/<language>/
     ├── react-webpack.md
     ├── next-app.md
     ├── next-pages.md
-    ├── legacy.md
-    ├── migration-1.md
     ├── programmatic-api.md
     └── complex-svg.md
 ```

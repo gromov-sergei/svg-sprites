@@ -66,7 +66,7 @@ Automatic replacement targets `fill`/`stroke` attributes and inline `style`. The
 
 `SpriteViewer` is optional. Import it from `@gromlab/svg-sprites/react` only on a debug route:
 
-- in Vite, pass the result of a string-literal `import.meta.glob('/src/**/svg-sprite/manifest.ts')`;
+- in Vite, pass the result of a string-literal `import.meta.glob('/src/**/svg-sprite/.svg-sprite/svg-sprite.manifest.js')`;
 - in Webpack, pass an array of static `() => import('.../manifest')` loaders;
 - in Next.js, use the same static loaders, and for the App Router put the Viewer in a separate file with `'use client'`.
 

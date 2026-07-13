@@ -30,9 +30,10 @@ npm install --save-dev @gromlab/svg-sprites
 ```
 
 ```ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineNextSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'next@app/turbopack',
   name: 'file-manager',
   description: 'File manager icons',
   inputFolder: './icons',
@@ -41,7 +42,7 @@ export default defineNextSpriteConfig({
 ```
 
 - The project chooses the directory for each specific sprite; it does not have to be a module/feature directory. Each config describes one of potentially many application sprites.
-- The config filename is singular: `svg-sprite.config.ts`.
+- `svg-sprite.config.ts` is the recommended name; the CLI accepts an explicitly selected `.ts`, `.js`, or `.json` file with any name.
 - Paths are relative to its directory; `inputFolder` scanning is shallow.
 - The local folder and `inputFiles` are merged. Equal basenames from different files are forbidden.
 - If no name is configured, it is derived from the directory; for a directory named `svg-sprite`, the parent directory name is used. An explicit `name` is more stable when files move.
@@ -56,7 +57,7 @@ Example scripts for Turbopack:
 ```json
 {
   "scripts": {
-    "sprite:file-manager": "svg-sprites --mode next@app/turbopack src/ui/file-manager/svg-sprite",
+    "sprite:file-manager": "svg-sprites src/ui/file-manager/svg-sprite/svg-sprite.config.ts",
     "predev": "npm run sprite:file-manager",
     "prebuild": "npm run sprite:file-manager",
     "pretypecheck": "npm run sprite:file-manager"
@@ -84,7 +85,7 @@ export default function Page() {
 
 `width` and `height` are optional in JSX; set the size with a CSS class or `wrapped`. Do not add a Client Component boundary solely for the icon. The generated module builds the asset URL with static `new URL('./sprite.svg', import.meta.url).href`; the same mechanism is used during SSR and in the browser.
 
-Do not import from `generated/` or move the SVG into `public`. Managed files (`generated/`, `index.ts`, `manifest.ts`, `.gitignore`) are regenerated.
+Do not move the SVG into `public`. The generator rewrites `.svg-sprite` and `.gitignore`; the root `index.ts` is application-owned and may contain `export * from './.svg-sprite'`.
 
 ## SpriteViewer
 
@@ -124,7 +125,7 @@ npm run build
 
 After the required generation and typecheck, verify that:
 
-- `manifest.ts` contains the exact target `next@app/turbopack` or `next@app/webpack`;
+- `.svg-sprite/svg-sprite.manifest.js` contains the exact target `next@app/turbopack` or `next@app/webpack`;
 - the server page compiles without adding `'use client'`.
 
 During a conditional production/runtime check, also verify that:
@@ -140,7 +141,7 @@ During a conditional production/runtime check, also verify that:
 - Build passes with one bundler but the runtime asset breaks with another: regenerate for the target actually used by the build.
 - Webpack was selected, but the build used Turbopack: use the project's Webpack build command and `next@app/webpack`.
 - Viewer causes a Server Component error: the Viewer file needs `'use client'`; the generated icon component does not.
-- `React config file not found`: the command received the path to `app/`, `icons/`, or the config file instead of the sprite directory.
+- Config not found: pass the full path to an existing `.ts`, `.js`, or `.json` config file.
 - Two CI jobs generate different targets in one checkout: separate their directories or ensure each job uses one consistent target.
 - Asset is missing under `basePath`/CDN: inspect Next asset handling and deployment configuration; do not replace the generated URL manually.
 - Package subpath type error: use TypeScript 5+ with `moduleResolution: "bundler"`, `"node16"`, or `"nodenext"`.
