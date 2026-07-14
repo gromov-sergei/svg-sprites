@@ -9,14 +9,14 @@ Establish the project's actual contract before making changes:
 5. For a new sprite, choose a target directory without imposing a particular application layer or architecture.
 6. Check TypeScript and alias settings. Package subpath exports require TypeScript 5+ with `moduleResolution: 'bundler'`, `'node16'`, or `'nodenext'`.
 
-All config paths are relative to the directory containing the explicitly selected config file; in config-less mode they are relative to the supplied directory:
+All input paths are relative to the directory containing the explicitly selected config file; in config-less mode they are relative to the supplied directory. Inspect `input` using this single contract:
 
-- `inputFolder` defaults to `./icons`;
-- `inputFiles` contains additional relative paths to individual SVGs and is merged with `inputFolder`;
-- the same absolute file is deduplicated, but different files with the same icon basename cause an error;
-- scanning `inputFolder` is shallow: only immediate files ending in `.svg` are read, and nested directories are not traversed;
-- an explicitly configured `inputFolder` that does not exist is an error;
-- if `inputFolder` is omitted, `./icons` does not exist, and `inputFiles` is non-empty, generation uses only `inputFiles`;
-- an empty final input set, a missing file, or a path that does not point to an `.svg` file is an error.
+- `input?: string | string[]` defaults to `./icons`;
+- each string is a folder, an exact SVG file, or a glob;
+- a folder is scanned shallowly; nested files are included only by an explicit recursive glob such as `./icons/**/*.svg`;
+- an array combines positive sources, while an item prefixed with `!` excludes its matches from the combined set;
+- every positive source must resolve to at least one SVG, so a missing or empty folder, an unmatched glob, a missing file, or a non-SVG exact file is an error;
+- resolved files are deduplicated and sorted deterministically;
+- different files with the same basename are a conflict, even when they came from different sources.
 
-Do not copy a shared SVG into several folders: add its relative path to `inputFiles` in every sprite that needs it. If a recursive structure is required, list the files explicitly or reorganize the sources; the generator does not perform recursive scanning.
+Do not copy a shared SVG into several folders: add its exact path or a suitable glob to `input` in every sprite that needs it. Use `**/*.svg` only when recursive inclusion is intentional.

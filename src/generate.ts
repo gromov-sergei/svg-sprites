@@ -45,9 +45,8 @@ export async function generateSprite(
   writeOutputPlan(
     resolvedSource.rootDir,
     adapter.mode,
-    adapter.contractVersion,
     plan.files,
-    config.generatedNotice,
+    plan.createGitignore,
   )
 
   const generatedDir = path.resolve(resolvedSource.rootDir, plan.paths.generatedDir)

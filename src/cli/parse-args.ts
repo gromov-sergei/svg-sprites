@@ -25,8 +25,7 @@ export const CLI_USAGE = [
   '  --mode <mode>',
   '  --name <name>',
   '  --description <text>',
-  '  --input-folder <path>',
-  '  --input-file <path>        Repeat for multiple files',
+  '  --input <path-or-glob>      Repeat for multiple inputs',
   '  --[no-]remove-size',
   '  --[no-]replace-colors',
   '  --[no-]add-transition',
@@ -86,15 +85,12 @@ export function parseCliArgs(argv: string[]): CliArgs | { help: true } {
       index = nextIndex
       continue
     }
-    if (argument === '--input-folder' || argument.startsWith('--input-folder=')) {
-      const [value, nextIndex] = optionValue(argv, index, '--input-folder')
-      overrides.inputFolder = value
-      index = nextIndex
-      continue
-    }
-    if (argument === '--input-file' || argument.startsWith('--input-file=')) {
-      const [value, nextIndex] = optionValue(argv, index, '--input-file')
-      overrides.inputFiles = [...(overrides.inputFiles ?? []), value]
+    if (argument === '--input' || argument.startsWith('--input=')) {
+      const [value, nextIndex] = optionValue(argv, index, '--input')
+      const input = overrides.input === undefined
+        ? []
+        : Array.isArray(overrides.input) ? overrides.input : [overrides.input]
+      overrides.input = [...input, value]
       index = nextIndex
       continue
     }

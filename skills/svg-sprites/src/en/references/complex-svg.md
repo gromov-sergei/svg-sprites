@@ -131,7 +131,7 @@ It is preserved as the fragment ID. Other names, such as `folder open.svg` or `2
 
 Do not manually construct `#folder open`. Use the generated component or `.svg-sprite/svg-sprite.manifest.js`, which records both `name` and the actual `id`.
 
-Different files with the same basename are forbidden, even from different directories. Rename one source meaningfully; `inputFiles` order does not select a winner.
+Different files with the same basename are forbidden, even from different directories. Rename one source meaningfully; source order or overlap never selects a winner.
 
 ## Rendering method
 
@@ -173,4 +173,4 @@ External stack-fragment support and paint-server behavior can vary across browse
 - A manual fragment fails for a name containing spaces: use the ID from the manifest.
 - One complex icon requires different transforms: move it to a separate sprite; per-icon transform config is not supported.
 
-Target-specific execution and verification are documented in [react-vite.md](react-vite.md), [react-webpack.md](react-webpack.md), [next-app.md](next-app.md), and [next-pages.md](next-pages.md).
+Target-specific execution and verification are documented in the exact-mode files under [guides](guides/standalone.md).

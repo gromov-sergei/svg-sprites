@@ -111,6 +111,12 @@ for (const app of apps) {
       await expect(icon).toBeVisible()
       await expect(icon).toHaveAttribute('data-app', app.id)
 
+      if (app.id === 'standalone-vite' || app.id === 'standalone-webpack') {
+        expect(await icon.evaluate((element) => element.tagName.toLowerCase())).toBe('icons-icon')
+        expect(await icon.evaluate((element) => element.shadowRoot !== null)).toBe(true)
+        await expect(icon.locator('svg')).toHaveAttribute('viewBox', '0 0 24 24')
+      }
+
       const href = await icon.locator('use').getAttribute('href')
       expect(href).toBeTruthy()
       expect(href).not.toMatch(/^(?:blob|data|file):/)

@@ -5,8 +5,6 @@ import { generateOutputFiles } from './output.js'
 
 export const reactWebpackAdapter: ModeAdapter<'react@webpack'> = {
   mode: 'react@webpack',
-  contractVersion: 5,
-
   async generate(context) {
     const bytes = await compileSpriteContent(context.prepared.folder, context.config.transform, {
       rootViewBox: false,

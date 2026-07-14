@@ -11,8 +11,9 @@
 
 ## References to open as needed
 
-- For React + Vite, open [React + Vite](./references/react-vite.md); for React with a custom Webpack 5 setup, open [React + Webpack](./references/react-webpack.md).
-- For Next.js, open the guide for the [App Router](./references/next-app.md) or [Pages Router](./references/next-pages.md), then select the section for the bundler actually in use.
+- For static publishing, open [bare standalone](./references/guides/standalone.md). For vanilla bundler apps, open [standalone + Vite](./references/guides/standalone-vite.md) or [standalone + Webpack](./references/guides/standalone-webpack.md).
+- For React, open the exact [Vite](./references/guides/react-vite.md) or [Webpack](./references/guides/react-webpack.md) guide.
+- For the Next.js App Router, open the exact [Turbopack](./references/guides/next-app-turbopack.md) or [Webpack](./references/guides/next-app-webpack.md) guide.
+- For the Next.js Pages Router, open the exact [Turbopack](./references/guides/next-pages-turbopack.md) or [Webpack](./references/guides/next-pages-webpack.md) guide.
 - To invoke the generator from Node.js, open the [programmatic API](./references/programmatic-api.md).
 - For gradients, filters, `url(#...)`, unusual colors, and `viewBox` issues, open [complex SVGs](./references/complex-svg.md).
-- Use the complete user documentation as a secondary source: [package README](./references/upstream/README.md).

@@ -8,9 +8,10 @@ Match the symptom to the relevant check and fix the root cause:
 | `Expected one config file or module directory` | Multiple paths were passed | Create one command per sprite and combine the scripts. |
 | `Sprite mode is required` | Mode is absent from both config and CLI | Add `mode` to the object or pass the full `--mode`. |
 | `Unsupported sprite config extension` | The supplied file is not `.ts`, `.js`, or `.json` | Use a supported config format. |
-| `Input directory does not exist` | The relative path is wrong or an explicitly configured folder is missing | Resolve it from the config directory; create the folder or correct `inputFolder`. |
-| Icons from a subdirectory are missing | Recursive scanning was assumed | Move the SVG to the top level of `inputFolder` or list it in `inputFiles`. |
-| `SVG file does not exist`, `File is not an SVG`, or an empty input set | Invalid `inputFiles`, extension, or sources | Correct the path/extension and provide at least one input SVG. |
+| A positive input source has no SVG matches | A folder is missing or empty, a glob matches nothing, or an exact path is missing or not an SVG | Resolve the source from the config directory and correct `input`; every positive item must produce at least one SVG. |
+| Icons from a subdirectory are missing | A folder source was expected to scan recursively | Use an explicit glob such as `./icons/**/*.svg`; folders are shallow. |
+| An excluded icon is still present | The exclusion lacks a leading `!`, is not in the `input` array, or is relative to the wrong directory | Add a matching `!` item and resolve it from the config directory. |
+| CLI source selection is incomplete | Multiple sources were packed into one `--input` value or an option was omitted | Repeat `--input <path-or-glob>` once per source or exclusion. |
 | Icon name or SVG ID collision | Two different files have the same basename, or a hash ID collides with a name | Rename one source SVG; do not select a file implicitly. |
 | `Refusing to overwrite/delete a user file` | A user file occupies a managed path or lost its marker | Do not bypass the protection: move the file or choose another sprite directory and regenerate. |
 | Missing `.svg-sprite/index.js` or name absent from autocomplete | Generation did not run, the user barrel does not export `.svg-sprite`, or the type server cached an old module | Run the sprite command, check `export * from './.svg-sprite'`, then typecheck; restart the TypeScript server if necessary. |

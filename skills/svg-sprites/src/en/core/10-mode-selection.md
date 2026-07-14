@@ -21,10 +21,10 @@ The CLI accepts exactly one path. A `.ts`, `.js`, or `.json` file loads that exa
 ```json
 {
   "scripts": {
-    "sprite:<name>": "svg-sprites <path-to-config>",
-    "sprite:<name>:cli": "svg-sprites --mode <mode-key> <sprite-directory>"
+    "sprite:<name>": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites <path-to-config>",
+    "sprite:<name>:cli": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites --mode <mode-key> <sprite-directory>"
   }
 }
 ```
 
-Do not use incomplete `react`, `next@app`, `next@pages`, or `standalone@` keys, or the removed `legacy` mode. Use bare `standalone` only when the application publishes the SVG itself; use the complete Vite/Webpack key otherwise. Create one command per config file or directory when the project has multiple sprites.
+Generation through `npx` does not add the package to the project. Pin an exact package version instead of `latest` in CI. Do not use incomplete `react`, `next@app`, `next@pages`, or `standalone@` keys, or the removed `legacy` mode. Use bare `standalone` only when the application publishes the SVG itself; use the complete Vite/Webpack key otherwise. Create one command per config file or directory when the project has multiple sprites.

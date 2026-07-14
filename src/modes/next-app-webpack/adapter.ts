@@ -5,7 +5,6 @@ import { generateOutputFiles } from './output.js'
 
 export const nextAppWebpackAdapter: ModeAdapter<'next@app/webpack'> = {
   mode: 'next@app/webpack',
-  contractVersion: 5,
   async generate(context) {
     const bytes = await compileSpriteContent(context.prepared.folder, context.config.transform, { rootViewBox: true })
     const artifact = createCompiledSpriteArtifact(bytes, context.prepared.iconNames, 'stack')

@@ -5,8 +5,6 @@ import { generateOutputFiles } from './output.js'
 
 export const standaloneAdapter: ModeAdapter<'standalone'> = {
   mode: 'standalone',
-  contractVersion: 2,
-
   async generate(context) {
     const bytes = await compileSpriteContent(context.prepared.folder, context.config.transform, {
       rootViewBox: false,
@@ -15,6 +13,7 @@ export const standaloneAdapter: ModeAdapter<'standalone'> = {
 
     return {
       files: generateOutputFiles(context.config, artifact),
+      createGitignore: false,
       paths: {
         generatedDir: '.svg-sprite',
         sprite: '.svg-sprite/sprite.svg',

@@ -42,6 +42,8 @@ export type ModeResultMetadata = ReactModeResultMetadata | NextModeResultMetadat
 
 export type OutputPlan = {
   readonly files: readonly GeneratedFile[]
+  /** Создавать управляемый `.gitignore` для generated-каталога. По умолчанию: true. */
+  readonly createGitignore?: boolean
   readonly paths: {
     readonly generatedDir: '.svg-sprite'
     readonly sprite: string
@@ -53,6 +55,5 @@ export type OutputPlan = {
 
 export interface ModeAdapter<M extends SpriteMode = SpriteMode> {
   readonly mode: M
-  readonly contractVersion: number
   generate(context: ModeAdapterContext): Promise<OutputPlan>
 }

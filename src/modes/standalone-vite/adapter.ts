@@ -5,8 +5,6 @@ import { generateOutputFiles } from './output.js'
 
 export const standaloneViteAdapter: ModeAdapter<'standalone@vite'> = {
   mode: 'standalone@vite',
-  contractVersion: 1,
-
   async generate(context) {
     const bytes = await compileSpriteContent(context.prepared.folder, context.config.transform, {
       rootViewBox: false,

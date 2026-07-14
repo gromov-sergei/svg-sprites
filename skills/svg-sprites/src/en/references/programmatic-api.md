@@ -18,23 +18,28 @@ await generateSprite('src/ui/icons/svg-sprite.config.ts')
 await generateSprite('src/ui/icons', {
   mode: 'react@vite',
   name: 'app',
-  inputFolder: './icons',
+  input: './icons',
 })
 ```
 
 A directory enables config-less mode. `mode` must exist after settings are merged.
+
+`input?: string | string[]` defaults to `./icons`. Each value is a folder, an exact SVG file, or a glob, resolved from the config directory or the config-less source directory. Folder scans are shallow; recurse only with an explicit glob such as `./icons/**/*.svg`. Arrays combine sources, and items prefixed with `!` exclude matches. Every positive item must resolve to at least one SVG. The final files are deduplicated and sorted, while different files with the same basename cause an error.
 
 ## Overrides
 
 ```ts
 await generateSprite('src/ui/icons/custom.json', {
   mode: 'react@webpack',
-  inputFiles: ['../../shared/search.svg'],
+  input: [
+    '../../shared/icons/**/*.svg',
+    '!../../shared/icons/legacy-*.svg',
+  ],
   transform: { addTransition: false },
 })
 ```
 
-Values are applied as `defaults → config → API overrides`. `transform` is merged by field; a supplied `inputFiles` replaces the config array.
+Values are applied as `defaults → config → API overrides`. `transform` is merged by field; a supplied `input` replaces the config value.
 
 The specialized `generateReactSprite` and `generateNextSprite` functions remain as compatibility wrappers, but prefer `generateSprite` in new code.
 

@@ -1,6 +1,6 @@
 # AI skills
 
-Исходники английского и русского скиллов находятся в `skills/svg-sprites/src/{en,ru}/`. Готовые переносимые артефакты генерируются в `skills/artifacts/`, игнорируются Git и упаковываются в ZIP во время release workflow.
+Исходники обязательного контекста английского и русского skills находятся в `skills/svg-sprites/src/{en,ru}/`. Канонические exact-mode guides находятся в `docs/{en,ru}/guides/` и копируются в соответствующий skill без изменения. Готовые переносимые артефакты генерируются в `skills/artifacts/`, игнорируются Git и упаковываются в ZIP во время release workflow.
 
 Обе языковые версии имеют одинаковую структуру:
 
@@ -17,15 +17,11 @@ src/<language>/
 │   ├── 60-verification.md
 │   └── 70-diagnostics.md
 └── references/
-    ├── react-vite.md
-    ├── react-webpack.md
-    ├── next-app.md
-    ├── next-pages.md
     ├── programmatic-api.md
     └── complex-svg.md
 ```
 
-`core/` содержит обязательные знания, раскрываемые прямо в итоговый `SKILL.md`. `references/` содержит самостоятельные инструкции для агента по конкретным стекам и редким сценариям. Пользовательские `README*.md` и `docs/{en,ru}/*.md` дополнительно копируются в `references/upstream/` как вторичный источник полного публичного API.
+`core/` содержит обязательные знания, раскрываемые прямо в итоговый `SKILL.md`. Локальный `references/` содержит только agent-specific материалы. Девять файлов из `docs/<language>/guides/` копируются в `references/guides/`; английский artifact получает только английские guides, русский только русские. Второй набор mode guides и каталог `references/upstream/` не создаются.
 
 ## Композиция Markdown
 

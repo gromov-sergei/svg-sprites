@@ -151,7 +151,37 @@ function manifest(config: ResolvedSpriteConfig, artifact: CompiledSpriteArtifact
 }
 
 function manifestTypes(config: ResolvedSpriteConfig): string {
-  return [header(config.generatedNotice), "import type { SpriteManifest } from '@gromlab/svg-sprites/react'", '', 'export declare const spriteManifest: SpriteManifest', 'export default spriteManifest', ''].join('\n')
+  return [
+    header(config.generatedNotice),
+    '',
+    'export type SpriteManifestColor = {',
+    '  variable: `--icon-color-${number}`',
+    '  fallback: string',
+    '}',
+    'export type SpriteManifestIcon = {',
+    '  name: string',
+    '  id: string',
+    '  viewBox: string | null',
+    '  colors: readonly SpriteManifestColor[]',
+    '}',
+    'export type SpriteManifest = {',
+    '  schemaVersion: 1',
+    "  generator: '@gromlab/svg-sprites'",
+    '  name: string',
+    '  description?: string',
+    '  componentName: string',
+    "  mode: 'next@app/turbopack'",
+    "  target: 'next@app/turbopack'",
+    "  format: 'stack' | 'symbol'",
+    '  iconCount: number',
+    '  spriteUrl: string',
+    '  icons: readonly SpriteManifestIcon[]',
+    '}',
+    '',
+    'export declare const spriteManifest: SpriteManifest',
+    'export default spriteManifest',
+    '',
+  ].join('\n')
 }
 
 export function generateOutputFiles(config: ResolvedSpriteConfig, artifact: CompiledSpriteArtifact): GeneratedFile[] {

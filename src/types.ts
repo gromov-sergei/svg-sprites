@@ -32,10 +32,8 @@ export type SpriteConfig = {
   name?: string
   /** Описание спрайта для generated types и manifest. */
   description?: string
-  /** Папка с исходными SVG относительно корня модуля. По умолчанию: ./icons. */
-  inputFolder?: string
-  /** Дополнительные SVG-файлы относительно корня модуля. По умолчанию: []. */
-  inputFiles?: string[]
+  /** Путь или glob-шаблоны исходных SVG относительно корня модуля. По умолчанию: ./icons. */
+  input?: string | string[]
   /** Настройки трансформации SVG. По умолчанию все включены. */
   transform?: TransformOptions
   /** Добавлять развёрнутое предупреждение в generated-файлы. По умолчанию: true. */
@@ -47,8 +45,7 @@ export type ResolvedSpriteConfig = {
   mode: SpriteMode
   name: string
   description?: string
-  inputFolder: string | null
-  inputFiles: string[]
+  input: string[]
   transform: Required<TransformOptions>
   generatedNotice: boolean
 }
@@ -59,7 +56,7 @@ export type SpriteFolder = {
   name: string
   /** Формат спрайта. */
   format: SpriteFormat
-  /** Абсолютный путь к папке (для input-папки) или null (для input-массива). */
+  /** Абсолютный путь для единственного input-каталога, иначе null. */
   path: string | null
   /** Абсолютные пути к SVG-файлам. */
   files: string[]

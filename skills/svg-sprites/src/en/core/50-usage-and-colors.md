@@ -1,6 +1,20 @@
 ## Usage, accessibility, and colors
 
-The component name depends on the specific sprite's `name`. These examples use `name: 'file-manager'`, so the generated component is called `FileManagerIcon`. For `name: 'navigation'`, use the generated `NavigationIcon`.
+The component name depends on the specific sprite's `name`. In `standalone@vite` and `standalone@webpack`, `name: 'file-manager'` creates the `<file-manager-icon>` tag and the `defineFileManagerIconElement()` function:
+
+```ts
+import { defineFileManagerIconElement } from './svg-sprite'
+
+defineFileManagerIconElement()
+```
+
+```html
+<file-manager-icon icon="folder" aria-hidden="true"></file-manager-icon>
+```
+
+The native element has no runtime dependencies, selects the generated ID and `viewBox`, obtains the URL through the bundler, and renders `<svg><use>` in Shadow DOM. Its `icon` property is typed with the exact name union, while plain HTML attribute values are validated only at runtime. It defaults to `1em × 1em`; resize the host with CSS. Bare `standalone` does not generate a Web Component.
+
+In React/Next.js, the same `name: 'file-manager'` creates the `FileManagerIcon` React component. For `name: 'navigation'`, use the generated `NavigationIcon`.
 
 Import the component from the root of its sprite directory. `width` and `height` are optional: ordinary CSS classes can control the size.
 
@@ -64,10 +78,10 @@ The `removeSize`, `replaceColors`, and `addTransition` transforms are enabled by
 
 Automatic replacement targets `fill`/`stroke` attributes and inline `style`. The values `none`, `transparent`, `inherit`, `unset`, and `initial` are not replaced. Check CSS classes and external stylesheets, gradients, patterns, filters, and `url(#...)` against the actual output. Page variables work through `<svg><use>`, but do not cross into an external document loaded through `<img>` or `background-image`; a CSS mask preserves only a monochrome silhouette.
 
-`SpriteViewer` is optional. Import it from `@gromlab/svg-sprites/react` only on a debug route:
+`SpriteViewer` is optional. Install `@gromlab/svg-sprites` as a development dependency only when the project needs the Viewer, then import it from `@gromlab/svg-sprites/react` on a debug route:
 
 - in Vite, pass the result of a string-literal `import.meta.glob('/src/**/svg-sprite/.svg-sprite/svg-sprite.manifest.js')`;
-- in Webpack, pass an array of static `() => import('.../manifest')` loaders;
+- in Webpack, pass an array of static `() => import('.../.svg-sprite/svg-sprite.manifest.js')` loaders;
 - in Next.js, use the same static loaders, and for the App Router put the Viewer in a separate file with `'use client'`.
 
-The Viewer accepts manifests/loaders and provides search, themes, colors, and examples, but production components do not depend on it. Import it from the package already installed as a development dependency.
+The Viewer accepts manifests/loaders and provides search, themes, colors, and examples, but production components do not depend on it.

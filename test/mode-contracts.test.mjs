@@ -14,7 +14,6 @@ const GENERATED_FILES = [
   'index.js',
   'react',
   'sprite.svg',
-  'state.json',
   'svg-sprite.manifest.d.ts',
   'svg-sprite.manifest.js',
 ]
@@ -73,6 +72,7 @@ test('generates the current isolated React Vite contract', async () => {
   const componentTypes = fs.readFileSync(path.join(generatedDir, 'react', 'react-component.d.ts'), 'utf8')
   const iconData = fs.readFileSync(path.join(generatedDir, 'icon-data.js'), 'utf8')
   const manifest = fs.readFileSync(result.manifestPath, 'utf8')
+  const manifestTypes = fs.readFileSync(path.join(generatedDir, 'svg-sprite.manifest.d.ts'), 'utf8')
 
   assert.match(component, /export const FileManagerIcon/)
   assert.match(component, /sprite\.svg\?no-inline/)
@@ -83,23 +83,29 @@ test('generates the current isolated React Vite contract', async () => {
   assert.match(manifest, /"mode": "react@vite"/)
   assert.match(manifest, /"target": "vite"/)
   assert.match(manifest, /"iconCount": 3/)
+  assert.match(manifestTypes, /export type SpriteManifest/)
+  assert.match(manifestTypes, /mode: 'react@vite'/)
+  assert.doesNotMatch(manifestTypes, /@gromlab\/svg-sprites\/react/)
 
-  const state = JSON.parse(fs.readFileSync(path.join(generatedDir, 'state.json'), 'utf8'))
-  assert.deepEqual(state.owner, { mode: 'react@vite', contractVersion: 5 })
-  assert.equal(state.files.includes('.svg-sprite/react/react-component.js'), true)
 })
 
 test('supports Webpack target and a custom icons directory', async () => {
   const { rootDir, configPath } = createReactFixture({
     name: 'documents',
-    inputFolder: './assets',
+    input: './assets',
     generatedNotice: false,
   })
   fs.renameSync(path.join(rootDir, 'icons'), path.join(rootDir, 'assets'))
+  fs.mkdirSync(path.join(rootDir, 'assets', 'nested'))
+  fs.writeFileSync(
+    path.join(rootDir, 'assets', 'nested', 'ignored.svg'),
+    '<svg viewBox="0 0 16 16"><path d="M0 0h2v2H0z" /></svg>',
+  )
 
   const result = await generateReactSprite(configPath, 'webpack')
   const component = fs.readFileSync(path.join(result.generatedDir, 'react', 'react-component.js'), 'utf8')
   const manifest = fs.readFileSync(result.manifestPath, 'utf8')
+  const manifestTypes = fs.readFileSync(path.join(result.generatedDir, 'svg-sprite.manifest.d.ts'), 'utf8')
 
   assert.equal(result.name, 'documents')
   assert.equal(result.iconCount, 3)
@@ -109,9 +115,11 @@ test('supports Webpack target and a custom icons directory', async () => {
   assert.match(component, /DocumentsIcon/)
   assert.match(component, /new URL\('\.\.\/sprite\.svg', import\.meta\.url\)\.href/)
   assert.match(manifest, /"target": "webpack"/)
+  assert.match(manifestTypes, /mode: 'react@webpack'/)
+  assert.doesNotMatch(manifestTypes, /@gromlab\/svg-sprites\/react/)
 })
 
-test('merges inputFolder and inputFiles and deduplicates identical paths', async () => {
+test('combines input paths and glob patterns and deduplicates identical files', async () => {
   const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'svg-sprites-react-inputs-'))
   const rootDir = path.join(temporaryDir, 'svg-sprite')
   const iconsDir = path.join(rootDir, 'icons')
@@ -120,7 +128,7 @@ test('merges inputFolder and inputFiles and deduplicates identical paths', async
   fs.writeFileSync(path.join(iconsDir, 'local.svg'), '<svg viewBox="0 0 16 16"><path d="M0 0h16v16H0z" /></svg>')
   fs.writeFileSync(sharedIcon, '<svg viewBox="0 0 16 16"><path d="M1 1h14v14H1z" /></svg>')
   const configPath = path.join(rootDir, 'config.ts')
-  fs.writeFileSync(configPath, `export default { name: 'mixed-inputs', inputFiles: [${JSON.stringify(path.relative(rootDir, sharedIcon))}, ${JSON.stringify(path.relative(rootDir, sharedIcon))}] }`)
+  fs.writeFileSync(configPath, `export default { name: 'mixed-inputs', input: ['./icons/*.svg', ${JSON.stringify(path.relative(rootDir, sharedIcon))}, ${JSON.stringify(path.relative(rootDir, sharedIcon))}] }`)
 
   const result = await generateReactSprite(configPath, 'vite')
   const sprite = fs.readFileSync(result.spritePath, 'utf8')
@@ -130,7 +138,7 @@ test('merges inputFolder and inputFiles and deduplicates identical paths', async
   assert.match(sprite, /id="shared"/)
 })
 
-test('supports inputFiles without the default icons directory', async () => {
+test('supports one input file without the default icons directory', async () => {
   const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'svg-sprites-react-files-'))
   const rootDir = path.join(temporaryDir, 'svg-sprite')
   const sharedIcon = path.join(temporaryDir, 'shared', 'only.svg')
@@ -138,14 +146,49 @@ test('supports inputFiles without the default icons directory', async () => {
   fs.mkdirSync(path.dirname(sharedIcon), { recursive: true })
   fs.writeFileSync(sharedIcon, '<svg viewBox="0 0 16 16"><path d="M0 0h16v16H0z" /></svg>')
   const configPath = path.join(rootDir, 'config.ts')
-  fs.writeFileSync(configPath, `export default { inputFiles: [${JSON.stringify(path.relative(rootDir, sharedIcon))}] }`)
+  fs.writeFileSync(configPath, `export default { input: ${JSON.stringify(path.relative(rootDir, sharedIcon))} }`)
 
   const result = await generateReactSprite(configPath, 'webpack')
   assert.equal(result.iconCount, 1)
   assert.match(fs.readFileSync(result.spritePath, 'utf8'), /id="only"/)
 })
 
-test('rejects duplicate names and explicitly missing input folders', async () => {
+test('supports recursive input globs and exclusions', async () => {
+  const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'svg-sprites-react-globs-'))
+  const rootDir = path.join(temporaryDir, 'svg-sprite')
+  const nestedDir = path.join(rootDir, 'icons', 'nested')
+  fs.mkdirSync(nestedDir, { recursive: true })
+  fs.writeFileSync(path.join(rootDir, 'icons', 'local.svg'), '<svg viewBox="0 0 16 16"><path d="M0 0h1v1H0z" /></svg>')
+  fs.writeFileSync(path.join(nestedDir, 'included.svg'), '<svg viewBox="0 0 16 16"><path d="M1 1h2v2H1z" /></svg>')
+  fs.writeFileSync(path.join(nestedDir, 'draft.svg'), '<svg viewBox="0 0 16 16"><path d="M2 2h3v3H2z" /></svg>')
+  const configPath = path.join(rootDir, 'config.ts')
+  fs.writeFileSync(configPath, "export default { input: ['icons/**/*.svg', '!icons/**/draft.svg'] }")
+
+  const result = await generateReactSprite(configPath, 'vite')
+  const sprite = fs.readFileSync(result.spritePath, 'utf8')
+  assert.equal(result.iconCount, 2)
+  assert.match(sprite, /id="local"/)
+  assert.match(sprite, /id="included"/)
+  assert.doesNotMatch(sprite, /id="draft"/)
+})
+
+test('treats an existing excluded path as a literal', async () => {
+  const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'svg-sprites-react-literal-exclusion-'))
+  const rootDir = path.join(temporaryDir, 'svg-sprite')
+  const iconsDir = path.join(rootDir, 'icons')
+  fs.mkdirSync(iconsDir, { recursive: true })
+  fs.writeFileSync(path.join(iconsDir, 'icon[1].svg'), '<svg viewBox="0 0 16 16"><path d="M0 0h1v1H0z" /></svg>')
+  fs.writeFileSync(path.join(iconsDir, 'icon1.svg'), '<svg viewBox="0 0 16 16"><path d="M1 1h2v2H1z" /></svg>')
+  const configPath = path.join(rootDir, 'config.ts')
+  fs.writeFileSync(configPath, "export default { input: ['icons/*.svg', '!icons/icon[1].svg'] }")
+
+  const result = await generateReactSprite(configPath, 'vite')
+  const sprite = fs.readFileSync(result.spritePath, 'utf8')
+  assert.equal(result.iconCount, 1)
+  assert.match(sprite, /id="icon1"/)
+})
+
+test('rejects invalid, missing, and conflicting inputs', async () => {
   const temporaryDir = fs.mkdtempSync(path.join(os.tmpdir(), 'svg-sprites-react-input-errors-'))
   const rootDir = path.join(temporaryDir, 'svg-sprite')
   const first = path.join(temporaryDir, 'one', 'shared.svg')
@@ -156,12 +199,24 @@ test('rejects duplicate names and explicitly missing input folders', async () =>
   fs.writeFileSync(first, '<svg viewBox="0 0 16 16"><path /></svg>')
   fs.writeFileSync(second, '<svg viewBox="0 0 16 16"><path /></svg>')
   const duplicateConfig = path.join(rootDir, 'duplicate.ts')
-  fs.writeFileSync(duplicateConfig, `export default { inputFiles: [${JSON.stringify(path.relative(rootDir, first))}, ${JSON.stringify(path.relative(rootDir, second))}] }`)
+  fs.writeFileSync(duplicateConfig, `export default { input: [${JSON.stringify(path.relative(rootDir, first))}, ${JSON.stringify(path.relative(rootDir, second))}] }`)
   await assert.rejects(generateReactSprite(duplicateConfig, 'vite'), /produce the same SVG id "shared"/)
 
   const missingConfig = path.join(rootDir, 'missing.ts')
-  fs.writeFileSync(missingConfig, `export default { inputFolder: './missing', inputFiles: [${JSON.stringify(path.relative(rootDir, first))}] }`)
-  await assert.rejects(generateReactSprite(missingConfig, 'vite'), /Input directory does not exist/)
+  fs.writeFileSync(missingConfig, "export default { input: './missing' }")
+  await assert.rejects(generateReactSprite(missingConfig, 'vite'), /Input path does not exist/)
+
+  const unmatchedConfig = path.join(rootDir, 'unmatched.ts')
+  fs.writeFileSync(unmatchedConfig, "export default { input: './missing/*.svg' }")
+  await assert.rejects(generateReactSprite(unmatchedConfig, 'vite'), /Input matched no SVG files/)
+
+  const emptyConfig = path.join(rootDir, 'empty.ts')
+  fs.writeFileSync(emptyConfig, 'export default { input: [] }')
+  await assert.rejects(generateReactSprite(emptyConfig, 'vite'), /"input" must be a non-empty string or an array/)
+
+  const legacyConfig = path.join(rootDir, 'legacy.ts')
+  fs.writeFileSync(legacyConfig, "export default { inputFolder: './icons' }")
+  await assert.rejects(generateReactSprite(legacyConfig, 'vite'), /"inputFolder" and "inputFiles" are no longer supported/)
 })
 
 test('applies transform options to SVG and React styles', async () => {
@@ -195,6 +250,7 @@ test('generates every Next.js exact mode without a client boundary', async () =>
     const result = await generateNextSprite(configPath, options)
     const component = fs.readFileSync(path.join(result.generatedDir, 'react', 'react-component.js'), 'utf8')
     const manifest = fs.readFileSync(result.manifestPath, 'utf8')
+    const manifestTypes = fs.readFileSync(path.join(result.generatedDir, 'svg-sprite.manifest.d.ts'), 'utf8')
     const mode = `next@${options.router}/${options.bundler}`
     assert.equal(result.target, mode)
     assert.equal(result.router, options.router)
@@ -202,37 +258,57 @@ test('generates every Next.js exact mode without a client boundary', async () =>
     assert.match(component, /new URL\('\.\.\/sprite\.svg', import\.meta\.url\)\.href/)
     assert.doesNotMatch(component, /['"]use client['"]/)
     assert.match(manifest, new RegExp(`"target": ${JSON.stringify(mode)}`))
+    assert.match(manifestTypes, new RegExp(`mode: ${JSON.stringify(mode).replaceAll('"', "'")}`))
+    assert.doesNotMatch(manifestTypes, /@gromlab\/svg-sprites\/react/)
   }
 })
 
-test('writer removes only obsolete managed files and preserves user files', async () => {
+test('writer replaces the generated directory and preserves root user files', async () => {
   const { rootDir, configPath } = createReactFixture()
   await generateReactSprite(configPath, 'vite')
-  const statePath = path.join(rootDir, '.svg-sprite', 'state.json')
-  const state = JSON.parse(fs.readFileSync(statePath, 'utf8'))
-  state.files.push('.svg-sprite/obsolete.js')
-  fs.writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`)
   fs.writeFileSync(path.join(rootDir, '.svg-sprite', 'obsolete.js'), '/* @generated by @gromlab/svg-sprites. */\n')
-  fs.writeFileSync(path.join(rootDir, '.svg-sprite', 'notes.md'), 'Keep me\n')
+  fs.writeFileSync(path.join(rootDir, '.svg-sprite', 'notes.md'), 'Remove me\n')
   fs.writeFileSync(path.join(rootDir, 'index.ts'), 'export const userCode = true\n')
 
   await generateReactSprite(configPath, 'vite')
   assert.equal(fs.existsSync(path.join(rootDir, '.svg-sprite', 'obsolete.js')), false)
-  assert.equal(fs.readFileSync(path.join(rootDir, '.svg-sprite', 'notes.md'), 'utf8'), 'Keep me\n')
+  assert.equal(fs.existsSync(path.join(rootDir, '.svg-sprite', 'notes.md')), false)
   assert.equal(fs.readFileSync(path.join(rootDir, 'index.ts'), 'utf8'), 'export const userCode = true\n')
 })
 
-test('writer refuses user content and symbolic links in managed paths', async () => {
+test('writer replaces a reserved output directory and refuses symbolic links', async () => {
   const first = createReactFixture()
   fs.mkdirSync(path.join(first.rootDir, '.svg-sprite'))
   fs.writeFileSync(path.join(first.rootDir, '.svg-sprite', 'index.js'), 'export const userCode = true\n')
-  await assert.rejects(generateReactSprite(first.configPath, 'vite'), /Refusing to overwrite a user file/)
+  await generateReactSprite(first.configPath, 'vite')
+  assert.doesNotMatch(
+    fs.readFileSync(path.join(first.rootDir, '.svg-sprite', 'index.js'), 'utf8'),
+    /userCode/,
+  )
 
   const second = createReactFixture()
   const outsideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'svg-sprites-outside-'))
   fs.symlinkSync(outsideDir, path.join(second.rootDir, '.svg-sprite'), 'dir')
   await assert.rejects(generateReactSprite(second.configPath, 'vite'), /Symbolic links are not allowed/)
   assert.deepEqual(fs.readdirSync(outsideDir), [])
+})
+
+test('writer recovers an interrupted directory replacement', async () => {
+  const { rootDir, configPath } = createReactFixture()
+  await generateReactSprite(configPath, 'vite')
+  const generatedDir = path.join(rootDir, '.svg-sprite')
+  const backupDir = path.join(rootDir, '.svg-sprite.interrupted.old')
+  const stagingDir = path.join(rootDir, '.svg-sprite.interrupted.tmp')
+  fs.renameSync(generatedDir, backupDir)
+  fs.mkdirSync(stagingDir)
+  fs.writeFileSync(path.join(stagingDir, 'partial.js'), 'partial\n')
+
+  await generateReactSprite(configPath, 'vite')
+
+  assert.equal(fs.existsSync(generatedDir), true)
+  assert.equal(fs.existsSync(backupDir), false)
+  assert.equal(fs.existsSync(stagingDir), false)
+  assert.equal(fs.existsSync(path.join(generatedDir, 'partial.js')), false)
 })
 
 test('rejects colliding SVG shape IDs', async () => {

@@ -50,7 +50,7 @@
 - подготовка нейтрального compiled artifact;
 - protocol `ModeAdapter`/`OutputPlan`;
 - проверка output paths;
-- atomic writer, symlink protection и ownership state;
+- staged directory writer и symlink protection;
 - logger и базовые result types.
 
 Core не генерирует JavaScript, declarations, manifest source, CSS или framework-specific exports. Изменение общего compiler может ожидаемо изменить SVG всех modes; изменение generated source должно быть локально одному adapter.
@@ -61,13 +61,11 @@ Core не генерирует JavaScript, declarations, manifest source, CSS и
 
 Runtime генерируется как ESM JavaScript. Типизация добавляется отдельными `.d.ts`; TypeScript/TSX не используется как runtime output.
 
-Core writer владеет корневым `.gitignore` и `.svg-sprite/state.json`. State не является manifest спрайта: он хранит owner mode, contract version и список управляемых файлов.
+Core writer полностью владеет каталогом `.svg-sprite` и при каждой генерации заменяет его через временный каталог с rollback при ошибке. Корневым `.gitignore` writer владеет, когда exact-mode adapter запрашивает его через `OutputPlan`. Bare `standalone` не создаёт `.gitignore`; остальные modes создают.
 
-Sprite-level asset, icon data, manifest и facade лежат непосредственно в `.svg-sprite/`. Framework runtime группируется отдельно: React adapters используют `.svg-sprite/react/`, будущие framework adapters получают собственный framework-каталог.
+Sprite-level asset, icon data, manifest и facade лежат непосредственно в `.svg-sprite/`. `standalone@vite` и `standalone@webpack` генерируют нативный icon Web Component внутри своего facade; bare `standalone` остаётся без JavaScript runtime. Framework runtime группируется отдельно: React adapters используют `.svg-sprite/react/`, будущие framework adapters получают собственный framework-каталог.
 
-Каждый adapter имеет собственный `contractVersion`. При изменении его generated-контракта повышается только версия этого adapter.
-
-Adapter возвращает файлы в памяти. Только core writer проверяет paths и markers, обновляет output и записывает `state.json` последним.
+Adapter возвращает файлы в памяти. Только core writer проверяет paths, полностью заменяет `.svg-sprite` и обновляет управляемый `.gitignore`.
 
 ## Зависимости
 
@@ -98,5 +96,4 @@ mode A -X-> shared output codegen
 1. Изменяйте только его каталог и mode-neutral protocol, если это действительно необходимо.
 2. Не переносите output-логику в core ради устранения дублирования.
 3. Не меняйте generated-контракты других adapters автоматически.
-4. Повышайте `contractVersion` только изменённого adapter.
-5. Проверяйте отсутствие cross-mode imports.
+4. Проверяйте отсутствие cross-mode imports.

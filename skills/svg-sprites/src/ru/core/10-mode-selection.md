@@ -21,10 +21,10 @@ CLI принимает ровно один путь. Путь к файлу `.ts
 ```json
 {
   "scripts": {
-    "sprite:<name>": "svg-sprites <path-to-config>",
-    "sprite:<name>:cli": "svg-sprites --mode <mode-key> <sprite-directory>"
+    "sprite:<name>": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites <path-to-config>",
+    "sprite:<name>:cli": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites --mode <mode-key> <sprite-directory>"
   }
 }
 ```
 
-Не используй неполные `react`, `next@app`, `next@pages`, `standalone@` или удалённый `legacy`. Bare `standalone` выбирай только когда приложение само публикует SVG; для Vite/Webpack используй соответствующий полный key. Для нескольких спрайтов создай отдельную команду для каждого config-файла или каталога.
+Генерация через `npx` не добавляет package в проект. В CI укажи точную версию вместо `latest`. Не используй неполные `react`, `next@app`, `next@pages`, `standalone@` или удалённый `legacy`. Bare `standalone` выбирай только когда приложение само публикует SVG; для Vite/Webpack используй соответствующий полный key. Для нескольких спрайтов создай отдельную команду для каждого config-файла или каталога.

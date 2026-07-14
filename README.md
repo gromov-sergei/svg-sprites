@@ -6,7 +6,7 @@
 
 `@gromlab/svg-sprites` is an SVG sprite generator for modern web applications. It combines selected SVG icons into one or more external, cacheable sprites and prepares them for use in the UI.
 
-For React and Next.js, the package generates typed components and external SVG assets with support for Vite, Webpack 5, and Turbopack.
+For vanilla applications using Vite/Webpack, the package generates a native typed Web Component; for React and Next.js, it generates a React component. In every case, the SVG remains a separate cacheable asset.
 
 ## An SVG sprite as simple as a regular SVG icon
 
@@ -24,6 +24,20 @@ The component accepts familiar SVG attributes: dimensions, `color`, `className`,
 
 You do not have to work with the sprite directly in your application. Use it like a regular SVG icon while benefiting from a single component, autocomplete, and TypeScript validation for every name.
 
+In `standalone@vite` and `standalone@webpack`, the same approach works without React:
+
+```ts
+import { defineAppIconElement } from './app-icons'
+
+defineAppIconElement()
+```
+
+```html
+<app-icon icon="search" style="font-size: 24px"></app-icon>
+```
+
+Bare `standalone` remains minimal and generates only an SVG asset and JSON manifest, with no JavaScript runtime.
+
 ## AI-friendly out of the box
 
 `@gromlab/svg-sprites` is designed to work with AI agents from the start. Add the ready-made skill and ask an agent to configure, migrate, or troubleshoot the package without lengthy instructions or manual documentation research.
@@ -36,11 +50,14 @@ You do not have to work with the sprite directly in your application. Use it lik
 
 The main example uses the Next.js App Router and Turbopack.
 
-### 1. Install the package
+### 1. Generate without installing the package
 
 ```bash
-npm install --save-dev @gromlab/svg-sprites
+npx --yes --package=@gromlab/svg-sprites@latest svg-sprites --help
 ```
+
+`npx` downloads the CLI temporarily. It does not add `@gromlab/svg-sprites` to
+`package.json`, and the generated production runtime does not import the package.
 
 ### 2. Specify the icons you need
 
@@ -61,17 +78,15 @@ Create the sprite configuration:
 
 ```ts
 // src/ui/app-icons/svg-sprite.config.ts
-import { defineSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineSpriteConfig({
+export default {
   mode: 'next@app/turbopack',
   name: 'app',
-  inputFiles: [
+  input: [
     '../../assets/icons/search.svg',
     '../../assets/icons/settings.svg',
     '../../features/profile/user.svg',
   ],
-})
+}
 ```
 
 ### 3. Add generation
@@ -79,7 +94,7 @@ export default defineSpriteConfig({
 ```json
 {
   "scripts": {
-    "sprites": "svg-sprites src/ui/app-icons/svg-sprite.config.ts",
+    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/app-icons/svg-sprite.config.ts",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites"
   }
@@ -233,13 +248,13 @@ The package generates low-level standalone sprites for static HTML, Vite, and We
 
 ## Clean Git history
 
-The generator creates a local `.gitignore` that excludes generated files and keeps them from cluttering project history, pull requests, and the codebase.
+Bundler and framework modes create a local `.gitignore` that excludes generated files and keeps them from cluttering project history, pull requests, and the codebase. Bare `standalone` leaves the repository policy to the application.
 
-The repository contains the source SVG files, configuration, and `.gitignore` rule, while sprites, components, and types are regenerated locally and in CI through `prebuild`.
+In bundler and framework modes, the repository contains the source SVG files, configuration, and `.gitignore` rule, while sprites, components, and types are regenerated locally and in CI through `prebuild`.
 
 ## Only icons in production
 
-`@gromlab/svg-sprites` does its main work during generation and remains in `devDependencies`.
+Generation can run entirely through `npx`, without adding the package to the project. Install it as a development dependency only when you need the Viewer, config types, or the programmatic API.
 
 Production components use only local generated code, styles, and the external SVG file. The compiler and CLI are not bundled into the client application, while `SpriteViewer` is imported separately only where a debug page is needed.
 
@@ -249,15 +264,21 @@ This README introduces the project's capabilities and demonstrates the primary u
 
 ### Quick start
 
-- [Next.js App Router](docs/en/next-app.md)
-- [Next.js Pages Router](docs/en/next-pages.md)
-- [React + Vite](docs/en/react-vite.md)
-- [React + Webpack 5](docs/en/react-webpack.md)
+- [Bare standalone](docs/en/guides/standalone.md)
+- [Standalone + Vite](docs/en/guides/standalone-vite.md)
+- [Standalone + Webpack 5](docs/en/guides/standalone-webpack.md)
+- [React + Vite](docs/en/guides/react-vite.md)
+- [React + Webpack 5](docs/en/guides/react-webpack.md)
+- [Next.js App Router + Turbopack](docs/en/guides/next-app-turbopack.md)
+- [Next.js App Router + Webpack](docs/en/guides/next-app-webpack.md)
+- [Next.js Pages Router + Turbopack](docs/en/guides/next-pages-turbopack.md)
+- [Next.js Pages Router + Webpack](docs/en/guides/next-pages-webpack.md)
 
 ### Technical resources
 
-- [Technical reference](docs/en/reference.md)
-- [Programmatic API](docs/en/programmatic-api.md)
+- [Documentation index](docs/en/README.md)
+- [Technical reference](docs/en/reference/technical.md)
+- [Programmatic API](docs/en/reference/programmatic-api.md)
 
 ## License
 

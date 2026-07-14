@@ -1,6 +1,6 @@
 {
   "mode": "standalone",
   "name": "app-icons",
-  "inputFiles": ["../../../../fixtures/icons/check.svg"],
+  "input": "../../../../fixtures/icons/check.svg",
   "generatedNotice": false
 }

@@ -10,8 +10,7 @@ const CONFIG_FIELDS = new Set([
   'mode',
   'name',
   'description',
-  'inputFolder',
-  'inputFiles',
+  'input',
   'transform',
   'generatedNotice',
 ])
@@ -64,6 +63,9 @@ export function validateSpriteConfig(value: unknown): asserts value is SpriteCon
   if ('output' in config || 'sprites' in config || 'preview' in config) {
     throw configError('legacy config fields are no longer supported.')
   }
+  if ('inputFolder' in config || 'inputFiles' in config) {
+    throw configError('"inputFolder" and "inputFiles" are no longer supported. Use "input".')
+  }
   for (const field of Object.keys(config)) {
     if (!CONFIG_FIELDS.has(field)) throw configError(`unknown field "${field}".`)
   }
@@ -76,19 +78,14 @@ export function validateSpriteConfig(value: unknown): asserts value is SpriteCon
   if (config.description !== undefined && typeof config.description !== 'string') {
     throw configError('"description" must be a string.')
   }
-  if ('icons' in config) {
-    throw configError('"icons" was renamed to "inputFolder".')
-  }
-  if (config.inputFolder !== undefined && (
-    typeof config.inputFolder !== 'string' || config.inputFolder.trim() === ''
+  if (config.input !== undefined && (
+    typeof config.input !== 'string'
+      ? !Array.isArray(config.input)
+        || config.input.length === 0
+        || config.input.some((entry) => typeof entry !== 'string' || entry.trim() === '')
+      : config.input.trim() === ''
   )) {
-    throw configError('"inputFolder" must be a non-empty string.')
-  }
-  if (config.inputFiles !== undefined && (
-    !Array.isArray(config.inputFiles)
-    || config.inputFiles.some((filePath) => typeof filePath !== 'string' || filePath.trim() === '')
-  )) {
-    throw configError('"inputFiles" must be an array of non-empty strings.')
+    throw configError('"input" must be a non-empty string or an array of non-empty strings.')
   }
   if (config.transform !== undefined) {
     if (
@@ -211,20 +208,20 @@ export function resolveSpriteConfig(
 
   const name = merged.name ?? getDefaultName(rootDir)
   validateSpriteName(name)
-  const inputFiles = (merged.inputFiles ?? []).map((filePath) => path.resolve(rootDir, filePath))
-  const defaultInputFolder = path.resolve(rootDir, 'icons')
-  const inputFolder = merged.inputFolder === undefined
-    && inputFiles.length > 0
-    && !fs.existsSync(defaultInputFolder)
-    ? null
-    : path.resolve(rootDir, merged.inputFolder ?? 'icons')
+  const configuredInput = merged.input ?? 'icons'
+  const input = (Array.isArray(configuredInput) ? configuredInput : [configuredInput])
+    .map((entry) => {
+      const negated = entry.startsWith('!')
+      const resolved = path.resolve(rootDir, negated ? entry.slice(1) : entry)
+      const normalized = path.sep === '/' ? resolved : resolved.replaceAll(path.sep, '/')
+      return negated ? `!${normalized}` : normalized
+    })
 
   return {
     mode: merged.mode,
     name,
     description: merged.description,
-    inputFolder,
-    inputFiles,
+    input,
     transform: {
       removeSize: transform.removeSize ?? true,
       replaceColors: transform.replaceColors ?? true,

@@ -5,7 +5,6 @@ import { generateOutputFiles } from './output.js'
 
 export const nextPagesTurbopackAdapter: ModeAdapter<'next@pages/turbopack'> = {
   mode: 'next@pages/turbopack',
-  contractVersion: 5,
   async generate(context) {
     const bytes = await compileSpriteContent(context.prepared.folder, context.config.transform, { rootViewBox: true })
     const artifact = createCompiledSpriteArtifact(bytes, context.prepared.iconNames, 'stack')

@@ -26,8 +26,7 @@ export function prepareSprite(config: ResolvedSpriteConfig): PreparedSprite {
   const folder = resolveSpriteSources({
     name: config.name,
     format: 'stack',
-    inputFolder: config.inputFolder,
-    inputFiles: config.inputFiles,
+    input: config.input,
   })
   const iconNames = folder.files
     .map((filePath) => path.basename(filePath, '.svg'))

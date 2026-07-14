@@ -3,6 +3,6 @@ import { defineSpriteConfig } from '@gromlab/svg-sprites'
 export default defineSpriteConfig({
   mode: 'standalone@vite',
   name: 'icons',
-  inputFiles: ['../../../../fixtures/icons/check.svg'],
+  input: '../../../../fixtures/icons/check.svg',
   generatedNotice: false,
 })

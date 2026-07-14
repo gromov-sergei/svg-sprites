@@ -5,8 +5,6 @@ import { generateOutputFiles } from './output.js'
 
 export const reactViteAdapter: ModeAdapter<'react@vite'> = {
   mode: 'react@vite',
-  contractVersion: 5,
-
   async generate(context) {
     const bytes = await compileSpriteContent(
       context.prepared.folder,

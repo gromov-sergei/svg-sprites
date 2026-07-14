@@ -3,7 +3,7 @@
 After changing a config or SVG, perform these required quick checks:
 
 1. Run the exact sprite command, for example `npm run sprite:file-manager`; it must exit with code `0` and report the name, icon count, mode, and `.svg-sprite` directory.
-2. Confirm that `.svg-sprite/index.js`, `.svg-sprite/index.d.ts`, `sprite.svg`, the `icon-data.js`/`.d.ts` and manifest `.js`/`.d.ts` pairs, `react/react-component.js`, its `.d.ts` and CSS Module, and `state.json` exist.
+2. Confirm that `.svg-sprite/index.js`, `.svg-sprite/index.d.ts`, `sprite.svg`, the `icon-data.js`/`.d.ts` and manifest `.js`/`.d.ts` pairs, `react/react-component.js`, its `.d.ts` and CSS Module exist.
 3. Confirm that the new icon appears in the readonly name array and is accepted by the `icon` prop.
 4. Run the project's existing type check, for example `npm run typecheck`.
 5. Check that `target` in `.svg-sprite/svg-sprite.manifest.js` matches the selected mode key; the generated asset expression must use `?no-inline` for Vite and `new URL(...)` for Webpack/Next.
