@@ -14,6 +14,9 @@ export type ViteAssetTarget = 'vite'
  */
 export type WebpackAssetTarget = 'webpack'
 
+/** Asset target для проекта без сборщика. */
+export type StaticAssetTarget = 'static'
+
 /** Роутер Next.js, для которого генерируется sprite-модуль. */
 export type NextRouter = 'app' | 'pages'
 
@@ -34,11 +37,17 @@ export type ReactAssetTarget = ViteAssetTarget | WebpackAssetTarget
 /** Полный ключ React mode, используемый конфигом, CLI и manifest. */
 export type ReactSpriteMode = `react@${ReactAssetTarget}`
 
-/** Любая среда, для которой может быть сгенерирован React sprite-модуль. */
-export type SpriteAssetTarget = ReactAssetTarget | NextAssetTarget
+/** Среда standalone sprite-модуля. */
+export type StandaloneAssetTarget = StaticAssetTarget | ViteAssetTarget | WebpackAssetTarget
 
-/** Режим генерации sprite-модуля. В будущем расширяется standalone mode. */
-export type SpriteMode = ReactSpriteMode | NextAssetTarget
+/** Полный ключ standalone mode, используемый конфигом, CLI и manifest. */
+export type StandaloneSpriteMode = 'standalone' | `standalone@${ViteAssetTarget | WebpackAssetTarget}`
+
+/** Любая среда, для которой может быть сгенерирован React sprite-модуль. */
+export type SpriteAssetTarget = ReactAssetTarget | NextAssetTarget | StaticAssetTarget
+
+/** Режим генерации sprite-модуля. */
+export type SpriteMode = ReactSpriteMode | NextAssetTarget | StandaloneSpriteMode
 
 /** Фрагменты кода, необходимые компоненту для получения URL SVG asset. */
 export type SpriteAssetUrlCode = {

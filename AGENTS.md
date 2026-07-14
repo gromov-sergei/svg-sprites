@@ -10,7 +10,10 @@
 - `next@app/webpack`;
 - `next@pages/turbopack`;
 - `next@pages/webpack`;
-- будущие `vue@*`, `standalone` и другие modes.
+- `standalone`;
+- `standalone@vite`;
+- `standalone@webpack`;
+- будущие `vue@*` и другие modes.
 
 Для каждого exact mode используется отдельный каталог `src/modes/<mode-slug>/`. Adapter самостоятельно определяет:
 

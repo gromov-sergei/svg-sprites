@@ -32,6 +32,9 @@ svg-sprites [options] <config-file-or-directory>
 
 | Environment | Mode |
 |---|---|
+| Static HTML / custom publishing | `standalone` |
+| Standalone + Vite | `standalone@vite` |
+| Standalone + Webpack 5 | `standalone@webpack` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
 | Next.js App Router + Turbopack | `next@app/turbopack` |
@@ -45,7 +48,7 @@ When a directory is passed, all settings come from CLI options. When a config fi
 
 Available options are `--mode`, `--name`, `--description`, `--input-folder`, repeatable `--input-file`, plus the `--remove-size`/`--no-remove-size`, `--replace-colors`/`--no-replace-colors`, `--add-transition`/`--no-add-transition`, and `--generated-notice`/`--no-generated-notice` pairs. Transform flags override individual fields, while supplying at least one `--input-file` replaces the complete config `inputFiles` array.
 
-The mode must match the application's bundler. The generator creates different SVG asset integration code for Vite and for bundlers compatible with Webpack Asset Modules.
+The mode must match the application's publishing strategy. Bare `standalone` leaves the public URL to the application; Vite and Webpack modes generate bundler-specific SVG asset integration.
 
 ## Unified configuration
 
@@ -105,7 +108,7 @@ Identical absolute paths are deduplicated. Different SVG files with the same fil
 
 ## Generated module
 
-After generation, the sprite directory looks like this:
+After generation, a React or Next.js sprite directory looks like this:
 
 ```text
 app-icons/
@@ -139,6 +142,19 @@ app-icons/
 | `.svg-sprite/icon-data.js` | Runtime icon-name list and internal IDs |
 | `.svg-sprite/*.d.ts` | TypeScript declarations for the corresponding JavaScript modules |
 | `.svg-sprite/state.json` | Mode, contract version, and managed file list |
+
+Standalone contracts do not create `react/`. Bare `standalone` contains only the
+runtime asset and deployment-neutral manifest data:
+
+```text
+.svg-sprite/
+├── state.json
+├── sprite.svg
+└── svg-sprite.manifest.json
+```
+
+`standalone@vite` and `standalone@webpack` additionally create `index.*`,
+`icon-data.*`, and a resolved `svg-sprite.manifest.*`.
 
 The generator overwrites and deletes only files that contain its marker. If a user file occupies a managed path, generation fails. The root `index.ts` is user-owned; create a barrel when needed:
 
@@ -235,7 +251,7 @@ For multiple sprites, add a separate CLI command for each directory or combine t
 
 ## Formats and rendering methods
 
-React and Next.js modes generate the `stack` format.
+All current modes generate the `stack` format.
 
 | Format | `<svg><use>` | `<img>` | CSS background |
 |---|---:|---:|---:|
@@ -252,6 +268,17 @@ For React and Next.js, use the generated component. It knows the internal IDs, c
 ### Manually with `<svg><use>`
 
 How you obtain `spriteUrl` depends on the bundler.
+
+Static HTML after the application publishes `.svg-sprite/sprite.svg`:
+
+```html
+<svg aria-hidden="true">
+  <use href="/assets/icons.svg#search"></use>
+</svg>
+```
+
+Standalone Vite/Webpack provides generated `getIconsIconHref()` and an internal ID
+map. Do not construct fragments from unsafe file names manually.
 
 Vite:
 
@@ -306,11 +333,14 @@ The path in CSS is resolved relative to the CSS file itself. In these examples, 
 
 ## Assets and caching
 
-The generated component passes the SVG to the bundler as a separate asset:
+The generated component or standalone facade passes the SVG to the bundler as a separate asset:
 
 - Vite uses a static import with `?no-inline`;
 - Webpack 5, Turbopack, and Next.js use `new URL(..., import.meta.url)`;
 - SVG path data is not serialized into generated JavaScript.
+
+Bare `standalone` does not participate in an asset pipeline: the application copies
+or publishes `sprite.svg` and owns its URL, versioning, and cache policy.
 
 With standard asset naming, the bundler adds a content hash:
 
@@ -401,7 +431,7 @@ For a complex icon, you can disable `replaceColors` in a separate sprite configu
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 ```
 
-It accepts ready-made manifests, an array of lazy loaders, or a record in the format returned by `import.meta.glob`.
+It accepts ready-made React/Next manifests, an array of lazy loaders, or a record in the format returned by `import.meta.glob`. The current Viewer does not load standalone manifests; standalone will use a separate viewer contract.
 
 Vite:
 
@@ -488,6 +518,7 @@ If the sprite directory already contains a user-created `.gitignore` or a user-o
 - `Refusing to overwrite a user file`: a file without the generated marker occupies a managed path.
 - The icon does not change color: use `<svg><use>` or the generated component and check `replaceColors`.
 - Webpack emits an incorrect URL: check Asset Modules, `output.publicPath`, and SVG loaders.
+- Static sprite returns 404: check the post-generation copy or server alias, and do not put a filesystem `spritePath` into HTML.
 - The Viewer cannot find the sprite: check the path to `.svg-sprite/svg-sprite.manifest.js` and run generation before starting the application.
 - Build and mode do not match: use the target that corresponds to the actual bundler.
 

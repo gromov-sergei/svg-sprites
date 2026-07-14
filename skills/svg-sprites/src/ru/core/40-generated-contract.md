@@ -1,6 +1,6 @@
 ## Контракт generated-каталога
 
-После генерации выбранный каталог имеет следующий вид:
+После генерации React/Next-каталог имеет следующий вид:
 
 ```text
 svg-sprite/
@@ -23,6 +23,10 @@ svg-sprite/
         └── react-component.module.css
 ```
 
+Standalone не создаёт `react/`. Bare `standalone` генерирует `sprite.svg` и
+`svg-sprite.manifest.json`; `standalone@vite`/`standalone@webpack` дополнительно
+генерируют `index.*`, `icon-data.*` и resolved manifest.
+
 Редактируй исходные SVG, config-файл и пользовательский `index.ts`. Не изменяй вручную `.gitignore` и содержимое `.svg-sprite`: повторная генерация их перезапишет. Для импорта из корня sprite-модуля создай barrel:
 
 ```ts
@@ -36,9 +40,11 @@ export * from './.svg-sprite'
 Спрайт остаётся отдельным asset с content hash; SVG path-данные не встраиваются в JavaScript:
 
 - `react@vite` генерирует статический импорт `sprite.svg?no-inline`, запрещающий Vite inline;
+- `standalone@vite` использует тот же Vite asset-механизм, но экспортирует href helper без React;
+- `standalone@webpack` использует Webpack Asset Modules без React;
 - React Webpack 5 и все Next modes генерируют `new URL('./sprite.svg', import.meta.url).href`, который должен обработать Asset Modules соответствующего сборщика;
 - кастомный Webpack SVG loader не должен перехватывать generated `sprite.svg`;
 - в Next mode generated-компонент не содержит `'use client'` и работает в Server Components, SSR и SSG; не добавляй клиентскую границу только ради иконки;
 - команда сборки Next и mode key должны совпадать: Turbopack с `.../turbopack`, Webpack с `.../webpack`.
 
-Не перемещай generated sprite в `public` и не переписывай URL вручную. При смене роутера или сборщика перегенерируй спрайт с новым полным mode key.
+Для bundler modes не перемещай generated sprite в `public` и не переписывай URL вручную. Для bare `standalone` не перемещай managed original: приложение может явно копировать его в deploy output и само отвечает за публичный URL и очистку копии. При смене mode перегенерируй спрайт с новым полным key.

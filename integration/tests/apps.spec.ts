@@ -114,6 +114,9 @@ for (const app of apps) {
       expect(href).not.toMatch(/^(?:blob|data|file):/)
 
       const spriteUrl = new URL(href!.split('#')[0], page.url())
+      if ('expectedSpritePath' in app) {
+        expect(spriteUrl.pathname).toBe(app.expectedSpritePath)
+      }
       const spriteResponse = await fetch(spriteUrl)
       expect(spriteResponse.status).toBe(200)
       expect(spriteResponse.headers.get('content-type') ?? '').toMatch(/image\/svg\+xml/)

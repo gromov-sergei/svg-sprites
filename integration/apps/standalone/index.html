@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Standalone sprite fixture</title>
+    <style>
+      body { margin: 0; padding: 40px; font-family: system-ui, sans-serif; }
+      [data-testid="icon"] { width: 64px; height: 64px; color: #16a34a; --icon-color-1: #16a34a; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Standalone</h1>
+      <svg data-testid="icon" data-app="standalone" viewBox="0 0 24 24" aria-label="Check icon">
+        <use href="/app-icons/sprite.svg#check"></use>
+      </svg>
+    </main>
+  </body>
+</html>

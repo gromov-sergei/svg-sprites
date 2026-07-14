@@ -17,6 +17,9 @@ const CONFIG_FIELDS = new Set([
 ])
 const TRANSFORM_FIELDS = new Set(['removeSize', 'replaceColors', 'addTransition'])
 const MODES = new Set<SpriteMode>([
+  'standalone',
+  'standalone@vite',
+  'standalone@webpack',
   'react@vite',
   'react@webpack',
   'next@app/turbopack',

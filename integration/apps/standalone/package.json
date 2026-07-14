@@ -1,0 +1,13 @@
+{
+  "name": "@svg-sprites-fixtures/standalone",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.json",
+    "build": "npm run sprites && node build.mjs",
+    "dev": "npm run build && node ../../scripts/serve-static.mjs dist 4173"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../.."
+  }
+}

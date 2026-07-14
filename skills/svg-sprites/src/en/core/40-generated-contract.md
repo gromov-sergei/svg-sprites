@@ -1,6 +1,6 @@
 ## Generated directory contract
 
-After generation, the selected directory has this structure:
+After generation, a React/Next directory has this structure:
 
 ```text
 svg-sprite/
@@ -23,6 +23,10 @@ svg-sprite/
         └── react-component.module.css
 ```
 
+Standalone does not create `react/`. Bare `standalone` generates `sprite.svg` and
+`svg-sprite.manifest.json`; `standalone@vite`/`standalone@webpack` additionally
+generate `index.*`, `icon-data.*`, and a resolved manifest.
+
 Edit the source SVGs, selected config, and user-owned `index.ts`. Do not manually change `.gitignore` or anything in `.svg-sprite`: the next generation will overwrite them. To import from the sprite-module root, create a barrel:
 
 ```ts
@@ -36,9 +40,11 @@ The internal `index.js` exports the component from `react/react-component.js` an
 The sprite remains a separate content-hashed asset; SVG path data is not embedded in JavaScript:
 
 - `react@vite` generates a static `sprite.svg?no-inline` import, preventing Vite from inlining it;
+- `standalone@vite` uses the same Vite asset mechanism but exports an href helper without React;
+- `standalone@webpack` uses Webpack Asset Modules without React;
 - React Webpack 5 and all Next modes generate `new URL('./sprite.svg', import.meta.url).href`, which must be processed by the selected bundler's Asset Modules;
 - a custom Webpack SVG loader must not intercept the generated `sprite.svg`;
 - in Next mode, the generated component does not contain `'use client'` and works in Server Components, SSR, and SSG; do not add a client boundary solely for an icon;
 - the Next build command and mode key must agree: Turbopack with `.../turbopack`, Webpack with `.../webpack`.
 
-Do not move the generated sprite into `public` or rewrite its URL manually. When changing the router or bundler, regenerate the sprite with the new full mode key.
+For bundler modes, do not move the generated sprite into `public` or rewrite its URL manually. For bare `standalone`, do not move the managed original: the application may explicitly copy it into deploy output and owns the public URL and stale-copy cleanup. Regenerate with the new complete key when changing mode.

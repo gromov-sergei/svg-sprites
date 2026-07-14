@@ -33,7 +33,10 @@ export async function generateSprite(
   })
   const plannedPaths = new Set(plan.files.map((file) => file.path.replaceAll('\\', '/')))
 
-  for (const requiredPath of [plan.paths.entry, plan.paths.sprite, plan.paths.manifest]) {
+  const resultPaths = [plan.paths.sprite, plan.paths.manifest]
+  if (plan.paths.entry) resultPaths.push(plan.paths.entry)
+
+  for (const requiredPath of resultPaths) {
     if (!plannedPaths.has(requiredPath)) {
       throw new Error(`Mode "${config.mode}" result path is missing from its output plan: ${requiredPath}`)
     }

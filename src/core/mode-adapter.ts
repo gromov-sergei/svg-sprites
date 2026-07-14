@@ -3,6 +3,7 @@ import type {
   NextBundler,
   NextRouter,
   ReactAssetTarget,
+  StandaloneAssetTarget,
   SpriteMode,
 } from '../targets/types.js'
 import type { ResolvedSpriteConfig, SpriteFolder } from '../types.js'
@@ -33,7 +34,11 @@ export type NextModeResultMetadata = {
   readonly bundler: NextBundler
 }
 
-export type ModeResultMetadata = ReactModeResultMetadata | NextModeResultMetadata
+export type StandaloneModeResultMetadata = {
+  readonly target: StandaloneAssetTarget
+}
+
+export type ModeResultMetadata = ReactModeResultMetadata | NextModeResultMetadata | StandaloneModeResultMetadata
 
 export type OutputPlan = {
   readonly files: readonly GeneratedFile[]
@@ -41,7 +46,7 @@ export type OutputPlan = {
     readonly generatedDir: '.svg-sprite'
     readonly sprite: string
     readonly manifest: string
-    readonly entry: string
+    readonly entry?: string
   }
   readonly result: ModeResultMetadata
 }

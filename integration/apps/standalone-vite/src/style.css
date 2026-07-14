@@ -1,16 +1,12 @@
-:root {
-  font-family: system-ui, sans-serif;
-  color: #172033;
-  background: #fff;
-}
-
 body {
   margin: 0;
   padding: 40px;
+  font-family: system-ui, sans-serif;
 }
 
 [data-testid='icon'] {
   width: 64px;
   height: 64px;
   color: #16a34a;
+  --icon-color-1: #16a34a;
 }

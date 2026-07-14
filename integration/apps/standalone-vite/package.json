@@ -1,10 +1,10 @@
 {
-  "name": "@svg-sprites-fixtures/vanilla-vite",
+  "name": "@svg-sprites-fixtures/standalone-vite",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "sprites": "svg-sprites --mode legacy .",
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
     "typecheck": "tsc --noEmit",
     "build": "npm run sprites && tsc --noEmit && vite build",
     "dev": "npm run sprites && vite"

@@ -225,9 +225,9 @@ JavaScript отвечает за интерфейс и поведение, а г
 
 Viewer подключается только к внутренней debug-странице и не становится частью generated-компонентов иконок.
 
-## React и Next.js
+## Standalone, React и Next.js
 
-Пакет генерирует типизированные React-компоненты и поддерживает Vite, Webpack 5, Next.js App Router и Pages Router с Turbopack или Webpack.
+Пакет генерирует низкоуровневые standalone-спрайты для static HTML, Vite и Webpack 5, а также типизированные React-компоненты для React и Next.js.
 
 ## Чистый Git
 

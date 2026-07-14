@@ -14,6 +14,21 @@ const result = await generateSprite(
 )
 ```
 
+Для static standalone mode `result.spritePath` можно использовать в build-скрипте,
+чтобы опубликовать SVG по URL приложения:
+
+```ts
+import { copyFile } from 'node:fs/promises'
+
+const result = await generateSprite('src/sprite/svg-sprite.config.ts', {
+  mode: 'standalone',
+})
+await copyFile(result.spritePath, 'dist/app-icons/sprite.svg')
+```
+
+`spritePath` является filesystem path, а не browser URL. Deployment-neutral JSON
+manifest доступен через `result.manifestPath` и копируется независимо от SVG.
+
 Первый аргумент принимает полный путь к config-файлу с любым именем и расширением `.ts`, `.js` или `.json`. Каталог вместо файла включает config-less режим: корнем sprite-модуля становится этот каталог.
 
 Второй аргумент содержит необязательные overrides и всегда имеет приоритет над конфигом:

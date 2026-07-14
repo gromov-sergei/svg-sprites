@@ -5,9 +5,15 @@ import { nextPagesTurbopackAdapter } from './modes/next-pages-turbopack/adapter.
 import { nextPagesWebpackAdapter } from './modes/next-pages-webpack/adapter.js'
 import { reactViteAdapter } from './modes/react-vite/adapter.js'
 import { reactWebpackAdapter } from './modes/react-webpack/adapter.js'
+import { standaloneAdapter } from './modes/standalone/adapter.js'
+import { standaloneViteAdapter } from './modes/standalone-vite/adapter.js'
+import { standaloneWebpackAdapter } from './modes/standalone-webpack/adapter.js'
 import type { SpriteMode } from './targets/types.js'
 
 const modeRegistry: Record<SpriteMode, ModeAdapter> = {
+  standalone: standaloneAdapter,
+  'standalone@vite': standaloneViteAdapter,
+  'standalone@webpack': standaloneWebpackAdapter,
   'react@vite': reactViteAdapter,
   'react@webpack': reactWebpackAdapter,
   'next@app/turbopack': nextAppTurbopackAdapter,

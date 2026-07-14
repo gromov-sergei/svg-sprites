@@ -225,9 +225,9 @@ It also provides ready-to-use integration examples for:
 
 The Viewer is added only to an internal debug page and does not become part of the generated icon components.
 
-## React and Next.js
+## Standalone, React, and Next.js
 
-The package generates typed React components and supports Vite, Webpack 5, Next.js App Router, and Pages Router with Turbopack or Webpack.
+The package generates low-level standalone sprites for static HTML, Vite, and Webpack 5, plus typed React components for React and Next.js.
 
 ## Clean Git history
 

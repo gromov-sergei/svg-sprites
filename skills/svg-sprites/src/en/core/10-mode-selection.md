@@ -4,6 +4,9 @@ Select exactly one supported mode key:
 
 | Project | Mode key |
 |---|---|
+| Static HTML / custom publishing | `standalone` |
+| Standalone + Vite | `standalone@vite` |
+| Standalone + Webpack 5 | `standalone@webpack` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
 | Next.js App Router + Turbopack | `next@app/turbopack` |
@@ -24,4 +27,4 @@ The CLI accepts exactly one path. A `.ts`, `.js`, or `.json` file loads that exa
 }
 ```
 
-Do not use incomplete `react`, `next@app`, or `next@pages` keys, the removed `legacy` mode, or the not-yet-implemented `standalone` mode. Create one command per config file or directory when the project has multiple sprites.
+Do not use incomplete `react`, `next@app`, `next@pages`, or `standalone@` keys, or the removed `legacy` mode. Use bare `standalone` only when the application publishes the SVG itself; use the complete Vite/Webpack key otherwise. Create one command per config file or directory when the project has multiple sprites.

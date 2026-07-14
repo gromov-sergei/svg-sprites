@@ -23,11 +23,21 @@ export type {
   NextRouter,
   ReactAssetTarget,
   ReactSpriteMode,
+  StandaloneAssetTarget,
+  StandaloneSpriteMode,
+  StaticAssetTarget,
   SpriteAssetTarget,
   SpriteMode,
   ViteAssetTarget,
   WebpackAssetTarget,
 } from './targets/types.js'
+export type {
+  StandaloneSpriteManifest,
+  StandaloneSpriteManifestColor,
+  StandaloneSpriteManifestData,
+  StandaloneSpriteManifestIcon,
+  StandaloneTargetForMode,
+} from './manifest-types.js'
 export type {
   ResolvedSpriteConfig,
   SpriteConfig,

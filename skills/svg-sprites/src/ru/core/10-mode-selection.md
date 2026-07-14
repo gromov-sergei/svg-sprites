@@ -4,6 +4,9 @@
 
 | Проект | Mode key |
 |---|---|
+| Static HTML / собственная публикация | `standalone` |
+| Standalone + Vite | `standalone@vite` |
+| Standalone + Webpack 5 | `standalone@webpack` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
 | Next.js App Router + Turbopack | `next@app/turbopack` |
@@ -24,4 +27,4 @@ CLI принимает ровно один путь. Путь к файлу `.ts
 }
 ```
 
-Не используй неполные `react`, `next@app`, `next@pages`, удалённый `legacy` или ещё не реализованный `standalone`. Для нескольких спрайтов создай отдельную команду для каждого config-файла или каталога.
+Не используй неполные `react`, `next@app`, `next@pages`, `standalone@` или удалённый `legacy`. Bare `standalone` выбирай только когда приложение само публикует SVG; для Vite/Webpack используй соответствующий полный key. Для нескольких спрайтов создай отдельную команду для каждого config-файла или каталога.
