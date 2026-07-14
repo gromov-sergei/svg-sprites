@@ -2,14 +2,12 @@ import { defineConfig } from 'tsup'
 
 export default defineConfig({
   entry: {
-    index: 'src/index.ts',
-    cli: 'src/cli.ts',
-    react: 'src/react.ts',
-    viewer: 'src/viewer.ts',
+    'viewer-element': 'src/viewer-element.ts',
   },
   format: 'esm',
   dts: true,
-  clean: true,
+  clean: false,
+  splitting: false,
   sourcemap: true,
   target: 'node18',
   noExternal: ['lit', 'vanilla-colorful'],

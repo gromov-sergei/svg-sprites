@@ -1,19 +1,29 @@
-import type { SpriteManifest, SpriteManifestIcon } from './types.js'
+import type { SpriteViewerManifest, SpriteViewerManifestIcon } from './types.js'
 
-export type SpriteViewerTab = 'react' | 'svg' | 'img' | 'css'
+export type SpriteViewerTab = 'react' | 'vue' | 'svg' | 'img' | 'css'
 export type SpriteViewerCodeLanguage = 'tsx' | 'html' | 'css'
 
-export const SPRITE_VIEWER_TABS: ReadonlyArray<{ id: SpriteViewerTab; label: string }> = [
-  { id: 'react', label: 'React' },
+const COMMON_TABS: ReadonlyArray<{ id: SpriteViewerTab; label: string }> = [
   { id: 'svg', label: 'SVG' },
   { id: 'img', label: 'IMG' },
   { id: 'css', label: 'CSS' },
 ]
 
-export function tabsForFormat(format: SpriteManifest['format']) {
-  return format === 'stack'
-    ? SPRITE_VIEWER_TABS
-    : SPRITE_VIEWER_TABS.filter((tab) => tab.id === 'react' || tab.id === 'svg')
+function usageForManifest(manifest: SpriteViewerManifest): { framework: 'react' | 'vue'; componentName: string } | null {
+  if (manifest.usage) return manifest.usage
+  if (manifest.componentName) return { framework: 'react', componentName: manifest.componentName }
+  return null
+}
+
+export function tabsForManifest(manifest: SpriteViewerManifest): ReadonlyArray<{ id: SpriteViewerTab; label: string }> {
+  const usage = usageForManifest(manifest)
+  const frameworkTab = usage
+    ? [{ id: usage.framework, label: usage.framework === 'react' ? 'React' : 'Vue' } as const]
+    : []
+  const tabs = [...frameworkTab, ...COMMON_TABS]
+  return manifest.format === 'stack'
+    ? tabs
+    : tabs.filter((tab) => tab.id === 'react' || tab.id === 'vue' || tab.id === 'svg')
 }
 
 export function viewBoxSize(viewBox: string | null): string | null {
@@ -76,8 +86,8 @@ function cssUrl(value: string): string {
 }
 
 export function generateViewerCode(options: {
-  manifest: SpriteManifest
-  icon: SpriteManifestIcon
+  manifest: SpriteViewerManifest
+  icon: SpriteViewerManifestIcon
   tab: SpriteViewerTab
   colorOverrides: Readonly<Record<string, string>>
   cssColor: string
@@ -86,16 +96,29 @@ export function generateViewerCode(options: {
   const href = `${manifest.spriteUrl}#${icon.id}`
   const overrides = styleLines(colorOverrides)
 
-  if (tab === 'react') {
+  if (tab === 'react' || tab === 'vue') {
+    const usage = usageForManifest(manifest)
+    if (!usage) throw new Error(`The ${tab} code tab requires component metadata.`)
+
+    if (tab === 'vue') {
+      const style = Object.entries(colorOverrides)
+        .map(([variable, color]) => `${JSON.stringify(variable)}: ${JSON.stringify(color)}`)
+        .join(', ')
+      return {
+        code: `<${usage.componentName} icon=${JSON.stringify(icon.name)}${style ? ` :style="{ ${htmlAttribute(style)} }"` : ''} />`,
+        language: 'html',
+      }
+    }
+
     if (overrides.length === 0) {
       return {
-        code: `<${manifest.componentName} icon=${JSON.stringify(icon.name)} />`,
+        code: `<${usage.componentName} icon=${JSON.stringify(icon.name)} />`,
         language: 'tsx',
       }
     }
     return {
       code: [
-        `<${manifest.componentName}`,
+        `<${usage.componentName}`,
         `  icon=${JSON.stringify(icon.name)}`,
         '  style={{',
         ...overrides,

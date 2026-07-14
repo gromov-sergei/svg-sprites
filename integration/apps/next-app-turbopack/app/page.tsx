@@ -1,4 +1,5 @@
 import { IconsIcon } from '../src/sprite'
+import { AppSpriteViewer } from './sprite-viewer'
 
 export default function Page() {
   return (
@@ -13,6 +14,7 @@ export default function Page() {
         height={64}
         style={{ '--icon-color-1': '#16a34a' }}
       />
+      <AppSpriteViewer />
     </main>
   )
 }

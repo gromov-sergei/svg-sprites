@@ -1,7 +1,7 @@
 {
   "name": "@gromlab/svg-sprites",
   "version": "1.1.5",
-  "description": "Generate SVG sprites and typed icon components for React and Next.js",
+  "description": "Generate SVG sprites and typed icon components for standalone, React, and Next.js",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -13,18 +13,35 @@
     "./react": {
       "types": "./dist/react.d.ts",
       "import": "./dist/react.js"
+    },
+    "./viewer": {
+      "types": "./dist/viewer.d.ts",
+      "import": "./dist/viewer.js"
+    },
+    "./viewer/element": {
+      "types": "./dist/viewer-element.d.ts",
+      "import": "./dist/viewer-element.js"
     }
   },
   "bin": {
     "svg-sprites": "./dist/cli.js"
   },
   "files": [
+    "dist/*.js",
+    "dist/*.js.map",
+    "dist/*.d.ts",
     "dist/index.js",
     "dist/index.js.map",
     "dist/index.d.ts",
     "dist/react.js",
     "dist/react.js.map",
     "dist/react.d.ts",
+    "dist/viewer.js",
+    "dist/viewer.js.map",
+    "dist/viewer.d.ts",
+    "dist/viewer-element.js",
+    "dist/viewer-element.js.map",
+    "dist/viewer-element.d.ts",
     "dist/cli.js",
     "dist/cli.js.map",
     "dist/cli.d.ts",
@@ -39,11 +56,11 @@
   ],
   "scripts": {
     "build": "npm run build:package",
-    "build:package": "tsup",
+    "build:package": "tsup && tsup --config tsup.viewer.config.ts",
     "build:skill": "node skills/svg-sprites/build.mjs",
     "check:skill": "node skills/svg-sprites/build.mjs --check",
     "dev": "tsup --watch",
-    "test": "tsup && node --test test/*.test.mjs",
+    "test": "npm run build:package && node --test test/*.test.mjs",
     "typecheck": "tsc --noEmit",
     "integration:install": "npm ci --prefix integration",
     "integration:generate": "npm run build:package && npm run generate --prefix integration",
@@ -100,10 +117,11 @@
     "@types/react-dom": "^19.2.3",
     "@types/svg-sprite": "^0.0.39",
     "jsdom": "^26.1.0",
+    "lit": "^3.3.3",
     "react": "^19.2.5",
-    "react-colorful": "^5.6.1",
     "react-dom": "^19.2.5",
     "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vanilla-colorful": "^0.7.2"
   }
 }

@@ -89,7 +89,7 @@ mode A -X-> mode B
 mode A -X-> shared output codegen
 ```
 
-`src/react/` с `SpriteViewer` является отдельным runtime пакета, а не mode adapter.
+`src/viewer/` с Web Component является framework-neutral browser runtime пакета, а не mode adapter. `src/react/` содержит только React bridge к этому runtime.
 
 ## Изменение mode
 

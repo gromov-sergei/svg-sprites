@@ -104,6 +104,8 @@ for (const app of apps) {
     try {
       await waitForServer(server, origin)
       await page.goto(origin)
+      await page.waitForLoadState('networkidle')
+      expect(browserErrors).toEqual([])
 
       const icon = page.getByTestId('icon')
       await expect(icon).toBeVisible()
@@ -121,6 +123,47 @@ for (const app of apps) {
       expect(spriteResponse.status).toBe(200)
       expect(spriteResponse.headers.get('content-type') ?? '').toMatch(/image\/svg\+xml/)
       expect(await spriteResponse.text()).toMatch(/id="check"/)
+
+      const viewer = page.locator('gromlab-sprite-viewer')
+      await expect(viewer).toBeVisible()
+      await expect(viewer.locator('[data-sprite-viewer]')).toBeVisible()
+
+      const viewerCard = viewer.locator('[data-icon-name="check"]')
+      await expect(viewerCard).toBeVisible()
+      const viewerHref = await viewerCard.locator('use').getAttribute('href')
+      expect(viewerHref).toBeTruthy()
+      expect(viewerHref!.split('#')[1]).toBe('check')
+      expect(new URL(viewerHref!.split('#')[0], page.url()).href).toBe(spriteUrl.href)
+
+      await viewerCard.click()
+      const dialog = viewer.getByRole('dialog', { name: 'check' })
+      await expect(dialog).toBeVisible()
+      await expect(dialog.getByRole('tab', { name: 'SVG' })).toBeVisible()
+      if (app.id.startsWith('standalone')) {
+        await expect(dialog.getByRole('tab', { name: 'React' })).toHaveCount(0)
+      } else {
+        await expect(dialog.getByRole('tab', { name: 'React' })).toBeVisible()
+      }
+
+      const colorSwatch = dialog.getByRole('button', { name: /Изменить цвет --icon-color-1/ })
+      await colorSwatch.click()
+      const colorPicker = dialog.locator('gromlab-hex-color-picker')
+      await expect(colorPicker).toBeVisible()
+      const saturationBounds = await colorPicker.locator('[part="saturation"]').boundingBox()
+      const hueBounds = await colorPicker.locator('[part="hue"]').boundingBox()
+      expect(saturationBounds?.height).toBeGreaterThan(100)
+      expect(hueBounds?.height).toBeGreaterThanOrEqual(20)
+      const popoverBounds = await dialog.locator('.gromlab-sprite-viewer__color-popover').boundingBox()
+      const colorInputBounds = await dialog.locator('gromlab-hex-input input').boundingBox()
+      expect(colorInputBounds!.x).toBeGreaterThanOrEqual(popoverBounds!.x)
+      expect(colorInputBounds!.x + colorInputBounds!.width).toBeLessThanOrEqual(
+        popoverBounds!.x + popoverBounds!.width,
+      )
+      await dialog.locator('.gromlab-sprite-viewer__color-label').click()
+      await expect(colorPicker).toHaveCount(0)
+
+      await dialog.getByRole('button', { name: 'Закрыть' }).click()
+      await expect(dialog).toHaveCount(0)
 
       const screenshot = PNG.sync.read(await icon.screenshot())
       let coloredPixels = 0

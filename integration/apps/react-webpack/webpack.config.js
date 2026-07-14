@@ -15,6 +15,10 @@ export default {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
+    alias: {
+      react: path.resolve(root, '../../node_modules/react'),
+      'react-dom': path.resolve(root, '../../node_modules/react-dom'),
+    },
   },
   module: {
     rules: [

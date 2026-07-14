@@ -1,4 +1,5 @@
 export const SPRITE_VIEWER_STYLES = `
+:host { display: block; }
 .gromlab-sprite-viewer {
   --sv-bg: #f0f0f3;
   --sv-text: #1a1a1a;
@@ -271,9 +272,10 @@ export const SPRITE_VIEWER_STYLES = `
   border-radius: 8px;
   box-shadow: 0 8px 28px rgba(0, 0, 0, .22);
 }
-.gromlab-sprite-viewer__color-popover .react-colorful { width: 198px; max-width: 100%; height: 160px; }
-.gromlab-sprite-viewer__hex-input { display: block; width: 100%; height: 32px; margin-top: 8px; padding: 0 8px; color: var(--sv-text); text-align: center; background: var(--sv-card); border: 1px solid var(--sv-border); border-radius: 4px; outline: none; font: 12px/1 ui-monospace, "SFMono-Regular", Consolas, monospace; }
-.gromlab-sprite-viewer__hex-input:focus { border-color: var(--sv-accent); }
+.gromlab-sprite-viewer__color-picker { display: flex; flex-direction: column; width: 198px; max-width: 100%; height: 160px; }
+.gromlab-sprite-viewer__hex-input { display: block; width: 100%; margin-top: 8px; }
+.gromlab-sprite-viewer__hex-input::part(input) { box-sizing: border-box; display: block; width: 100%; height: 32px; padding: 0 8px; color: var(--sv-text); text-align: center; background: var(--sv-card); border: 1px solid var(--sv-border); border-radius: 4px; outline: none; font: 12px/1 ui-monospace, "SFMono-Regular", Consolas, monospace; }
+.gromlab-sprite-viewer__hex-input::part(input):focus { border-color: var(--sv-accent); }
 .gromlab-sprite-viewer__tabs { display: flex; overflow-x: auto; margin-bottom: 12px; border-bottom: 1px solid var(--sv-border); }
 .gromlab-sprite-viewer__tab { flex: 0 0 auto; padding: 8px 16px; color: var(--sv-muted); background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer; font-size: 12px; font-weight: 600; }
 .gromlab-sprite-viewer__tab[aria-selected="true"] { color: var(--sv-accent); border-bottom-color: var(--sv-accent); }

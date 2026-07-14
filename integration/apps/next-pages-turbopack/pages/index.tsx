@@ -1,4 +1,9 @@
+import { SpriteViewer } from '@gromlab/svg-sprites/react'
 import { IconsIcon } from '../src/sprite'
+
+const viewerSources = [
+  () => import('../src/sprite/.svg-sprite/svg-sprite.manifest.js'),
+] as const
 
 export default function Page() {
   return (
@@ -13,6 +18,7 @@ export default function Page() {
         height={64}
         style={{ '--icon-color-1': '#16a34a' }}
       />
+      <SpriteViewer sources={viewerSources} title="Next Pages Turbopack Viewer" style={{ marginTop: 32 }} />
     </main>
   )
 }

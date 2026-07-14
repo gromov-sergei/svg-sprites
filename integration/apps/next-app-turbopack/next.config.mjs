@@ -1,10 +1,10 @@
 import path from 'node:path'
 
-const integrationRoot = path.resolve(import.meta.dirname, '../..')
+const repositoryRoot = path.resolve(import.meta.dirname, '../../..')
 
 export default {
-  outputFileTracingRoot: integrationRoot,
+  outputFileTracingRoot: repositoryRoot,
   turbopack: {
-    root: integrationRoot,
+    root: repositoryRoot,
   },
 }

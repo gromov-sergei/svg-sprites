@@ -40,14 +40,9 @@ test('SpriteViewer renders direct sprite manifests', () => {
     title: 'Icon catalog',
   }))
 
-  assert.match(markup, /Icon catalog/)
-  assert.match(markup, /controls/)
-  assert.match(markup, /Control icons/)
-  assert.match(markup, /check/)
-  assert.match(markup, /\/assets\/controls\.svg#check/)
-  assert.match(markup, /1 спрайт · 1 иконка/)
-  assert.match(markup, /gromlab-sprite-viewer__icon-wrap/)
-  assert.match(markup, /Открыть check/)
+  assert.match(markup, /^<gromlab-sprite-viewer/)
+  assert.match(markup, /data-sprite-viewer-host=""/)
+  assert.doesNotMatch(markup, /Icon catalog/)
 })
 
 test('SpriteViewer accepts a loader record from import.meta.glob', () => {
@@ -57,7 +52,7 @@ test('SpriteViewer accepts a loader record from import.meta.glob', () => {
     },
   }))
 
-  assert.match(markup, /Загрузка спрайтов/)
+  assert.match(markup, /^<gromlab-sprite-viewer/)
 })
 
 test('SpriteViewer supports an externally controlled color theme', () => {
@@ -66,6 +61,6 @@ test('SpriteViewer supports an externally controlled color theme', () => {
     colorTheme: 'dark',
   }))
 
-  assert.match(markup, /^<section[^>]*data-theme="dark"/)
-  assert.doesNotMatch(markup, /<button[^>]*aria-label="Переключить тему"/)
+  assert.match(markup, /^<gromlab-sprite-viewer/)
+  assert.doesNotMatch(markup, /data-theme=/)
 })

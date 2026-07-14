@@ -2,7 +2,7 @@
 
 [← Back to home](../../README.md)
 
-The package is ESM-only and provides one Node.js generation API. The React runtime with `SpriteViewer` is available from the separate `@gromlab/svg-sprites/react` entry point.
+The package is ESM-only and provides one Node.js generation API. The framework-neutral Viewer is available from `@gromlab/svg-sprites/viewer`, its auto-register entry from `@gromlab/svg-sprites/viewer/element`, and the React bridge from `@gromlab/svg-sprites/react`.
 
 ## `generateSprite`
 
@@ -129,10 +129,19 @@ import {
 
 These functions are intended for custom orchestration. Standard generation should use `generateSprite`.
 
-## React runtime
+## Viewer runtime
+
+```ts
+import '@gromlab/svg-sprites/viewer/element'
+import type { SpriteViewerElement } from '@gromlab/svg-sprites/viewer'
+```
+
+The browser entry registers `<gromlab-sprite-viewer>`. Bare standalone can also load the self-contained `dist/viewer-element.js` without a bundler.
+
+The React bridge keeps the component API:
 
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 ```
 
-`SpriteViewer` accepts generated manifests, lazy loaders, or an `import.meta.glob` result. This entry point contains `'use client'` and is intended for debug tools; production components are imported from local sprite modules.
+`SpriteViewer` accepts generated manifests, remote standalone sources, lazy loaders, or an `import.meta.glob` result. The React entry contains `'use client'` and is intended for debug tools; production components are imported from local sprite modules.

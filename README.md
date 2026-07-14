@@ -210,7 +210,7 @@ Create themes, states, and hover effects without editing the SVG or making addit
 
 ## SpriteViewer: every sprite on one debug page
 
-`SpriteViewer` renders all project sprites in one place and shows which icons are included in each set and how they look.
+`SpriteViewer` renders all standalone, React, and Next.js project sprites in one place. One Web Component owns the visuals, while React uses a thin bridge to it.
 
 For each icon, you can see the generated CSS variables and their fallback colors. Change the values directly in the Viewer and see the result immediately.
 
@@ -224,6 +224,8 @@ It also provides ready-to-use integration examples for:
 ![SpriteViewer](https://raw.githubusercontent.com/gromlab-ru/svg-sprites/master/preview-image.png)
 
 The Viewer is added only to an internal debug page and does not become part of the generated icon components.
+
+Bare standalone loads the Viewer as a browser script and HTML element; bundler modes use the npm entry, while React and Next.js import `SpriteViewer` from `@gromlab/svg-sprites/react`.
 
 ## Standalone, React, and Next.js
 

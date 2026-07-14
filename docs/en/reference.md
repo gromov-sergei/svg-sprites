@@ -425,13 +425,43 @@ For a complex icon, you can disable `replaceColors` in a separate sprite configu
 
 ## SpriteViewer
 
-`SpriteViewer` is imported from a separate client entry point:
+The Viewer uses one Shadow DOM Web Component for every mode. React and future framework components are bridges to that same element, so the visuals and behavior are not duplicated.
+
+Bare `standalone` loads the self-contained browser bundle and supplies the JSON manifest URL and the published SVG URL:
+
+```html
+<script
+  type="module"
+  src="https://unpkg.com/@gromlab/svg-sprites@<version>/dist/viewer-element.js"
+></script>
+
+<gromlab-sprite-viewer
+  viewer-title="Project icons"
+  manifest-url="/app-icons/manifest.json"
+  sprite-url="/app-icons/sprite.svg"
+></gromlab-sprite-viewer>
+```
+
+`viewer-element.js` has no additional runtime files and can be copied with the other static assets for self-hosting.
+
+`standalone@vite` and `standalone@webpack` register the same element through an npm entry and pass the generated JS manifest through the `sources` property:
+
+```ts
+import '@gromlab/svg-sprites/viewer/element'
+import type { SpriteViewerElement } from '@gromlab/svg-sprites/viewer'
+import spriteManifest from './svg-sprite/.svg-sprite/svg-sprite.manifest.js'
+
+const viewer = document.querySelector<SpriteViewerElement>('gromlab-sprite-viewer')!
+viewer.sources = [spriteManifest]
+```
+
+React and Next.js keep the component API:
 
 ```tsx
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 ```
 
-It accepts ready-made React/Next manifests, an array of lazy loaders, or a record in the format returned by `import.meta.glob`. The current Viewer does not load standalone manifests; standalone will use a separate viewer contract.
+It accepts ready-made manifests, remote standalone sources, an array of lazy loaders, or a record in the format returned by `import.meta.glob`.
 
 Vite:
 
@@ -461,7 +491,7 @@ export const IconsDebugPage = () => (
 )
 ```
 
-The Viewer displays groups, search, `viewBox`, CSS custom properties, fallback colors, and React, SVG, IMG, and CSS examples. You can change color values in the interface and immediately inspect the result.
+The Viewer displays groups, search, `viewBox`, CSS custom properties, and fallback colors. React/Next manifests get React, SVG, IMG, and CSS tabs; standalone manifests get SVG, IMG, and CSS. You can change color values in the interface and immediately inspect the result.
 
 ### Viewer theme
 
@@ -481,7 +511,7 @@ To synchronize it with the application theme:
 />
 ```
 
-`@gromlab/svg-sprites/react` contains `'use client'`. In the Next.js App Router, place the Viewer inside a separate Client Component boundary and use it only on a debug route or in an internal tool.
+`@gromlab/svg-sprites/react` contains `'use client'` and renders the Web Component host; its internal Shadow DOM is created after the browser runtime loads. In the Next.js App Router, place the Viewer inside a separate Client Component boundary and use it only on a debug route or in an internal tool.
 
 ## Generated files, Git, and CI
 

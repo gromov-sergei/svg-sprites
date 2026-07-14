@@ -1,3 +1,5 @@
+import '@gromlab/svg-sprites/viewer/element'
+import type { SpriteViewerElement } from '@gromlab/svg-sprites/viewer'
 import spriteManifest from './sprite/.svg-sprite/svg-sprite.manifest.js'
 import { getIconsIconHref, iconsSpriteUrl } from './sprite'
 import './style.css'
@@ -17,4 +19,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   >
     <use href="${getIconsIconHref('check')}"></use>
   </svg>
+  <gromlab-sprite-viewer></gromlab-sprite-viewer>
 `
+
+const viewer = document.querySelector<SpriteViewerElement>('gromlab-sprite-viewer')!
+viewer.viewerTitle = 'Standalone Vite Viewer'
+viewer.sources = [spriteManifest]

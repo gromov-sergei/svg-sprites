@@ -53,6 +53,8 @@ npm run dev --workspace @svg-sprites-fixtures/react-vite --prefix integration
 Перед E2E production builds должны существовать. Тест запускает каждый server
 последовательно, проверяет внешний `href`, HTTP status и Content-Type спрайта,
 наличие symbol ID, отсутствие browser errors и зелёные пиксели отрисованной иконки.
+Для каждого active mode тест также открывает единый Viewer, проверяет его Shadow DOM,
+совпадение sprite URL, карточку `check`, dialog и mode-specific вкладки кода.
 
 Static fixture копирует managed SVG и JSON manifest в `dist/app-icons/` и использует
 literal `<use href="/app-icons/sprite.svg#check">`.

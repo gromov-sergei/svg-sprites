@@ -210,7 +210,7 @@ JavaScript отвечает за интерфейс и поведение, а г
 
 ## SpriteViewer: все спрайты на одной debug-странице
 
-`SpriteViewer` рендерит все спрайты проекта в одном месте и показывает, какие иконки вошли в каждый набор и как они выглядят.
+`SpriteViewer` рендерит все standalone, React и Next.js спрайты проекта в одном месте. Один Web Component отвечает за визуал, а React использует тонкий bridge к нему.
 
 Для каждой иконки видны созданные CSS-переменные и их fallback-цвета. Значения можно менять прямо в Viewer и сразу наблюдать результат.
 
@@ -224,6 +224,8 @@ JavaScript отвечает за интерфейс и поведение, а г
 ![SpriteViewer](https://raw.githubusercontent.com/gromlab-ru/svg-sprites/master/preview-image.png)
 
 Viewer подключается только к внутренней debug-странице и не становится частью generated-компонентов иконок.
+
+Bare standalone подключает Viewer через browser script и HTML element; bundler modes используют npm entry, а React и Next.js импортируют `SpriteViewer` из `@gromlab/svg-sprites/react`.
 
 ## Standalone, React и Next.js
 
