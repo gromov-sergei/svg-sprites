@@ -8,6 +8,7 @@ apps/*/.next/
 apps/*/.nuxt/
 apps/*/.output/
 apps/*/.svelte-kit/
+apps/*/.vinxi/
 apps/*/build/
 apps/*/out-tsc/
 apps/*/public/sprites/
