@@ -3,6 +3,8 @@
 Choose one exact mode guide for setup. The guides are standalone documents and
 can also be used unchanged by AI skills.
 
+The common format for JSON, JavaScript, and TypeScript config files is described in the [configuration guide](configuration.md).
+
 ## Quick Start Guides
 
 | Project | Exact mode | Guide |
@@ -20,10 +22,11 @@ can also be used unchanged by AI skills.
 Every guide follows the same order:
 
 1. Generate the sprite through `npx` without adding the package to the project.
-2. Optionally install and connect the debug Viewer.
-3. Optionally type the config through the package or a local copy-paste type.
+2. Use the sprite in the application.
+3. Optionally add the Viewer for debugging and previews.
 
 ## Reference
 
+- [Configuration](configuration.md)
 - [Technical reference](reference/technical.md)
 - [Programmatic API](reference/programmatic-api.md)

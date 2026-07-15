@@ -1,22 +1,26 @@
-# Standalone SVG Sprite Quick Start
+# SVG Sprite for a Site Without a Bundler
 
-This guide targets the exact mode key `standalone`: static HTML or a custom asset pipeline with no generated JavaScript facade.
+Combine SVG icons into one file and use them on an HTML page.
 
-## 1. Generate the sprite
+## Generate the sprite
 
-No package installation and no `package.json` dependency are needed. `npx` downloads the CLI temporarily, and generated runtime does not import `@gromlab/svg-sprites`; bare `standalone` does not generate a JavaScript runtime at all.
+You do not need to install the package in your project.
 
-Keep the config next to its source icons:
+This guide uses the following project structure:
 
 ```text
-src/ui/icons/
-├── icons/
-│   ├── check.svg
-│   └── folder.svg
-└── svg-sprite.config.json
+/
+├── index.html
+└── assets/
+    ├── app-icons/
+    └── svg-icons/
+        ├── check.svg
+        └── warning.svg
 ```
 
-Create a JSON config:
+### 1. Create the sprite config
+
+Choose a folder for the sprite. This example uses `assets/app-icons`. Create `svg-sprite.config.json` inside it:
 
 ```json
 {
@@ -25,147 +29,80 @@ Create a JSON config:
 }
 ```
 
-When `input` is omitted, the generator reads `./icons` next to the config.
+### 2. Set the icon source
 
-To include SVG files from nested directories, set one glob pattern:
-
-```json
-{
-  "mode": "standalone",
-  "name": "icons",
-  "input": "../assets/icons/**/*.svg"
-}
-```
-
-An array can mix folders, individual SVG files, and glob patterns:
+`input` can point to a folder, an individual SVG file, or a glob pattern. To use multiple sources, provide an array with any combination of these values:
 
 ```json
 {
   "mode": "standalone",
   "name": "icons",
-  "input": [
-    "../assets/icons",
-    "../features/profile/user.svg",
-    "../features/admin/*.svg"
-  ]
+  "input": "../svg-icons/**/*.svg"
 }
 ```
 
-All relative paths start at the config directory. Pass the config path explicitly:
+### 3. Generate the sprite
+
+Pass the config path to the command:
 
 ```bash
-npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/icons/svg-sprite.config.json
+npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json
 ```
 
-For repeatable local commands, the same temporary CLI can be used from a script:
+The package collects the icons in a `.svg-sprite` directory next to the config:
 
-```json
-{
-  "scripts": {
-    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/icons/svg-sprite.config.json"
-  }
-}
+```text
+assets/app-icons/.svg-sprite/
+├── sprite.svg
+└── svg-sprite.manifest.json
 ```
 
-Run that script once from your existing dev/build pipeline. If you use a `predev` or `prebuild` hook instead, do not also call `npm run sprites` inside the corresponding script. Bare `standalone` has no bundler-specific dev or build flag. In CI, replace `latest` with an exact package version.
+- `sprite.svg` is the finished sprite for use on the site.
+- `svg-sprite.manifest.json` contains icon data for Viewer.
 
-Bare `standalone` does not create or modify `.gitignore`; the application decides whether `.svg-sprite/` is committed or ignored. It emits no declarations, facade, or component. Generated declarations in typed modes are self-contained and do not require the package.
+The `.svg-sprite` directory is created automatically and fully replaced on every generation. Do not edit its contents manually.
 
-### Production usage
+### 4. Use an icon
 
-The application owns the public URL, versioning, and cache policy. Copy both generated assets into the deploy output:
-
-```bash
-cp src/ui/icons/.svg-sprite/sprite.svg public/assets/icons.svg
-cp src/ui/icons/.svg-sprite/svg-sprite.manifest.json public/assets/icons.manifest.json
-```
-
-Use the published URL manually:
+In `index.html`, point to the generated `sprite.svg`. After `#`, add the icon file name without the `.svg` extension:
 
 ```html
-<svg width="24" height="24" role="img" aria-label="Complete">
-  <use href="/assets/icons.svg#check"></use>
+<svg
+  width="24"
+  height="24"
+  aria-label="Done"
+>
+  <use href="./assets/app-icons/.svg-sprite/sprite.svg#check"></use>
 </svg>
 ```
 
-Safe icon names normally match their fragment IDs. Names containing spaces or other SVG-ID-unsafe characters receive a generated ID; read that icon's `id` from `icons.manifest.json` instead of constructing the fragment yourself.
+The icon from `check.svg` is available as `#check`.
 
-## 2. Debug and preview
+## Debug and preview
 
-This section is optional. Only install the package locally if you need the debug Viewer or an icon preview:
+`sprite.svg` is a technical file, not an icon gallery. Opening it does not provide a convenient view of the whole set. Gradients, masks, filters, and references to internal `id` values may also render with artifacts.
 
-```bash
-npm install --save-dev @gromlab/svg-sprites
-```
+Use the official Viewer for visual checks. It displays every icon in the sprite and helps you verify its colors and rendering.
 
-Without a bundler, self-host the browser bundle by copying it from `node_modules` into the deploy output:
+Viewer is optional and intended only for development. You do not need to install the package through npm.
 
-```bash
-cp node_modules/@gromlab/svg-sprites/dist/viewer-element.js public/debug/viewer-element.js
-```
+Viewer works directly with files from `.svg-sprite`. Nothing needs to be copied.
 
-Then provide both public asset URLs through HTML attributes:
+### Add Viewer to the page
 
-```html
-<script type="module" src="/debug/viewer-element.js"></script>
-
-<gromlab-sprite-viewer
-  viewer-title="Project icons"
-  manifest-url="/assets/icons.manifest.json"
-  sprite-url="/assets/icons.svg"
-></gromlab-sprite-viewer>
-```
-
-For a quick preview, a pinned CDN file can replace the self-hosted script:
+Add a module script to `index.html` and provide paths to the generated manifest and sprite:
 
 ```html
 <script
   type="module"
-  src="https://unpkg.com/@gromlab/svg-sprites@1.1.5/dist/viewer-element.js"
+  src="https://cdn.jsdelivr.net/npm/@gromlab/svg-sprites/dist/viewer-element.js"
 ></script>
+
+<gromlab-sprite-viewer
+  viewer-title="Project icons"
+  manifest-url="./assets/app-icons/.svg-sprite/svg-sprite.manifest.json"
+  sprite-url="./assets/app-icons/.svg-sprite/sprite.svg"
+></gromlab-sprite-viewer>
 ```
 
-Self-host the file for controlled environments and pin the CDN version if you use the alternative. Viewer is optional tooling, not part of the production icon runtime.
-
-## 3. Type the config
-
-This guide uses a JSON config, which works without TypeScript types. If config autocomplete is needed, replace `svg-sprite.config.json` with `svg-sprite.config.ts` and choose one of these approaches.
-
-### With a local package installation
-
-After installing the package locally, use the helper:
-
-```ts
-import { defineSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineSpriteConfig({
-  mode: 'standalone',
-  name: 'icons',
-})
-```
-
-You can alternatively import `type SpriteConfig` and apply `satisfies SpriteConfig`.
-
-### Without the package
-
-Keep a narrow local type directly in the config:
-
-```ts
-type LocalSpriteConfig = {
-  mode: 'standalone'
-  name?: string
-  description?: string
-  input?: string | string[]
-  transform?: {
-    removeSize?: boolean
-    replaceColors?: boolean
-    addTransition?: boolean
-  }
-  generatedNotice?: boolean
-}
-
-export default {
-  mode: 'standalone',
-  name: 'icons',
-} satisfies LocalSpriteConfig
-```
+You can move Viewer to a separate HTML file in the site root used only for development and icon checks.

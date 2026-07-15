@@ -18,12 +18,20 @@ const guideModes = new Map([
 ])
 
 const sectionHeadings = {
-  en: ['Generate the sprite', 'Debug and preview', 'Type the config'],
-  ru: ['Генерация спрайта', 'Дебаг и превью'],
+  en: {
+    generation: 'Generate the sprite',
+    usage: 'Use the sprite',
+    preview: 'Debug and preview',
+  },
+  ru: {
+    generation: 'Генерация спрайта',
+    usage: 'Использование спрайта',
+    preview: 'Дебаг и превью',
+  },
 }
 
 const commandPatterns = {
-  en: /npx --yes (?:--package=@gromlab\/svg-sprites@latest svg-sprites|@gromlab\/svg-sprites@latest)/,
+  en: /npx --yes @gromlab\/svg-sprites(?:\s|$)/,
   ru: /npx --yes @gromlab\/svg-sprites(?:\s|$)/,
 }
 
@@ -40,7 +48,7 @@ test('exact-mode guides are reusable by docs and skills', () => {
   for (const language of ['en', 'ru']) {
     const guidesDir = path.join(docsDir, language, 'guides')
     const guideFiles = fs.readdirSync(guidesDir)
-      .filter((file) => file !== 'README.md')
+      .filter((file) => file !== 'README.md' && file !== 'AGENTS.md')
       .sort()
     assert.deepEqual(guideFiles, [...guideModes.keys()].sort())
 
@@ -50,27 +58,22 @@ test('exact-mode guides are reusable by docs and skills', () => {
       const headings = source.match(/^## .+$/gm)?.map((heading) => (
         heading.replace(/^## (?:\d+\. )?/, '')
       ))
-      assert.deepEqual(headings, sectionHeadings[language])
+      const expectedHeadings = mode === 'standalone'
+        ? [sectionHeadings[language].generation, sectionHeadings[language].preview]
+        : [
+            sectionHeadings[language].generation,
+            sectionHeadings[language].usage,
+            sectionHeadings[language].preview,
+          ]
+      assert.deepEqual(headings, expectedHeadings)
       assert.match(source, commandPatterns[language])
-      if (language !== 'ru' || mode !== 'standalone') {
+      if (mode !== 'standalone') {
         assert.match(source, /npm install --save-dev @gromlab\/svg-sprites/)
       }
-      if (language === 'ru') {
-        assert.doesNotMatch(source, /npx --yes[^\n]*@gromlab\/svg-sprites@/)
-      }
-      const modePattern = language === 'ru'
-        ? new RegExp(`"mode": "${mode.replaceAll('/', '\\/')}"`)
-        : new RegExp(`mode: '${mode.replaceAll('/', '\\/')}'`)
+      assert.doesNotMatch(source, /npx --yes[^\n]*@gromlab\/svg-sprites@/)
+      const modePattern = new RegExp(`"mode": "${mode.replaceAll('/', '\\/')}"`)
       assert.match(source, modePattern)
       assert.doesNotMatch(source, /\]\([^)]+\)/, `${language}/${file} must not depend on its location`)
-
-      const generation = source.indexOf(sectionHeadings[language][0])
-      const preview = source.indexOf(sectionHeadings[language][1])
-      assert.ok(generation < preview)
-      if (language === 'en') {
-        const typing = source.indexOf(sectionHeadings[language][2])
-        assert.ok(preview < typing)
-      }
     }
   }
 })

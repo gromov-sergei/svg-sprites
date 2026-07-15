@@ -1,6 +1,6 @@
 # @gromlab/svg-sprites
 
-🇬🇧 English | [🇷🇺 Русский](README_RU.md)
+🇬🇧 English | [🇷🇺 Русский](https://github.com/gromlab-ru/svg-sprites/blob/master/README_RU.md)
 
 ![npm](https://img.shields.io/npm/v/@gromlab/svg-sprites) ![license](https://img.shields.io/npm/l/@gromlab/svg-sprites)
 
@@ -24,20 +24,6 @@ The component accepts familiar SVG attributes: dimensions, `color`, `className`,
 
 You do not have to work with the sprite directly in your application. Use it like a regular SVG icon while benefiting from a single component, autocomplete, and TypeScript validation for every name.
 
-In `standalone@vite` and `standalone@webpack`, the same approach works without React:
-
-```ts
-import { defineAppIconElement } from './app-icons'
-
-defineAppIconElement()
-```
-
-```html
-<app-icon icon="search" style="font-size: 24px"></app-icon>
-```
-
-Bare `standalone` remains minimal and generates only an SVG asset and JSON manifest, with no JavaScript runtime.
-
 ## AI-friendly out of the box
 
 `@gromlab/svg-sprites` is designed to work with AI agents from the start. Add the ready-made skill and ask an agent to configure, migrate, or troubleshoot the package without lengthy instructions or manual documentation research.
@@ -46,62 +32,55 @@ Bare `standalone` remains minimal and generates only an SVG asset and JSON manif
 
 [🇷🇺 Download AI skill (Russian)](https://github.com/gromlab-ru/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
 
-## From SVG to component in four steps
+## From SVG to component in three steps
 
 The main example uses the Next.js App Router and Turbopack.
 
-### 1. Generate without installing the package
+### 1. Specify the icons you need
 
-```bash
-npx --yes --package=@gromlab/svg-sprites@latest svg-sprites --help
-```
-
-`npx` downloads the CLI temporarily. It does not add `@gromlab/svg-sprites` to
-`package.json`, and the generated production runtime does not import the package.
-
-### 2. Specify the icons you need
-
-SVG files can remain in your project's existing structure:
+Create directories for the source icons and the sprite:
 
 ```text
-src/
-├── assets/icons/
-│   ├── search.svg
-│   └── settings.svg
-├── features/profile/
-│   └── user.svg
-└── ui/app-icons/
-    └── svg-sprite.config.ts
+assets/
+├── app-icons/
+│   └── svg-sprite.config.json
+└── svg-icons/
+    ├── search.svg
+    └── settings.svg
 ```
 
 Create the sprite configuration:
 
-```ts
-// src/ui/app-icons/svg-sprite.config.ts
-export default {
-  mode: 'next@app/turbopack',
-  name: 'app',
-  input: [
-    '../../assets/icons/search.svg',
-    '../../assets/icons/settings.svg',
-    '../../features/profile/user.svg',
-  ],
+```json
+{
+  "mode": "next@app/turbopack",
+  "name": "app",
+  "input": "../svg-icons/**/*.svg"
 }
 ```
 
-### 3. Add generation
+`input` supports directory paths, individual SVG files, and glob patterns.
+
+### 2. Add a generation script
 
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/app-icons/svg-sprite.config.ts",
+    "sprites": "npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites"
   }
 }
 ```
 
-Run it for the first time:
+Create an entry point for the generated API:
+
+```ts
+// assets/app-icons/index.ts
+export * from './.svg-sprite/index.js'
+```
+
+First run:
 
 ```bash
 npm run sprites
@@ -109,10 +88,11 @@ npm run sprites
 
 The package will generate `AppIcon`, TypeScript types, and a separate SVG sprite.
 
-### 4. Use it like a regular icon
+### 3. Use it like a regular icon
 
 ```tsx
-import { AppIcon } from '@/ui/app-icons'
+// app/page.tsx
+import { AppIcon } from '../assets/app-icons'
 
 export default function SearchButton() {
   return (
@@ -240,7 +220,7 @@ It also provides ready-to-use integration examples for:
 
 The Viewer is added only to an internal debug page and does not become part of the generated icon components.
 
-Bare standalone loads the Viewer as a browser script and HTML element; bundler modes use the npm entry, while React and Next.js import `SpriteViewer` from `@gromlab/svg-sprites/react`.
+With bare standalone, the application loads the Viewer as a browser script and HTML element; bundler modes use the npm entry, while React and Next.js import `SpriteViewer` from `@gromlab/svg-sprites/react`.
 
 ## Standalone, React, and Next.js
 
@@ -277,6 +257,7 @@ This README introduces the project's capabilities and demonstrates the primary u
 ### Technical resources
 
 - [Documentation index](docs/en/README.md)
+- [Configuration](docs/en/configuration.md)
 - [Technical reference](docs/en/reference/technical.md)
 - [Programmatic API](docs/en/reference/programmatic-api.md)
 

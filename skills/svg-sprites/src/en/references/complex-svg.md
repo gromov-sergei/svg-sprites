@@ -153,7 +153,7 @@ External stack-fragment support and paint-server behavior can vary across browse
 
 ## Required verification
 
-1. Run generation with the correct target.
+1. Run generation with the correct mode.
 2. Run the project's typecheck.
 3. Open the generated sprite and find the shape using the ID from the manifest.
 4. Statically compare `viewBox`, IDs, `url(#...)`, colors, and inline styles.
@@ -173,4 +173,4 @@ External stack-fragment support and paint-server behavior can vary across browse
 - A manual fragment fails for a name containing spaces: use the ID from the manifest.
 - One complex icon requires different transforms: move it to a separate sprite; per-icon transform config is not supported.
 
-Target-specific execution and verification are documented in the exact-mode files under [guides](guides/standalone.md).
+For mode-specific execution and verification, return to the exact-mode guide selected from the main `SKILL.md`.

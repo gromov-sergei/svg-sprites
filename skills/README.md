@@ -2,27 +2,25 @@
 
 Исходники обязательного контекста английского и русского skills находятся в `skills/svg-sprites/src/{en,ru}/`. Готовые переносимые артефакты генерируются в `skills/artifacts/`, игнорируются Git и упаковываются в ZIP во время release workflow.
 
-Русский skill хранит весь обязательный контекст в одном файле:
+Обе языковые версии имеют симметричную single-file структуру:
 
 ```text
-src/ru/
+src/{en,ru}/
 ├── SKILL.md
 └── references/
     └── complex-svg.md
 ```
 
-`src/ru/SKILL.md` содержит знания о пакете и рабочий процесс агента. Exact-mode настройка берётся из canonical guides, а не дублируется отдельными source-фрагментами.
+Каждый `SKILL.md` содержит обязательные знания о пакете, рабочий процесс агента и operational map canonical-документации. Exact-mode настройка берётся из canonical guides, а не дублируется отдельными source-фрагментами. Agent-specific `complex-svg.md` остаётся отдельным reference.
 
-Русский artifact дополнительно получает без изменений `README_RU.md` и содержательную пользовательскую документацию из `docs/ru/`. Локальный редакторский `guides/AGENTS.md`, а также навигационные `guides/README.md` и `reference/README.md` не копируются. Файлы находятся в `references/README_RU.md` и `references/docs/ru/`. Agent-specific `complex-svg.md` остаётся отдельным reference.
-
-Английский source пока сохраняет составную структуру с `core/`, а artifact — английские exact-mode guides и локальные `programmatic-api.md`/`complex-svg.md`. Его перевод на единый `SKILL.md` и полную canonical-документацию выполняется отдельно.
+Английский artifact дополнительно получает без изменений `README.md` и содержательную пользовательскую документацию из `docs/en/`; русский — `README_RU.md` и `docs/ru/`. Локальный редакторский `guides/AGENTS.md`, а также навигационные `guides/README.md` и `reference/README.md` не копируются. Canonical-файлы находятся в `references/README.md` и `references/docs/en/` либо в `references/README_RU.md` и `references/docs/ru/`.
 
 ## Композиция Markdown
 
-Сборщик сохраняет поддержку Markdown includes для английского skill и будущих документов:
+Сборщик сохраняет поддержку Markdown includes для будущих документов:
 
 ```md
-<!-- include: ./core/10-mode-selection.md -->
+<!-- include: ./fragments/mode-selection.md -->
 ```
 
 Include раскрываются рекурсивно, путь считается относительно включающего файла. Циклы, отсутствующие файлы, выход за `skills/svg-sprites/`, frontmatter во фрагментах и нераскрытые include завершают сборку ошибкой. Заголовки не сдвигаются автоматически: entry содержит единственный `# H1`, inline-фрагменты начинаются с `##`.

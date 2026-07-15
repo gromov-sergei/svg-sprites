@@ -1,24 +1,11 @@
 const agentReferences = {
   en: [
-    'programmatic-api.md',
     'complex-svg.md',
   ],
   ru: [
     'complex-svg.md',
   ],
 }
-
-const guideFiles = [
-  'standalone.md',
-  'standalone-vite.md',
-  'standalone-webpack.md',
-  'react-vite.md',
-  'react-webpack.md',
-  'next-app-turbopack.md',
-  'next-app-webpack.md',
-  'next-pages-turbopack.md',
-  'next-pages-webpack.md',
-]
 
 function documents(language) {
   return [
@@ -30,12 +17,19 @@ function documents(language) {
   ]
 }
 
-function guides(language) {
-  return guideFiles.map((file) => ({
-    from: `../../docs/${language}/guides/${file}`,
-    to: `references/guides/${file}`,
-  }))
-}
+const englishDocumentation = [
+  { from: '../../README.md', to: 'references/README.md' },
+  {
+    fromDirectory: '../../docs/en',
+    toDirectory: 'references/docs/en',
+    extensions: ['.md'],
+    exclude: [
+      'guides/AGENTS.md',
+      'guides/README.md',
+      'reference/README.md',
+    ],
+  },
+]
 
 const russianDocumentation = [
   { from: '../../README_RU.md', to: 'references/README_RU.md' },
@@ -54,11 +48,11 @@ const russianDocumentation = [
 export default [
   {
     name: 'svg-sprites',
-    description: 'Use only when configuring, generating, or troubleshooting @gromlab/svg-sprites. Triggers: @gromlab/svg-sprites, svg-sprite.config.ts, defineSpriteConfig, generateSprite, standalone, standalone@vite, standalone@webpack, react@vite, react@webpack, next@app, next@pages, SpriteConfig.input, --input, SpriteViewer, or --icon-color-N. Do NOT use for custom SVG sprites, favicons, raster images, icon fonts, choosing an icon set, or inline SVG without this package.',
+    description: 'Use only when configuring, generating, or troubleshooting @gromlab/svg-sprites. Triggers: @gromlab/svg-sprites, svg-sprite.config.json, svg-sprite.config.ts, defineSpriteConfig, generateSprite, standalone, standalone@vite, standalone@webpack, react@vite, react@webpack, next@app, next@pages, SpriteConfig.input, --input, SpriteViewer, or --icon-color-N. Do NOT use for custom SVG sprites, favicons, raster images, icon fonts, choosing an icon set, or inline SVG without this package.',
     output: '../artifacts/svg-sprites',
     maxSkillBytes: 48_000,
     documents: documents('en'),
-    copy: guides('en'),
+    copy: englishDocumentation,
   },
   {
     name: 'svg-sprites-ru',

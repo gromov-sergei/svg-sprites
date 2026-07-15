@@ -4,7 +4,7 @@
 
 ## Генерация спрайта
 
-Выберите папку для спрайта. В примере используется `assets/app-icons`, а исходные SVG находятся в `assets/svg-icons`.
+Выберите папку для спрайта. В примере используется `assets/app-icons`, а исходные SVG, включая используемый ниже `check.svg`, находятся в `assets/svg-icons`.
 
 Создайте конфиг `assets/app-icons/svg-sprite.config.json`:
 
@@ -66,7 +66,13 @@ export function SaveIcon() {
 
 Свойство `icon` принимает имена исходных SVG без расширения. Монохромная иконка наследует `color`, а цвета многоцветной переопределяются через `--icon-color-N`.
 
-Компонент использует CSS Modules. Если проект ещё не обрабатывает их с default export, добавьте правило в `webpack.config.js`:
+Компонент использует CSS Modules. Если проект ещё не обрабатывает их, установите loaders:
+
+```bash
+npm install --save-dev style-loader css-loader
+```
+
+Затем добавьте правило с default export в `webpack.config.js`:
 
 ```js
 {

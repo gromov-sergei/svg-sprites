@@ -2,6 +2,8 @@
 
 [Documentation index](../README.md)
 
+[JSON, JavaScript, and TypeScript configuration](../configuration.md)
+
 Reference for the configuration, generated API, and behavior of `@gromlab/svg-sprites`. For step-by-step setup instructions, see the guide for your stack:
 
 - [Bare standalone](../guides/standalone.md)
@@ -24,7 +26,7 @@ Reference for the configuration, generated API, and behavior of `@gromlab/svg-sp
 Generation does not require a project dependency. Run the CLI through `npx`:
 
 ```bash
-npx --yes --package=@gromlab/svg-sprites@latest svg-sprites path/to/svg-sprite.config.ts
+npx --yes @gromlab/svg-sprites path/to/svg-sprite.config.json
 ```
 
 Install the package as a development dependency only when the project needs the
@@ -54,11 +56,11 @@ svg-sprites [options] <config-file-or-directory>
 | Next.js Pages Router + Turbopack | `next@pages/turbopack` |
 | Next.js Pages Router + Webpack 5 | `next@pages/webpack` |
 
-The config file may have any name and use the `.ts`, `.js`, or `.json` extension. The CLI does not discover it by convention: pass the file explicitly. The guides use `svg-sprite.config.ts` as the recommended name.
+The config file may have any name and use the `.ts`, `.js`, or `.json` extension. The CLI does not discover it by convention: pass the file explicitly. The recommended name is `svg-sprite.config.json`.
 
 When a directory is passed, all settings come from CLI options. When a config file is passed, CLI options override the file. The full order is `defaults → config → CLI`.
 
-Available options are `--mode`, `--name`, `--description`, repeatable `--input <path-or-glob>`, plus the `--remove-size`/`--no-remove-size`, `--replace-colors`/`--no-replace-colors`, `--add-transition`/`--no-add-transition`, and `--generated-notice`/`--no-generated-notice` pairs. Transform flags override individual fields, while supplying at least one `--input` replaces the complete config `input` value.
+`--help` and `-h` print usage information without requiring a path. Generation options are `--mode`, `--name`, `--description`, repeatable `--input <path-or-glob>`, plus the `--remove-size`/`--no-remove-size`, `--replace-colors`/`--no-replace-colors`, `--add-transition`/`--no-add-transition`, and `--generated-notice`/`--no-generated-notice` pairs. Transform flags override individual fields, while supplying at least one `--input` replaces the complete config `input` value.
 
 Quote CLI glob patterns with single quotes so the shell does not expand them before the generator receives them:
 
@@ -96,7 +98,7 @@ export default defineSpriteConfig({
 | Option | Type | Default | Purpose |
 |---|---|---|---|
 | `mode` | `SpriteMode` | None | Generation mode; may be supplied by CLI/API |
-| `name` | `string` | Derived from the directory | Name of the sprite, component, and public types |
+| `name` | `string` | Derived from the directory | Sprite name; in modes with a component, it also determines the component and public type names |
 | `description` | `string` | None | Description for types and the debug manifest |
 | `input` | `string \| string[]` | `./icons` | SVG folders, files, and glob patterns relative to the config directory |
 | `transform` | `TransformOptions` | All enabled | SVG preparation settings |
@@ -111,7 +113,7 @@ app          → AppIcon
 file-manager → FileManagerIcon
 ```
 
-If `name` is omitted, the generator derives it from the directory. For a directory named `svg-sprite` or `svg-sprites`, the parent directory's name is used.
+If `name` is omitted, the generator converts the directory name to kebab-case. For a directory named `svg-sprite` or `svg-sprites`, the parent directory's name is used.
 
 ### Icon sources
 
@@ -141,7 +143,7 @@ After generation, a React or Next.js sprite directory looks like this:
 ```text
 app-icons/
 ├── .gitignore
-├── svg-sprite.config.ts
+├── svg-sprite.config.json
 ├── index.ts                         # optional user-owned barrel
 └── .svg-sprite/
     ├── index.js
@@ -183,10 +185,10 @@ runtime asset and deployment-neutral manifest data:
 native generated Web Component with no external runtime dependencies. Bare
 `standalone` intentionally does not generate a JavaScript component.
 
-The generator overwrites and deletes only files that contain its marker. If a user file occupies a managed path, generation fails. The root `index.ts` is user-owned; create a barrel when needed:
+The generator fully manages `.svg-sprite` and replaces the whole directory on every generation through a staged write with rollback on replacement failure. Any files added inside it are deleted during the next generation. Keep user-owned files alongside it, for example in a root `index.ts` barrel:
 
 ```ts
-export * from './.svg-sprite'
+export * from './.svg-sprite/index.js'
 ```
 
 ## Standalone Web Component and TypeScript
@@ -308,7 +310,7 @@ The component does not add accessibility semantics automatically. Pass appropria
 
 ## Multiple sprites
 
-Each directory with a configuration creates an independent component, types, manifest, and SVG asset:
+Each directory with a configuration creates an independent mode-specific contract. React and Next.js modes generate a React component and types, `standalone@vite` and `standalone@webpack` generate a Web Component and types, and bare `standalone` generates an SVG and JSON manifest:
 
 ```text
 app-icons       → AppIcon       → shared icons
@@ -354,7 +356,7 @@ Static HTML after the application publishes `.svg-sprite/sprite.svg`:
 </svg>
 ```
 
-Standalone Vite/Webpack provides generated `getIconsIconHref()` and an internal ID
+Standalone Vite/Webpack provides generated `getAppIconHref()` and an internal ID
 map. Do not construct fragments from unsafe file names manually.
 
 Vite:
@@ -603,7 +605,7 @@ Commit the local `.gitignore` to the repository once. It excludes the other gene
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/app-icons/svg-sprite.config.ts",
+    "sprites": "npx --yes @gromlab/svg-sprites src/ui/app-icons/svg-sprite.config.ts",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites",
     "pretypecheck": "npm run sprites"
@@ -611,22 +613,22 @@ Commit the local `.gitignore` to the repository once. It excludes the other gene
 }
 ```
 
-CI must run generation before building or type-checking. Replace `latest` with an exact version for reproducibility. A local package installation is not required unless CI also uses the Viewer, package config types, or the programmatic API.
+CI must run generation before building or type-checking. Pin `@gromlab/svg-sprites` to an exact version when the CI toolchain must be reproducible. A local package installation is not required unless CI also uses the Viewer, package config types, or the programmatic API.
 
-Bare `standalone` does not create or modify `.gitignore`; the application decides whether its `.svg-sprite/` output is committed or ignored. In other modes, the generator will not overwrite a user-created `.gitignore`. It also refuses to overwrite a user-owned file inside `.svg-sprite`. The root `index.ts` remains user-owned and may re-export the generated API.
+Bare `standalone` does not create a `.gitignore` and preserves a user-owned file. If a managed `.gitignore` remains after another mode, bare mode removes it. In every other mode, the generator refuses to overwrite a user-owned `.gitignore` without a generated marker. The root `index.ts` remains user-owned and may re-export the generated API.
 
 ## Troubleshooting
 
-- Missing `.svg-sprite/index.js`: run the generation script before importing the generated module.
+- In every mode except bare `standalone`, missing `.svg-sprite/index.js`: run the generation script before importing the generated module.
 - Source not found: pass an existing config file or sprite module directory.
 - Mode missing: add `mode` to the config or pass `--mode`.
 - Icon missing from the type: check `input`, the `.svg` extension, glob exclusions, and whether nested folders require `**/*.svg`.
 - Name conflict: two different SVG files have the same basename; rename one of them.
-- `Refusing to overwrite a user file`: a file without the generated marker occupies a managed path.
+- `Refusing to overwrite a user file`: the sprite module root contains a user-owned `.gitignore` that the generator cannot replace.
 - The icon does not change color: use `<svg><use>` or the generated component and check `replaceColors`.
 - Webpack emits an incorrect URL: check Asset Modules, `output.publicPath`, and SVG loaders.
 - Static sprite returns 404: check the post-generation copy or server alias, and do not put a filesystem `spritePath` into HTML.
-- The Viewer cannot find the sprite: check the path to `.svg-sprite/svg-sprite.manifest.js` and run generation before starting the application.
+- The Viewer cannot find the sprite: in bundler modes, check the path to `.svg-sprite/svg-sprite.manifest.js`; for bare `standalone`, check the published `svg-sprite.manifest.json` and `sprite.svg` URLs. Run generation before starting the application.
 - Build and mode do not match: use the target that corresponds to the actual bundler.
 
 For custom orchestration and low-level compilation, see the [Programmatic API](programmatic-api.md).

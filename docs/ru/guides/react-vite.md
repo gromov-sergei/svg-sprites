@@ -4,7 +4,7 @@
 
 ## Генерация спрайта
 
-Выберите папку для спрайта. В примере используется `assets/app-icons`, а исходные SVG находятся в `assets/svg-icons`.
+Выберите папку для спрайта. В примере используется `assets/app-icons`, а исходные SVG, включая используемый ниже `check.svg`, находятся в `assets/svg-icons`.
 
 Создайте конфиг `assets/app-icons/svg-sprite.config.json`:
 

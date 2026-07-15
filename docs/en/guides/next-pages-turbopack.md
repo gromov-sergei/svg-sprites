@@ -1,140 +1,98 @@
-# Next.js Pages Router Turbopack SVG Sprite Quick Start
+# SVG Sprite for Next.js Pages Router with Turbopack
 
-This guide targets the exact mode key `next@pages/turbopack`: a generated typed React icon for the Next.js Pages Router and Turbopack.
+A quick guide to creating an SVG sprite in a Next.js application using Pages Router and Turbopack.
 
-## 1. Generate the sprite
+## Generate the sprite
 
-No package installation and no `package.json` dependency are needed. `npx` downloads the CLI temporarily, and generated runtime does not import `@gromlab/svg-sprites`.
+Choose a folder for the sprite. This example uses `assets/app-icons`, with source SVG files, including the `check.svg` used below, in `assets/svg-icons`.
 
-Keep the config and source icons together:
+Create `assets/app-icons/svg-sprite.config.json`:
 
-```text
-src/ui/icons/
-├── icons/
-│   ├── check.svg
-│   └── folder.svg
-└── svg-sprite.config.ts
-```
-
-Use a plain default object export with no package import:
-
-```ts
-// src/ui/icons/svg-sprite.config.ts
-export default {
-  mode: 'next@pages/turbopack',
-  name: 'icons',
+```json
+{
+  "mode": "next@pages/turbopack",
+  "name": "app",
+  "input": "../svg-icons/**/*.svg"
 }
 ```
 
-When `input` is omitted, SVG files are read from `./icons` relative to the config. A `.js` config with a default export and a `.json` config are also supported. Generate directly with:
+The `input` path is relative to the config folder.
 
-```bash
-npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/icons/svg-sprite.config.ts
-```
-
-Generate once per invocation and keep the exact Turbopack flags on both commands:
+Add generation commands to `package.json`. Generated files are excluded from Git by default, so `predev` and `prebuild` rebuild the sprite before every start and build:
 
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/icons/svg-sprite.config.ts",
-    "dev": "npm run sprites && next dev --turbopack",
-    "build": "npm run sprites && next build --turbopack"
+    "sprites": "npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json",
+    "predev": "npm run sprites",
+    "dev": "next dev --turbopack",
+    "prebuild": "npm run sprites",
+    "build": "next build --turbopack"
   }
 }
 ```
 
-Do not add `predev` or `prebuild` hooks to these scripts; that would run generation twice. In CI, replace `latest` with an exact package version.
+## Use the sprite
 
-Generation creates a local `.gitignore`; commit that file once, but do not commit `.svg-sprite/`. Generated declarations are self-contained and do not require the package.
+The value `name: "app"` creates the React component `AppIcon`.
 
-### Production usage
+Create the entry point `assets/app-icons/index.ts`:
 
-Import the generated component and icon-name list into a Pages Router page:
+```ts
+export * from './.svg-sprite/index.js'
+```
+
+Use the component on a page:
 
 ```tsx
-// src/pages/index.tsx
-import {
-  IconsIcon,
-  iconsIconNames,
-} from '../ui/icons/.svg-sprite/index.js'
+// pages/index.tsx
+import { AppIcon } from '../assets/app-icons'
 
-export default function HomePage() {
+export default function Page() {
   return (
-    <main>
-      <IconsIcon icon="folder" width={24} height={24} aria-label="Files" />
-      <p>{iconsIconNames.length} icons available</p>
-    </main>
+    <AppIcon
+      icon="check"
+      width={24}
+      height={24}
+      role="img"
+      aria-label="Done"
+      style={{
+        color: '#334155',
+        '--icon-color-2': '#f59e0b',
+      }}
+    />
   )
 }
 ```
 
-The component works with SSR, SSG, and client-side navigation. Turbopack resolves the generated SVG URL and CSS Module and emits a separate asset. Keep the mode and the `--turbopack` dev/build flags aligned.
+The component works with SSR, SSG, and client-side navigation. Turbopack automatically adds `sprite.svg` to the production build, so you do not need to move it to `public`.
 
-## 2. Debug and preview
+## Debug and preview
 
-This section is optional. Only users who need the Viewer or icon previews should install:
+Viewer displays all icons on one page so you can check their rendering, change colors, and inspect the related CSS variables. It is only needed for development and is installed separately:
 
 ```bash
 npm install --save-dev @gromlab/svg-sprites
 ```
 
-Pages Router does not require an App Router Client Component boundary. Use the React bridge directly in a page with a static loader array:
+Create the page `pages/svg-sprite.tsx`:
 
 ```tsx
-// src/pages/icon-debug.tsx
+import type { GetStaticProps } from 'next'
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 
 const sources = [
-  () => import('../ui/icons/.svg-sprite/svg-sprite.manifest.js'),
-]
+  () => import('../assets/app-icons/.svg-sprite/svg-sprite.manifest.js'),
+] as const
 
-export default function IconDebugPage() {
+export default function SvgSpritePage() {
   return <SpriteViewer sources={sources} title="Project icons" />
 }
+
+export const getStaticProps: GetStaticProps = () =>
+  process.env.NODE_ENV === 'development'
+    ? { props: {} }
+    : { notFound: true }
 ```
 
-Keep the page internal or development-only. Viewer is not part of the production icon runtime.
-
-## 3. Type the config
-
-Choose one of these two paths.
-
-### With a local package installation
-
-After installing the package locally, use the helper:
-
-```ts
-import { defineSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineSpriteConfig({
-  mode: 'next@pages/turbopack',
-  name: 'icons',
-})
-```
-
-You can alternatively import `type SpriteConfig` and apply `satisfies SpriteConfig`.
-
-### Without the package
-
-Copy a mode-specific type directly into the config:
-
-```ts
-type LocalSpriteConfig = {
-  mode: 'next@pages/turbopack'
-  name?: string
-  description?: string
-  input?: string | string[]
-  transform?: {
-    removeSize?: boolean
-    replaceColors?: boolean
-    addTransition?: boolean
-  }
-  generatedNotice?: boolean
-}
-
-export default {
-  mode: 'next@pages/turbopack',
-  name: 'icons',
-} satisfies LocalSpriteConfig
-```
+Run `npm run dev` and open `/svg-sprite`. In production, the route returns 404.

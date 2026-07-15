@@ -14,6 +14,24 @@ const result = await generateSprite(
 )
 ```
 
+The result contains the sprite name, exact mode, mode-specific asset target, icon count, and absolute filesystem paths:
+
+```ts
+result.name
+result.mode
+result.target
+result.iconCount
+result.rootDir
+result.generatedDir
+result.spritePath
+result.manifestPath
+```
+
+Next.js modes additionally return `router` and `bundler`.
+For bare `standalone`, `target` is `static`; standalone bundler and React modes
+return `vite` or `webpack`; Next.js modes return their full exact mode as the
+target.
+
 For static standalone mode, use `result.spritePath` in a build script to publish the
 SVG under an application URL:
 
@@ -29,7 +47,7 @@ await copyFile(result.spritePath, 'dist/app-icons/sprite.svg')
 `spritePath` is a filesystem path, not a browser URL. A deployment-neutral JSON
 manifest is available through `result.manifestPath` and is copied independently.
 
-The first argument accepts the full path to an explicitly selected `.ts`, `.js`, or `.json` config file with any name. Passing a directory enables config-less mode and uses that directory as the sprite module root.
+The first argument accepts an absolute or relative path to an explicitly selected `.ts`, `.js`, or `.json` config file with any name. Passing a directory enables config-less mode and uses that directory as the sprite module root.
 
 The second argument contains optional overrides and always takes precedence over the config:
 
@@ -51,7 +69,7 @@ Configuration is resolved in this order:
 defaults → config → API overrides
 ```
 
-For fully programmatic generation, pass a directory and provide the required settings as overrides:
+For fully programmatic generation, pass a directory and provide the required `mode` and any other settings as overrides. `name` is optional: when omitted, it is inferred in kebab-case from the directory name, or from the parent directory when the module directory is named `svg-sprite` or `svg-sprites`:
 
 ```ts
 await generateSprite('src/ui/file-manager/svg-sprite', {
@@ -107,13 +125,17 @@ An explicitly supplied target overrides `mode` from the file. Prefer `generateSp
 
 ```ts
 import {
+  isSpriteMode,
   loadSpriteConfig,
   resolveSpriteConfig,
+  resolveSpriteConfigSource,
   validateSpriteConfig,
 } from '@gromlab/svg-sprites'
 ```
 
+- `isSpriteMode(value)` checks whether a value is a supported exact mode.
 - `loadSpriteConfig(file)` loads an explicitly selected `.ts`, `.js`, or `.json` file.
+- `resolveSpriteConfigSource(source)` resolves a path as either a config file or a config-less directory.
 - `validateSpriteConfig(value)` performs runtime validation.
 - `resolveSpriteConfig(root, config, overrides)` merges values, applies defaults, and resolves paths relative to `root`.
 
@@ -137,6 +159,22 @@ import type { SpriteViewerElement } from '@gromlab/svg-sprites/viewer'
 ```
 
 The browser entry registers `<gromlab-sprite-viewer>`. Bare standalone can also load the self-contained `dist/viewer-element.js` without a bundler.
+
+For manual registration, import the runtime without the auto-register entry:
+
+```ts
+import { defineSpriteViewerElement } from '@gromlab/svg-sprites/viewer'
+
+defineSpriteViewerElement()
+```
+
+Both Viewer entries export the registration function and the same public types:
+`SpriteViewerColorTheme`, `SpriteViewerElement`, `SpriteViewerManifest`,
+`SpriteViewerManifestColor`, `SpriteViewerManifestIcon`,
+`SpriteViewerManifestLoader`, `SpriteViewerManifestModule`,
+`SpriteViewerManifestUsage`, `SpriteViewerRemoteSource`, `SpriteViewerSource`,
+and `SpriteViewerSources`. Only `@gromlab/svg-sprites/viewer/element` registers the
+element as an import side effect.
 
 The React bridge keeps the component API:
 

@@ -1,156 +1,114 @@
-# Standalone Vite SVG Sprite Quick Start
+# SVG Sprite for Vite Without a Framework
 
-This guide targets the exact mode key `standalone@vite`: a native generated Web Component with Vite-managed SVG assets.
+A quick guide to creating an SVG sprite in a Vite application without a framework.
 
-## 1. Generate the sprite
+## Generate the sprite
 
-No package installation and no `package.json` dependency are needed. `npx` downloads the CLI temporarily, and generated runtime does not import `@gromlab/svg-sprites`.
+Choose a folder for the sprite. This example uses `assets/app-icons`, with source SVG files, including the `check.svg` used below, in `assets/svg-icons`.
 
-Keep the config and source icons together:
+Create `assets/app-icons/svg-sprite.config.json`:
 
-```text
-src/ui/icons/
-├── icons/
-│   ├── check.svg
-│   └── folder.svg
-└── svg-sprite.config.ts
-```
-
-Use a plain default object export with no package import:
-
-```ts
-// src/ui/icons/svg-sprite.config.ts
-export default {
-  mode: 'standalone@vite',
-  name: 'icons',
+```json
+{
+  "mode": "standalone@vite",
+  "name": "app",
+  "input": "../svg-icons/**/*.svg"
 }
 ```
 
-When `input` is omitted, SVG files are read from `./icons` relative to the config. A `.js` config with a default export and a `.json` config are also supported. Generate once directly with:
+The `input` path is relative to the config folder.
 
-```bash
-npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/icons/svg-sprite.config.ts
-```
-
-Use the exact Vite dev/build commands and generate once per invocation:
+Add generation commands to `package.json`. Generated files are excluded from Git by default, so `predev` and `prebuild` rebuild the sprite before every start and build:
 
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/ui/icons/svg-sprite.config.ts",
-    "dev": "npm run sprites && vite",
-    "build": "npm run sprites && vite build"
+    "sprites": "npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json",
+    "predev": "npm run sprites",
+    "dev": "vite",
+    "prebuild": "npm run sprites",
+    "build": "vite build"
   }
 }
 ```
 
-Do not add `predev` or `prebuild` hooks to these scripts; that would run generation twice. In CI, replace `latest` with an exact package version.
+## Use the sprite
 
-Generation creates a local `.gitignore`; commit that file once, but do not commit `.svg-sprite/`. The generated JavaScript and declarations live together, and the declarations are self-contained: they do not require `@gromlab/svg-sprites`.
+The value `name: "app"` creates the `<app-icon>` element.
 
-### Production usage
-
-Register the generated element once, then use `<icons-icon>`:
+Create the entry point `assets/app-icons/index.ts`:
 
 ```ts
-// src/main.ts
-import {
-  defineIconsIconElement,
-  iconsIconNames,
-} from './ui/icons/.svg-sprite/index.js'
-
-defineIconsIconElement()
-console.log('Available icons:', iconsIconNames)
+export * from './.svg-sprite/index.js'
 ```
+
+Register the element in `src/main.ts`:
+
+```ts
+import { defineAppIconElement } from '../assets/app-icons'
+import './style.css'
+
+defineAppIconElement()
+```
+
+Use the icon in HTML:
 
 ```html
-<icons-icon icon="check" role="img" aria-label="Complete"></icons-icon>
+<app-icon icon="check" role="img" aria-label="Done"></app-icon>
 ```
 
-The host is `1em` by `1em`, so `font-size` controls its default size. Transformed colors use `currentColor` and custom properties such as `--icon-color-1`:
+The file `check.svg` is available as `icon="check"`. Set its size and colors with CSS:
 
 ```css
-icons-icon {
+app-icon {
   font-size: 24px;
-  color: #2563eb;
-  --icon-color-2: #dbeafe;
+  color: #334155;
+  --icon-color-2: #f59e0b;
 }
 ```
 
-Vite handles the generated `sprite.svg?no-inline` import automatically and emits a separate asset. If your own TypeScript source imports Vite query assets, include Vite's ambient types:
+A monochrome icon inherits `color`, while colors in a multicolor icon are overridden with `--icon-color-N`. Viewer shows the variables you need.
 
-```json
-{
-  "compilerOptions": {
-    "types": ["vite/client"]
-  }
-}
-```
+Vite automatically adds `sprite.svg` to the production build. You do not need to copy it to `public`.
 
-## 2. Debug and preview
+## Debug and preview
 
-This section is optional. Only users who need the Viewer or icon previews should install:
+Viewer displays all icons on one page so you can check their rendering, change colors, and inspect the related CSS variables. It is only needed for development and is installed separately:
 
 ```bash
 npm install --save-dev @gromlab/svg-sprites
 ```
 
-Register the Viewer element, import its type, and assign the generated JavaScript manifest to `sources`:
+Create `svg-sprite.html` in the project root:
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Project icons</title>
+  </head>
+  <body>
+    <!-- Viewer component for debugging and previewing the SVG sprite -->
+    <gromlab-sprite-viewer viewer-title="Project icons"></gromlab-sprite-viewer>
+
+    <!-- Load the debug script created below -->
+    <script type="module" src="/src/svg-sprite-debug.ts"></script>
+  </body>
+</html>
+```
+
+Create `src/svg-sprite-debug.ts`:
 
 ```ts
 import '@gromlab/svg-sprites/viewer/element'
 import type { SpriteViewerElement } from '@gromlab/svg-sprites/viewer'
-import spriteManifest from './ui/icons/.svg-sprite/svg-sprite.manifest.js'
-
-document.querySelector<HTMLDivElement>('#debug')!.innerHTML = `
-  <gromlab-sprite-viewer viewer-title="Project icons"></gromlab-sprite-viewer>
-`
+import spriteManifest from '../assets/app-icons/.svg-sprite/svg-sprite.manifest.js'
 
 const viewer = document.querySelector<SpriteViewerElement>('gromlab-sprite-viewer')!
 viewer.sources = [spriteManifest]
 ```
 
-Keep this code on a debug route or in an internal tool. Viewer is not part of the production icon runtime.
+Run `npm run dev` and open `/svg-sprite.html`.
 
-## 3. Type the config
-
-Choose one of these two paths.
-
-### With a local package installation
-
-After installing the package locally, use the helper:
-
-```ts
-import { defineSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineSpriteConfig({
-  mode: 'standalone@vite',
-  name: 'icons',
-})
-```
-
-You can alternatively import `type SpriteConfig` and apply `satisfies SpriteConfig`.
-
-### Without the package
-
-Copy a mode-specific type directly into the config:
-
-```ts
-type LocalSpriteConfig = {
-  mode: 'standalone@vite'
-  name?: string
-  description?: string
-  input?: string | string[]
-  transform?: {
-    removeSize?: boolean
-    replaceColors?: boolean
-    addTransition?: boolean
-  }
-  generatedNotice?: boolean
-}
-
-export default {
-  mode: 'standalone@vite',
-  name: 'icons',
-} satisfies LocalSpriteConfig
-```
+Viewer is not required for `<app-icon>` and is not imported by the application's main code.
