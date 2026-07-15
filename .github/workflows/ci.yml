@@ -40,3 +40,36 @@ jobs:
 
       - name: Build
         run: npm run build
+
+  integration:
+    name: Integration playground
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            integration/package-lock.json
+
+      - name: Install package dependencies
+        run: npm ci
+
+      - name: Build package
+        run: npm run build:package
+
+      - name: Install playground dependencies
+        run: npm ci --prefix integration
+
+      - name: Install Chromium
+        run: npm exec --prefix integration -- playwright install --with-deps chromium
+
+      - name: Verify playground
+        run: npm run verify --prefix integration

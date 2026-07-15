@@ -1,12 +1,12 @@
 # @gromlab/svg-sprites
 
-🇬🇧 English | [🇷🇺 Русский](README_RU.md)
+🇬🇧 English | [🇷🇺 Русский](https://github.com/gromlab-ru/svg-sprites/blob/master/README_RU.md)
 
 ![npm](https://img.shields.io/npm/v/@gromlab/svg-sprites) ![license](https://img.shields.io/npm/l/@gromlab/svg-sprites)
 
 `@gromlab/svg-sprites` is an SVG sprite generator for modern web applications. It combines selected SVG icons into one or more external, cacheable sprites and prepares them for use in the UI.
 
-For React and Next.js, the package generates typed components and supports Vite, Webpack 5, and Turbopack. At its core is a standard SVG sprite that can be used without a framework, including in native HTML.
+Each exact mode generates a native typed component for its framework and bundler: Web Component, React, Vue, Svelte, Angular, Astro, Solid, Preact, Qwik, Lit, or Alpine.js. In every case, the SVG remains a separate cacheable asset.
 
 ## An SVG sprite as simple as a regular SVG icon
 
@@ -32,60 +32,55 @@ You do not have to work with the sprite directly in your application. Use it lik
 
 [🇷🇺 Download AI skill (Russian)](https://github.com/gromlab-ru/svg-sprites/releases/latest/download/svg-sprites-ru.zip)
 
-## From SVG to component in four steps
+## From SVG to component in three steps
 
 The main example uses the Next.js App Router and Turbopack.
 
-### 1. Install the package
+### 1. Specify the icons you need
 
-```bash
-npm install --save-dev @gromlab/svg-sprites
-```
-
-### 2. Specify the icons you need
-
-SVG files can remain in your project's existing structure:
+Create directories for the source icons and the sprite:
 
 ```text
-src/
-├── assets/icons/
-│   ├── search.svg
-│   └── settings.svg
-├── features/profile/
-│   └── user.svg
-└── ui/app-icons/
-    └── svg-sprite.config.ts
+assets/
+├── app-icons/
+│   └── svg-sprite.config.json
+└── svg-icons/
+    ├── search.svg
+    └── settings.svg
 ```
 
 Create the sprite configuration:
 
-```ts
-// src/ui/app-icons/svg-sprite.config.ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineNextSpriteConfig({
-  name: 'app',
-  inputFiles: [
-    '../../assets/icons/search.svg',
-    '../../assets/icons/settings.svg',
-    '../../features/profile/user.svg',
-  ],
-})
+```json
+{
+  "mode": "next@app/turbopack",
+  "name": "app",
+  "input": "../svg-icons/**/*.svg"
+}
 ```
 
-### 3. Add generation
+`input` supports directory paths, individual SVG files, and glob patterns.
+
+### 2. Add a generation script
 
 ```json
 {
   "scripts": {
-    "sprites": "svg-sprites --mode next@app/turbopack src/ui/app-icons",
+    "sprites": "npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites"
   }
 }
 ```
 
-Run it for the first time:
+Create an entry point for the generated API:
+
+```ts
+// assets/app-icons/index.ts
+export * from './.svg-sprite/index.js'
+```
+
+First run:
 
 ```bash
 npm run sprites
@@ -93,10 +88,11 @@ npm run sprites
 
 The package will generate `AppIcon`, TypeScript types, and a separate SVG sprite.
 
-### 4. Use it like a regular icon
+### 3. Use it like a regular icon
 
 ```tsx
-import { AppIcon } from '@/ui/app-icons'
+// app/page.tsx
+import { AppIcon } from '../assets/app-icons'
 
 export default function SearchButton() {
   return (
@@ -209,36 +205,31 @@ Create themes, states, and hover effects without editing the SVG or making addit
 
 ## SpriteViewer: every sprite on one debug page
 
-`SpriteViewer` renders all project sprites in one place and shows which icons are included in each set and how they look.
+`SpriteViewer` renders sprites from every supported exact mode in one place. One Web Component owns the visuals, while React also provides a thin bridge to it.
 
 For each icon, you can see the generated CSS variables and their fallback colors. Change the values directly in the Viewer and see the result immediately.
 
-It also provides ready-to-use integration examples for:
-
-- React;
-- `<svg><use>`;
-- `<img>`;
-- CSS.
+It also provides ready-to-use examples for the manifest's framework, `<svg><use>`, `<img>`, and CSS.
 
 ![SpriteViewer](https://raw.githubusercontent.com/gromlab-ru/svg-sprites/master/preview-image.png)
 
 The Viewer is added only to an internal debug page and does not become part of the generated icon components.
 
-## From native HTML to Next.js
+With bare standalone, the application loads the Viewer as a browser script and HTML element. Bundler and framework modes use the npm Web Component entry; React and Next.js may instead import the bridge from `@gromlab/svg-sprites/react`.
 
-At its core is a standard SVG sprite that can be used even without a framework or bundler.
+## 29 exact modes
 
-For React and Next.js, the package generates typed components and supports Vite, Webpack 5, and Turbopack. The list of ready-made integrations will expand to include new frameworks.
+The package provides isolated contracts for standalone, React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Astro, Solid, SolidStart, Preact, Qwik, Lit, and Alpine.js across their supported Vite, Webpack, Turbopack, and application-builder variants.
 
 ## Clean Git history
 
-The generator creates a local `.gitignore` that excludes generated files and keeps them from cluttering project history, pull requests, and the codebase.
+Bundler and framework modes create a local `.gitignore` that excludes generated files and keeps them from cluttering project history, pull requests, and the codebase. Bare `standalone` leaves the repository policy to the application.
 
-The repository contains the source SVG files, configuration, and `.gitignore` rule, while sprites, components, and types are regenerated locally and in CI through `prebuild`.
+In bundler and framework modes, the repository contains the source SVG files, configuration, and `.gitignore` rule, while sprites, components, and types are regenerated locally and in CI through `prebuild`.
 
 ## Only icons in production
 
-`@gromlab/svg-sprites` does its main work during generation and remains in `devDependencies`.
+Generation can run entirely through `npx`, without adding the package to the project. Install it as a development dependency only when you need the Viewer, config types, or the programmatic API.
 
 Production components use only local generated code, styles, and the external SVG file. The compiler and CLI are not bundled into the client application, while `SpriteViewer` is imported separately only where a debug page is needed.
 
@@ -248,17 +239,42 @@ This README introduces the project's capabilities and demonstrates the primary u
 
 ### Quick start
 
-- [Next.js App Router](docs/en/next-app.md)
-- [Next.js Pages Router](docs/en/next-pages.md)
-- [React + Vite](docs/en/react-vite.md)
-- [React + Webpack 5](docs/en/react-webpack.md)
-- [Native HTML and classic SVG sprites](docs/en/legacy.md)
+- [Bare standalone](docs/en/guides/standalone.md)
+- [Standalone + Vite](docs/en/guides/standalone-vite.md)
+- [Standalone + Webpack 5](docs/en/guides/standalone-webpack.md)
+- [React + Vite](docs/en/guides/react-vite.md)
+- [React + Webpack 5](docs/en/guides/react-webpack.md)
+- [Vue + Vite](docs/en/guides/vue-vite.md)
+- [Vue + Webpack](docs/en/guides/vue-webpack.md)
+- [Nuxt + Vite](docs/en/guides/nuxt-vite.md)
+- [Nuxt + Webpack](docs/en/guides/nuxt-webpack.md)
+- [Svelte + Vite](docs/en/guides/svelte-vite.md)
+- [Svelte + Webpack](docs/en/guides/svelte-webpack.md)
+- [SvelteKit + Vite](docs/en/guides/sveltekit-vite.md)
+- [Angular application builder](docs/en/guides/angular-application.md)
+- [Angular + Webpack](docs/en/guides/angular-webpack.md)
+- [Astro + Vite](docs/en/guides/astro-vite.md)
+- [Solid + Vite](docs/en/guides/solid-vite.md)
+- [Solid + Webpack](docs/en/guides/solid-webpack.md)
+- [SolidStart + Vite](docs/en/guides/solid-start-vite.md)
+- [Preact + Vite](docs/en/guides/preact-vite.md)
+- [Preact + Webpack](docs/en/guides/preact-webpack.md)
+- [Qwik + Vite](docs/en/guides/qwik-vite.md)
+- [Lit + Vite](docs/en/guides/lit-vite.md)
+- [Lit + Webpack](docs/en/guides/lit-webpack.md)
+- [Alpine.js + Vite](docs/en/guides/alpine-vite.md)
+- [Alpine.js + Webpack](docs/en/guides/alpine-webpack.md)
+- [Next.js App Router + Turbopack](docs/en/guides/next-app-turbopack.md)
+- [Next.js App Router + Webpack](docs/en/guides/next-app-webpack.md)
+- [Next.js Pages Router + Turbopack](docs/en/guides/next-pages-turbopack.md)
+- [Next.js Pages Router + Webpack](docs/en/guides/next-pages-webpack.md)
 
 ### Technical resources
 
-- [Technical reference](docs/en/reference.md)
-- [Programmatic API](docs/en/programmatic-api.md)
-- [Migrating from 0.1.x](docs/en/migration-1.md)
+- [Documentation index](docs/en/README.md)
+- [Configuration](docs/en/configuration.md)
+- [Technical reference](docs/en/reference/technical.md)
+- [Programmatic API](docs/en/reference/programmatic-api.md)
 
 ## License
 

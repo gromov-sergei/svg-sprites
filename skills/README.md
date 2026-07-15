@@ -1,40 +1,26 @@
 # AI skills
 
-Исходники английского и русского скиллов находятся в `skills/svg-sprites/src/{en,ru}/`. Готовые переносимые артефакты генерируются в `skills/artifacts/`, игнорируются Git и упаковываются в ZIP во время release workflow.
+Исходники обязательного контекста английского и русского skills находятся в `skills/svg-sprites/src/{en,ru}/`. Готовые переносимые артефакты генерируются в `skills/artifacts/`, игнорируются Git и упаковываются в ZIP во время release workflow.
 
-Обе языковые версии имеют одинаковую структуру:
+Обе языковые версии имеют симметричную single-file структуру:
 
 ```text
-src/<language>/
+src/{en,ru}/
 ├── SKILL.md
-├── core/
-│   ├── 00-package-overview.md
-│   ├── 10-mode-selection.md
-│   ├── 20-project-inspection.md
-│   ├── 30-react-next-setup.md
-│   ├── 40-generated-contract.md
-│   ├── 50-usage-and-colors.md
-│   ├── 60-verification.md
-│   └── 70-diagnostics.md
 └── references/
-    ├── react-vite.md
-    ├── react-webpack.md
-    ├── next-app.md
-    ├── next-pages.md
-    ├── legacy.md
-    ├── migration-1.md
-    ├── programmatic-api.md
     └── complex-svg.md
 ```
 
-`core/` содержит обязательные знания, раскрываемые прямо в итоговый `SKILL.md`. `references/` содержит самостоятельные инструкции для агента по конкретным стекам и редким сценариям. Пользовательские `README*.md` и `docs/{en,ru}/*.md` дополнительно копируются в `references/upstream/` как вторичный источник полного публичного API.
+Каждый `SKILL.md` содержит обязательные знания о пакете, рабочий процесс агента и operational map canonical-документации. Exact-mode настройка берётся из canonical guides, а не дублируется отдельными source-фрагментами. Agent-specific `complex-svg.md` остаётся отдельным reference.
+
+Английский artifact дополнительно получает без изменений `README.md` и содержательную пользовательскую документацию из `docs/en/`; русский — `README_RU.md` и `docs/ru/`. Локальный редакторский `guides/AGENTS.md`, а также навигационные `guides/README.md` и `reference/README.md` не копируются. Canonical-файлы находятся в `references/README.md` и `references/docs/en/` либо в `references/README_RU.md` и `references/docs/ru/`.
 
 ## Композиция Markdown
 
-В любой собираемый документ можно включать фрагменты:
+Сборщик сохраняет поддержку Markdown includes для будущих документов:
 
 ```md
-<!-- include: ./core/10-mode-selection.md -->
+<!-- include: ./fragments/mode-selection.md -->
 ```
 
 Include раскрываются рекурсивно, путь считается относительно включающего файла. Циклы, отсутствующие файлы, выход за `skills/svg-sprites/`, frontmatter во фрагментах и нераскрытые include завершают сборку ошибкой. Заголовки не сдвигаются автоматически: entry содержит единственный `# H1`, inline-фрагменты начинаются с `##`.

@@ -1,12 +1,12 @@
 # @gromlab/svg-sprites
 
-[🇬🇧 English](README.md) | 🇷🇺 Русский
+[🇬🇧 English](https://github.com/gromlab-ru/svg-sprites/blob/master/README.md) | 🇷🇺 Русский
 
 ![npm](https://img.shields.io/npm/v/@gromlab/svg-sprites) ![license](https://img.shields.io/npm/l/@gromlab/svg-sprites)
 
 `@gromlab/svg-sprites` — генератор SVG-спрайтов для современных веб-приложений. Он собирает выбранные SVG-иконки в один или несколько внешних кешируемых спрайтов и подготавливает их для использования в интерфейсе.
 
-Для React и Next.js пакет создаёт типизированные компоненты и поддерживает Vite, Webpack 5 и Turbopack. В основе при этом остаётся обычный SVG-спрайт, который можно использовать без фреймворка, в том числе в нативном HTML.
+Каждый exact mode создаёт нативный типизированный компонент для своего framework и bundler: Web Component, React, Vue, Svelte, Angular, Astro, Solid, Preact, Qwik, Lit или Alpine.js. SVG во всех случаях остаётся отдельным кешируемым asset.
 
 ## SVG-спрайт так же прост, как обычная SVG-иконка
 
@@ -32,57 +32,52 @@
 
 [🇬🇧 Скачать AI skill (на английском)](https://github.com/gromlab-ru/svg-sprites/releases/latest/download/svg-sprites.zip)
 
-## От SVG до компонента за четыре шага
+## От SVG до компонента за три шага
 
 Основной пример использует Next.js App Router и Turbopack.
 
-### 1. Установите пакет
+### 1. Укажите нужные иконки
 
-```bash
-npm install --save-dev @gromlab/svg-sprites
-```
-
-### 2. Укажите нужные иконки
-
-SVG могут оставаться в существующей структуре проекта:
+Создайте папки для исходных иконок и спрайта:
 
 ```text
-src/
-├── assets/icons/
-│   ├── search.svg
-│   └── settings.svg
-├── features/profile/
-│   └── user.svg
-└── ui/app-icons/
-    └── svg-sprite.config.ts
+assets/
+├── app-icons/
+│   └── svg-sprite.config.json
+└── svg-icons/
+    ├── search.svg
+    └── settings.svg
 ```
 
 Создайте конфигурацию спрайта:
 
-```ts
-// src/ui/app-icons/svg-sprite.config.ts
-import { defineNextSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineNextSpriteConfig({
-  name: 'app',
-  inputFiles: [
-    '../../assets/icons/search.svg',
-    '../../assets/icons/settings.svg',
-    '../../features/profile/user.svg',
-  ],
-})
+```json
+{
+  "mode": "next@app/turbopack",
+  "name": "app",
+  "input": "../svg-icons/**/*.svg"
+}
 ```
 
-### 3. Добавьте генерацию
+`input` поддерживает пути к папкам, отдельным SVG и glob-шаблоны.
+
+### 2. Добавьте генерацию
 
 ```json
 {
   "scripts": {
-    "sprites": "svg-sprites --mode next@app/turbopack src/ui/app-icons",
+    "sprites": "npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json",
     "predev": "npm run sprites",
     "prebuild": "npm run sprites"
   }
 }
+```
+
+Создайте точку входа для сгенерированного API:
+
+```ts
+// assets/app-icons/index.ts
+export * from './.svg-sprite/index.js'
 ```
 
 Первый запуск:
@@ -93,10 +88,11 @@ npm run sprites
 
 Пакет создаст `AppIcon`, TypeScript-типы и отдельный SVG-спрайт.
 
-### 4. Используйте как обычную иконку
+### 3. Используйте как обычную иконку
 
 ```tsx
-import { AppIcon } from '@/ui/app-icons'
+// app/page.tsx
+import { AppIcon } from '../assets/app-icons'
 
 export default function SearchButton() {
   return (
@@ -209,36 +205,31 @@ JavaScript отвечает за интерфейс и поведение, а г
 
 ## SpriteViewer: все спрайты на одной debug-странице
 
-`SpriteViewer` рендерит все спрайты проекта в одном месте и показывает, какие иконки вошли в каждый набор и как они выглядят.
+`SpriteViewer` рендерит спрайты всех поддерживаемых exact modes в одном месте. Один Web Component отвечает за визуал, а для React также доступен тонкий bridge к нему.
 
 Для каждой иконки видны созданные CSS-переменные и их fallback-цвета. Значения можно менять прямо в Viewer и сразу наблюдать результат.
 
-Здесь же доступны готовые примеры подключения через:
-
-- React;
-- `<svg><use>`;
-- `<img>`;
-- CSS.
+Здесь же доступны готовые примеры для framework из manifest, `<svg><use>`, `<img>` и CSS.
 
 ![SpriteViewer](https://raw.githubusercontent.com/gromlab-ru/svg-sprites/master/preview-image.png)
 
 Viewer подключается только к внутренней debug-странице и не становится частью generated-компонентов иконок.
 
-## От нативного HTML до Next.js
+Bare standalone подключает Viewer через browser script и HTML element. Bundler и framework modes используют npm entry Web Component; React и Next.js также могут импортировать bridge из `@gromlab/svg-sprites/react`.
 
-В основе остаётся обычный SVG-спрайт, который можно использовать даже без фреймворка и сборщика.
+## 29 exact modes
 
-Для React и Next.js пакет генерирует типизированные компоненты и поддерживает Vite, Webpack 5 и Turbopack. Список готовых интеграций будет расширяться новыми фреймворками.
+Пакет предоставляет изолированные контракты для standalone, React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Astro, Solid, SolidStart, Preact, Qwik, Lit и Alpine.js в поддерживаемых вариантах Vite, Webpack, Turbopack и application builder.
 
 ## Чистый Git
 
-Генератор создаёт локальный `.gitignore`, который исключает generated-файлы и не позволяет им засорять историю, pull requests и код проекта.
+Bundler и framework modes создают локальный `.gitignore`, который исключает generated-файлы и не позволяет им засорять историю, pull requests и код проекта. Bare `standalone` оставляет политику репозитория приложению.
 
-В репозитории остаются исходные SVG, конфигурация и правило `.gitignore`, а локально и в CI спрайты, компоненты и типы заново создаются через `prebuild`.
+В bundler и framework modes в репозитории остаются исходные SVG, конфигурация и правило `.gitignore`, а локально и в CI спрайты, компоненты и типы заново создаются через `prebuild`.
 
 ## В production только иконки
 
-`@gromlab/svg-sprites` выполняет основную работу на этапе генерации и остаётся в `devDependencies`.
+Генерация полностью работает через `npx`, без добавления package в проект. Устанавливайте его как development dependency, только если нужны Viewer, типы конфига или программный API.
 
 Production-компоненты используют только локальный generated-код, стили и внешний SVG-файл. Compiler и CLI не попадают в клиентское приложение, а `SpriteViewer` подключается отдельно только там, где нужна debug-страница.
 
@@ -248,17 +239,42 @@ README знакомит с возможностями проекта и пока
 
 ### Быстрый старт
 
-- [Next.js App Router](docs/ru/next-app.md)
-- [Next.js Pages Router](docs/ru/next-pages.md)
-- [React + Vite](docs/ru/react-vite.md)
-- [React + Webpack 5](docs/ru/react-webpack.md)
-- [Нативный HTML и классические SVG-спрайты](docs/ru/legacy.md)
+- [Bare standalone](docs/ru/guides/standalone.md)
+- [Standalone + Vite](docs/ru/guides/standalone-vite.md)
+- [Standalone + Webpack 5](docs/ru/guides/standalone-webpack.md)
+- [React + Vite](docs/ru/guides/react-vite.md)
+- [React + Webpack 5](docs/ru/guides/react-webpack.md)
+- [Vue + Vite](docs/ru/guides/vue-vite.md)
+- [Vue + Webpack](docs/ru/guides/vue-webpack.md)
+- [Nuxt + Vite](docs/ru/guides/nuxt-vite.md)
+- [Nuxt + Webpack](docs/ru/guides/nuxt-webpack.md)
+- [Svelte + Vite](docs/ru/guides/svelte-vite.md)
+- [Svelte + Webpack](docs/ru/guides/svelte-webpack.md)
+- [SvelteKit + Vite](docs/ru/guides/sveltekit-vite.md)
+- [Angular application builder](docs/ru/guides/angular-application.md)
+- [Angular + Webpack](docs/ru/guides/angular-webpack.md)
+- [Astro + Vite](docs/ru/guides/astro-vite.md)
+- [Solid + Vite](docs/ru/guides/solid-vite.md)
+- [Solid + Webpack](docs/ru/guides/solid-webpack.md)
+- [SolidStart + Vite](docs/ru/guides/solid-start-vite.md)
+- [Preact + Vite](docs/ru/guides/preact-vite.md)
+- [Preact + Webpack](docs/ru/guides/preact-webpack.md)
+- [Qwik + Vite](docs/ru/guides/qwik-vite.md)
+- [Lit + Vite](docs/ru/guides/lit-vite.md)
+- [Lit + Webpack](docs/ru/guides/lit-webpack.md)
+- [Alpine.js + Vite](docs/ru/guides/alpine-vite.md)
+- [Alpine.js + Webpack](docs/ru/guides/alpine-webpack.md)
+- [Next.js App Router + Turbopack](docs/ru/guides/next-app-turbopack.md)
+- [Next.js App Router + Webpack](docs/ru/guides/next-app-webpack.md)
+- [Next.js Pages Router + Turbopack](docs/ru/guides/next-pages-turbopack.md)
+- [Next.js Pages Router + Webpack](docs/ru/guides/next-pages-webpack.md)
 
 ### Технические материалы
 
-- [Технический справочник](docs/ru/reference.md)
-- [Программный API](docs/ru/programmatic-api.md)
-- [Миграция с 0.1.x](docs/ru/migration-1.md)
+- [Индекс документации](docs/ru/README.md)
+- [Конфигурация](docs/ru/configuration.md)
+- [Технический справочник](docs/ru/reference/technical.md)
+- [Программный API](docs/ru/reference/programmatic-api.md)
 
 ## Лицензия
 

@@ -1,0 +1,21 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #172033;
+  background: #fff;
+}
+
+body {
+  margin: 0;
+  padding: 40px;
+}
+
+icons-icon[data-testid='icon'] {
+  width: 64px;
+  height: 64px;
+  color: #16a34a;
+}
+
+gromlab-sprite-viewer {
+  display: block;
+  margin-top: 32px;
+}

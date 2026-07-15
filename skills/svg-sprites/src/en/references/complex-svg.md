@@ -12,7 +12,7 @@ Inspect the source SVG before editing it:
 npm run sprite:file-manager
 ```
 
-Use the actual package script for the sprite. Then compare the source with `generated/sprite.svg` and the manifest; do not draw conclusions from a successful exit code alone.
+Use the actual package script for the sprite. Then compare the source with `.svg-sprite/sprite.svg` and the manifest; do not draw conclusions from a successful exit code alone.
 
 Pay particular attention to:
 
@@ -36,9 +36,10 @@ The compiler first applies SVGO `preset-default` while preserving `viewBox`, the
 All three options default to `true` and apply to the entire sprite, not to individual icons.
 
 ```ts
-import { defineReactSpriteConfig } from '@gromlab/svg-sprites'
+import { defineSpriteConfig } from '@gromlab/svg-sprites'
 
-export default defineReactSpriteConfig({
+export default defineSpriteConfig({
+  mode: 'react@vite',
   name: 'illustrations',
   transform: {
     removeSize: false,
@@ -48,7 +49,7 @@ export default defineReactSpriteConfig({
 })
 ```
 
-This is a config for one of potentially many sprite directories in a project; its directory does not have to match a module/feature directory. Use `defineNextSpriteConfig(...)` with the same `transform` for Next; in legacy mode it belongs at the top level of `defineLegacyConfig(...)`.
+This is a config for one of potentially many sprite modules in a project; its directory does not have to match a module/feature directory. For Next, use the corresponding full `mode` with the same `transform`.
 
 ## Dimensions and viewBox
 
@@ -64,7 +65,7 @@ Correct source preparation:
 
 If physical dimensions are part of an illustration's contract, set `removeSize: false` and verify component-prop behavior. Do not preserve width/height as a substitute for a missing viewBox.
 
-React and legacy compilation leave the root sprite `rootViewBox` disabled; Next enables it. Every shape must still have its own valid viewBox, which is included in the manifest and used by the Viewer.
+React compilation leaves the root sprite `rootViewBox` disabled; Next enables it. Every shape must still have its own valid viewBox, which is included in the manifest and used by the Viewer.
 
 ## Colors
 
@@ -128,9 +129,9 @@ It is preserved as the fragment ID. Other names, such as `folder open.svg` or `2
 <FileManagerIcon icon="folder open" />
 ```
 
-Do not manually construct `#folder open`. Use the generated component or `manifest.ts`, which records both `name` and the actual `id`.
+Do not manually construct `#folder open`. Use the generated component or `.svg-sprite/svg-sprite.manifest.js`, which records both `name` and the actual `id`.
 
-Different files with the same basename are forbidden, even from different directories. Rename one source meaningfully; `inputFiles` order does not select a winner.
+Different files with the same basename are forbidden, even from different directories. Rename one source meaningfully; source order or overlap never selects a winner.
 
 ## Rendering method
 
@@ -152,12 +153,12 @@ External stack-fragment support and paint-server behavior can vary across browse
 
 ## Required verification
 
-1. Run generation with the correct target.
+1. Run generation with the correct mode.
 2. Run the project's typecheck.
 3. Open the generated sprite and find the shape using the ID from the manifest.
 4. Statically compare `viewBox`, IDs, `url(#...)`, colors, and inline styles.
 5. If the target/pipeline changed or a runtime issue is being diagnosed, build the production bundle and inspect the external hashed SVG.
-6. When SpriteViewer, legacy `preview.html`, and visual tools are available, test default colors and each `--icon-color-N` separately.
+6. When SpriteViewer and visual tools are available, test default colors and each `--icon-color-N` separately.
 7. When browser tools are available and the runtime risk warrants it, test SSR/hydration for Next.js and target browsers for external fragments.
 8. Do not claim visual or accessibility equivalence between source and output without the necessary tools and an actual comparison.
 
@@ -172,4 +173,4 @@ External stack-fragment support and paint-server behavior can vary across browse
 - A manual fragment fails for a name containing spaces: use the ID from the manifest.
 - One complex icon requires different transforms: move it to a separate sprite; per-icon transform config is not supported.
 
-Target-specific execution and verification are documented in [react-vite.md](react-vite.md), [react-webpack.md](react-webpack.md), [next-app.md](next-app.md), [next-pages.md](next-pages.md), and [legacy.md](legacy.md).
+For mode-specific execution and verification, return to the exact-mode guide selected from the main `SKILL.md`.

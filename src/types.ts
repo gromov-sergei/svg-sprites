@@ -1,22 +1,7 @@
+import type { SpriteMode } from './targets/types.js'
+
 /** Формат спрайта: stack или symbol. */
 export type SpriteFormat = 'stack' | 'symbol'
-
-/** Описание одного спрайта в конфиге. */
-export type SpriteEntry = {
-  /** Уникальное имя спрайта (используется как имя файла и в типах). */
-  name: string
-  /**
-   * Источник SVG-файлов.
-   * Строка — путь к папке с SVG-файлами.
-   * Массив — пути к конкретным SVG-файлам.
-   */
-  input: string | string[]
-  /**
-   * Формат спрайта.
-   * По умолчанию: 'stack'.
-   */
-  format?: SpriteFormat
-}
 
 /** Параметры трансформации SVG. Все включены по умолчанию. */
 export type TransformOptions = {
@@ -39,22 +24,30 @@ export type TransformOptions = {
   addTransition?: boolean
 }
 
-/** Конфигурация генерации SVG-спрайтов. */
-export type SvgSpritesConfig = {
-  /** Путь к папке для сгенерированных SVG-спрайтов. */
-  output: string
-  /**
-   * Генерировать HTML-превью со всеми иконками.
-   * По умолчанию: true.
-   */
-  preview?: boolean
-  /**
-   * Настройки трансформации SVG.
-   * По умолчанию: все трансформации включены.
-   */
+/** Единая конфигурация локального sprite-модуля. */
+export type SpriteConfig = {
+  /** Режим можно определить в конфиге либо передать через CLI/API. */
+  mode?: SpriteMode
+  /** Логическое имя спрайта. По умолчанию выводится из каталога модуля. */
+  name?: string
+  /** Описание спрайта для generated types и manifest. */
+  description?: string
+  /** Путь или glob-шаблоны исходных SVG относительно корня модуля. По умолчанию: ./icons. */
+  input?: string | string[]
+  /** Настройки трансформации SVG. По умолчанию все включены. */
   transform?: TransformOptions
-  /** Список спрайтов для генерации. */
-  sprites: SpriteEntry[]
+  /** Добавлять развёрнутое предупреждение в generated-файлы. По умолчанию: true. */
+  generatedNotice?: boolean
+}
+
+/** Полностью разрешённая конфигурация, готовая к генерации. */
+export type ResolvedSpriteConfig = {
+  mode: SpriteMode
+  name: string
+  description?: string
+  input: string[]
+  transform: Required<TransformOptions>
+  generatedNotice: boolean
 }
 
 /** Результат парсинга спрайта — данные для компиляции. */
@@ -63,20 +56,8 @@ export type SpriteFolder = {
   name: string
   /** Формат спрайта. */
   format: SpriteFormat
-  /** Абсолютный путь к папке (для input-папки) или null (для input-массива). */
+  /** Абсолютный путь для единственного input-каталога, иначе null. */
   path: string | null
   /** Абсолютные пути к SVG-файлам. */
   files: string[]
-}
-
-/** Результат компиляции одного спрайта. */
-export type SpriteResult = {
-  /** Имя спрайта. */
-  name: string
-  /** Формат спрайта. */
-  format: SpriteFormat
-  /** Путь к сгенерированному SVG-спрайту. */
-  spritePath: string
-  /** Количество иконок в спрайте. */
-  iconCount: number
 }

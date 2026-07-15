@@ -1,0 +1,65 @@
+---
+import { IconsIcon } from '../sprite/index.js'
+
+const title = 'Astro sprite fixture'
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <main>
+      <h1>Astro</h1>
+      <IconsIcon
+        data-testid="icon"
+        data-app="astro"
+        icon="check"
+        aria-label="Check icon"
+        width="64"
+        height="64"
+        style="--icon-color-1: #16a34a"
+      />
+      <gromlab-sprite-viewer id="sprite-viewer"></gromlab-sprite-viewer>
+    </main>
+    <script>
+      import '@gromlab/svg-sprites/viewer/element'
+
+      const viewer = /** @type {import('@gromlab/svg-sprites/viewer').SpriteViewerElement | null} */ (
+        document.querySelector('#sprite-viewer')
+      )
+      if (!viewer) throw new Error('Sprite Viewer element is missing.')
+      Object.assign(viewer, {
+        viewerTitle: 'Astro Vite Viewer',
+        sources: [() => import('../sprite/.svg-sprite/svg-sprite.manifest.js')],
+      })
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    font-family: system-ui, sans-serif;
+    color: #172033;
+    background: #fff;
+  }
+
+  body {
+    margin: 0;
+    padding: 40px;
+  }
+
+  [data-testid='icon'] {
+    width: 64px;
+    height: 64px;
+    color: #16a34a;
+  }
+
+  gromlab-sprite-viewer {
+    display: block;
+    margin-top: 32px;
+  }
+</style>

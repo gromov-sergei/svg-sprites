@@ -1,54 +1,91 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import type { SpriteEntry, SpriteFolder } from './types.js'
+import {
+  convertPathToPattern,
+  globSync,
+  isDynamicPattern,
+} from 'tinyglobby'
+import type { SpriteFolder } from './types.js'
 
-/**
- * Сканирует папку и возвращает отсортированные абсолютные пути к SVG-файлам.
- */
-function scanDirectory(dirPath: string): string[] {
-  if (!fs.existsSync(dirPath)) {
-    throw new Error(`Input directory does not exist: ${dirPath}`)
-  }
-
-  return fs
-    .readdirSync(dirPath)
-    .filter((file) => file.endsWith('.svg'))
-    .sort()
-    .map((file) => path.join(dirPath, file))
+type PositiveInput = {
+  source: string
+  pattern: string
+  directory: string | null
 }
 
-/**
- * Резолвит массив путей к SVG-файлам в абсолютные пути.
- * Проверяет существование каждого файла.
- */
-function resolveFiles(files: string[]): string[] {
-  return files.map((filePath) => {
-    const resolved = path.resolve(filePath)
+function resolvePositiveInput(source: string): PositiveInput {
+  if (!fs.existsSync(source)) {
+    if (isDynamicPattern(source)) return { source, pattern: source, directory: null }
+    throw new Error(`Input path does not exist: ${source}`)
+  }
 
-    if (!fs.existsSync(resolved)) {
-      throw new Error(`SVG file does not exist: ${resolved}`)
+  const stats = fs.statSync(source)
+  if (stats.isDirectory()) {
+    return {
+      source,
+      pattern: `${convertPathToPattern(source)}/*.svg`,
+      directory: source,
     }
+  }
+  if (!stats.isFile()) {
+    throw new Error(`Input path must be a file, directory, or glob pattern: ${source}`)
+  }
+  if (!source.endsWith('.svg')) {
+    throw new Error(`File is not an SVG: ${source}`)
+  }
 
-    if (!resolved.endsWith('.svg')) {
-      throw new Error(`File is not an SVG: ${resolved}`)
-    }
+  return { source, pattern: convertPathToPattern(source), directory: null }
+}
 
-    return resolved
-  })
+function resolveExclusion(source: string): string {
+  const target = source.slice(1)
+  if (!fs.existsSync(target)) return source
+
+  const stats = fs.statSync(target)
+  if (stats.isDirectory()) return `!${convertPathToPattern(target)}/**`
+  if (stats.isFile()) return `!${convertPathToPattern(target)}`
+  return source
 }
 
 type ResolveSpriteSourcesOptions = {
   name: string
   format: SpriteFolder['format']
-  inputFolder: string | null
-  inputFiles: string[]
+  input: string[]
 }
 
-/** Объединяет SVG из папки и явного списка в один источник спрайта. */
+const GLOB_OPTIONS = {
+  absolute: true,
+  expandDirectories: false,
+  onlyFiles: true,
+} as const
+
+/** Разрешает пути, папки и glob-шаблоны в один набор исходных SVG. */
 export function resolveSpriteSources(options: ResolveSpriteSourcesOptions): SpriteFolder {
-  const { name, format, inputFolder, inputFiles } = options
-  const folderFiles = inputFolder === null ? [] : scanDirectory(inputFolder)
-  const files = [...new Set([...folderFiles, ...resolveFiles(inputFiles)])]
+  const { name, format, input } = options
+  const positives = input
+    .filter((entry) => !entry.startsWith('!'))
+    .map(resolvePositiveInput)
+  const exclusions = input
+    .filter((entry) => entry.startsWith('!'))
+    .map(resolveExclusion)
+
+  if (positives.length === 0) {
+    throw new Error('Sprite input must include at least one path or positive glob pattern.')
+  }
+
+  for (const { source, pattern } of positives) {
+    const matchedSvg = globSync(pattern, GLOB_OPTIONS).some((filePath) => filePath.endsWith('.svg'))
+    if (!matchedSvg) throw new Error(`Input matched no SVG files: ${source}`)
+  }
+
+  const files = [...new Set(
+    globSync([
+      ...positives.map(({ pattern }) => pattern),
+      ...exclusions,
+    ], GLOB_OPTIONS)
+      .filter((filePath) => filePath.endsWith('.svg'))
+      .map((filePath) => path.resolve(filePath)),
+  )].sort()
 
   if (files.length === 0) {
     throw new Error(`Sprite "${name}" has no SVG files in configured inputs.`)
@@ -57,50 +94,7 @@ export function resolveSpriteSources(options: ResolveSpriteSourcesOptions): Spri
   return {
     name,
     format,
-    path: inputFolder,
+    path: input.length === 1 ? positives[0].directory : null,
     files,
   }
-}
-
-/**
- * Преобразует SpriteEntry из конфига в SpriteFolder для компиляции.
- */
-export function resolveSpriteEntry(entry: SpriteEntry): SpriteFolder {
-  const format = entry.format ?? 'stack'
-
-  if (Array.isArray(entry.input)) {
-    const files = resolveFiles(entry.input)
-
-    if (files.length === 0) {
-      throw new Error(`Sprite "${entry.name}" has empty input array.`)
-    }
-
-    return {
-      name: entry.name,
-      format,
-      path: null,
-      files,
-    }
-  }
-
-  const dirPath = path.resolve(entry.input)
-  const files = scanDirectory(dirPath)
-
-  if (files.length === 0) {
-    throw new Error(`Sprite "${entry.name}" has no SVG files in "${dirPath}".`)
-  }
-
-  return {
-    name: entry.name,
-    format,
-    path: dirPath,
-    files,
-  }
-}
-
-/**
- * Преобразует массив SpriteEntry из конфига в массив SpriteFolder.
- */
-export function resolveSprites(entries: SpriteEntry[]): SpriteFolder[] {
-  return entries.map(resolveSpriteEntry)
 }

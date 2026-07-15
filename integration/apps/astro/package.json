@@ -1,0 +1,20 @@
+{
+  "name": "@svg-sprites-fixtures/astro",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "astro check",
+    "build": "npm run sprites && astro check && astro build",
+    "dev": "npm run sprites && astro dev"
+  },
+  "dependencies": {
+    "astro": "7.0.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "@gromlab/svg-sprites": "file:../../..",
+    "typescript": "6.0.2"
+  }
+}

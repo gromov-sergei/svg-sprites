@@ -1,0 +1,24 @@
+{
+  "name": "@svg-sprites-fixtures/next-pages-turbopack",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run sprites && next build --turbopack",
+    "dev": "npm run sprites && next dev --turbopack",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "16.2.10",
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "@types/node": "24.12.0",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "typescript": "6.0.2"
+  }
+}

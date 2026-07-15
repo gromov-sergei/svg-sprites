@@ -137,7 +137,13 @@ function expandCopies(config) {
       assertSafeRelativePath(entry.toDirectory)
       const sourceDirectory = path.resolve(skillDir, entry.fromDirectory)
       const extensions = entry.extensions ?? []
-      for (const relativePath of listDirectoryFiles(sourceDirectory, extensions)) {
+      const sourceFiles = listDirectoryFiles(sourceDirectory, extensions)
+      const excluded = new Set((entry.exclude ?? []).map((relativePath) => {
+        assertSafeRelativePath(relativePath)
+        return relativePath.replaceAll('\\', '/')
+      }))
+      for (const relativePath of sourceFiles) {
+        if (excluded.has(relativePath)) continue
         copies.push({
           from: path.join(sourceDirectory, relativePath),
           to: path.posix.join(entry.toDirectory, relativePath),

@@ -2,6 +2,8 @@ node_modules/
 dist/
 public/
 test/public/
+test/.next-fixture-*/
+test-results/
 .tmp/
 skills/artifacts/
 *.generated.ts

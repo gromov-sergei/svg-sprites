@@ -1,0 +1,27 @@
+{
+  "name": "@svg-sprites-fixtures/angular",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "ngc -p tsconfig.app.json --noEmit",
+    "build": "npm run sprites && ng build --configuration production",
+    "dev": "npm run sprites && ng serve"
+  },
+  "dependencies": {
+    "@angular/common": "21.2.18",
+    "@angular/compiler": "21.2.18",
+    "@angular/core": "21.2.18",
+    "@angular/platform-browser": "21.2.18",
+    "rxjs": "7.8.2",
+    "tslib": "2.8.1",
+    "zone.js": "0.16.2"
+  },
+  "devDependencies": {
+    "@angular/build": "21.2.18",
+    "@angular/cli": "21.2.18",
+    "@angular/compiler-cli": "21.2.18",
+    "@gromlab/svg-sprites": "file:../../..",
+    "typescript": "5.9.3"
+  }
+}

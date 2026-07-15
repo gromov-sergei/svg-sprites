@@ -1,0 +1,19 @@
+:root {
+  font-family: system-ui, sans-serif;
+  color: #172033;
+  background: #fff;
+}
+
+body {
+  margin: 0;
+  padding: 40px;
+}
+
+[data-testid='icon'] {
+  width: 64px;
+  height: 64px;
+}
+
+.viewer {
+  margin-top: 32px;
+}

@@ -11,6 +11,7 @@ const manifest = {
   name: 'controls',
   description: 'Control icons',
   componentName: 'ControlsIcon',
+  mode: 'react@vite',
   target: 'vite',
   format: 'stack',
   iconCount: 1,
@@ -25,7 +26,7 @@ const manifest = {
   ],
 }
 
-test('SpriteViewer opens an icon dialog with code tabs and copy action', async (context) => {
+test('SpriteViewer bridges React to the interactive Viewer Web Component', async (context) => {
   const dom = new JSDOM('<div id="root"></div>', { url: 'https://example.test/' })
   const originals = new Map()
   const mediaListeners = new Set()
@@ -45,10 +46,20 @@ test('SpriteViewer opens an icon dialog with code tabs and copy action', async (
     self: dom.window,
     navigator: dom.window.navigator,
     Node: dom.window.Node,
+    Element: dom.window.Element,
+    Document: dom.window.Document,
+    DocumentFragment: dom.window.DocumentFragment,
     Event: dom.window.Event,
+    CustomEvent: dom.window.CustomEvent,
     HTMLElement: dom.window.HTMLElement,
     HTMLDialogElement: dom.window.HTMLDialogElement,
+    HTMLInputElement: dom.window.HTMLInputElement,
+    KeyboardEvent: dom.window.KeyboardEvent,
     MouseEvent: dom.window.MouseEvent,
+    ShadowRoot: dom.window.ShadowRoot,
+    CSSStyleSheet: dom.window.CSSStyleSheet,
+    MutationObserver: dom.window.MutationObserver,
+    customElements: dom.window.customElements,
     matchMedia,
     getComputedStyle: dom.window.getComputedStyle.bind(dom.window),
     IS_REACT_ACT_ENVIRONMENT: true,
@@ -64,8 +75,8 @@ test('SpriteViewer opens an icon dialog with code tabs and copy action', async (
     configurable: true,
     value: { writeText: async (value) => { clipboardWrites.push(value) } },
   })
-  dom.window.HTMLDialogElement.prototype.showModal = function showModal() { this.open = true }
-  dom.window.HTMLDialogElement.prototype.close = function close() { this.open = false }
+  dom.window.HTMLDialogElement.prototype.showModal = function showModal() { this.setAttribute('open', '') }
+  dom.window.HTMLDialogElement.prototype.close = function close() { this.removeAttribute('open') }
 
   const reactModule = await import('react')
   const { act: domAct } = await import('react-dom/test-utils')
@@ -73,6 +84,25 @@ test('SpriteViewer opens an icon dialog with code tabs and copy action', async (
   const { createRoot } = await import('react-dom/client')
   const container = dom.window.document.querySelector('#root')
   const root = createRoot(container)
+
+  async function viewerRoot() {
+    await act(async () => {
+      await dom.window.customElements.whenDefined('gromlab-sprite-viewer')
+      await Promise.resolve()
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    const host = container.querySelector('gromlab-sprite-viewer')
+    assert.ok(host)
+    await host.updateComplete
+    return { host, shadow: host.shadowRoot }
+  }
+
+  async function settle(host) {
+    await act(async () => {
+      await host.updateComplete
+      await Promise.resolve()
+    })
+  }
 
   context.after(async () => {
     await act(async () => root.unmount())
@@ -83,98 +113,79 @@ test('SpriteViewer opens an icon dialog with code tabs and copy action', async (
     }
   })
 
-  await act(async () => root.render(createElement(SpriteViewer, { sources: [manifest] })))
-  assert.equal(container.querySelector('[data-sprite-viewer]').dataset.theme, undefined)
+  await act(async () => root.render(createElement(SpriteViewer, { sources: [manifest], title: 'Icon catalog' })))
+  let { host, shadow } = await viewerRoot()
+  assert.equal(host.viewerTitle, 'Icon catalog')
+  assert.equal(shadow.querySelector('[data-sprite-viewer]').dataset.theme, undefined)
+  assert.match(shadow.textContent, /Icon catalog/)
+  assert.match(shadow.textContent, /1 спрайт\s*· 1 иконка/)
 
-  const card = container.querySelector('[data-icon-name="check"]')
+  const card = shadow.querySelector('[data-icon-name="check"]')
   assert.ok(card)
-  await act(async () => card.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
+  card.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true, composed: true }))
+  await settle(host)
 
-  const dialog = container.querySelector('dialog')
+  let dialog = shadow.querySelector('dialog')
   assert.ok(dialog)
   assert.equal(dialog.open, true)
-  assert.match(dialog.textContent, /check/)
   assert.match(dialog.textContent, /16 × 16/)
   assert.match(dialog.textContent, /ControlsIcon/)
 
   const reactTab = [...dialog.querySelectorAll('[role="tab"]')]
     .find((element) => element.textContent === 'React')
-  await act(async () => reactTab.dispatchEvent(new dom.window.KeyboardEvent('keydown', {
-    bubbles: true,
-    key: 'ArrowRight',
-  })))
+  reactTab.dispatchEvent(new dom.window.KeyboardEvent('keydown', { bubbles: true, key: 'ArrowRight' }))
+  await settle(host)
   assert.equal(dialog.querySelector('[role="tab"][aria-selected="true"]').textContent, 'SVG')
 
   const colorSwatch = dialog.querySelector('[aria-label^="Изменить цвет --icon-color-1"]')
   assert.ok(colorSwatch)
-  assert.equal(dialog.querySelector('.gromlab-sprite-viewer__hex-input'), null)
-  await act(async () => {
-    prefersDark = true
-    for (const listener of mediaListeners) listener({ matches: true, media: darkModeMedia.media })
-  })
+  prefersDark = true
+  for (const listener of mediaListeners) listener({ matches: true, media: darkModeMedia.media })
+  await settle(host)
   assert.equal(colorSwatch.style.backgroundColor, 'rgb(229, 229, 229)')
 
-  await act(async () => colorSwatch.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
-  assert.ok(dialog.querySelector('.react-colorful'))
-  const colorRow = colorSwatch.closest('.gromlab-sprite-viewer__color-row')
-  await act(async () => colorRow.dispatchEvent(new dom.window.Event('pointerdown', { bubbles: true })))
-  assert.equal(dialog.querySelector('.react-colorful'), null)
-  await act(async () => colorRow.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
-  assert.equal(dialog.querySelector('.react-colorful'), null)
-
-  await act(async () => colorSwatch.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
-  const colorPopover = dialog.querySelector('.gromlab-sprite-viewer__color-popover')
-  await act(async () => colorPopover.querySelector('.react-colorful').dispatchEvent(
-    new dom.window.Event('pointerdown', { bubbles: true }),
-  ))
-  assert.ok(dialog.querySelector('.react-colorful'))
-  await act(async () => colorPopover.dispatchEvent(new dom.window.KeyboardEvent('keydown', {
-    bubbles: true,
-    key: 'Escape',
-  })))
-  assert.equal(dialog.querySelector('.react-colorful'), null)
-  assert.ok(container.querySelector('dialog'))
-
-  await act(async () => colorSwatch.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
-  const colorInput = dialog.querySelector('.gromlab-sprite-viewer__hex-input')
-  assert.ok(colorInput)
-  const setInputValue = Object.getOwnPropertyDescriptor(dom.window.HTMLInputElement.prototype, 'value').set
-  setInputValue.call(colorInput, '#ff0000')
-  await act(async () => colorInput.dispatchEvent(new dom.window.Event('input', { bubbles: true })))
+  colorSwatch.click()
+  await settle(host)
+  await dom.window.customElements.whenDefined('gromlab-hex-input')
+  const colorInputElement = dialog.querySelector('gromlab-hex-input')
+  assert.ok(colorInputElement)
+  const colorInput = colorInputElement.shadowRoot.querySelector('input')
+  colorInput.value = '#ff0000'
+  colorInput.dispatchEvent(new dom.window.Event('input', { bubbles: true, composed: true }))
+  await settle(host)
   assert.match(dialog.querySelector('[role="tabpanel"]').textContent, /--icon-color-1/)
-  assert.doesNotMatch(dialog.querySelector('[role="tabpanel"]').textContent, /React\.CSSProperties/)
-  await act(async () => {
-    prefersDark = false
-    for (const listener of mediaListeners) listener({ matches: false, media: darkModeMedia.media })
-  })
   assert.equal(colorSwatch.style.backgroundColor, 'rgb(255, 0, 0)')
 
   const cssTab = [...dialog.querySelectorAll('[role="tab"]')]
     .find((element) => element.textContent === 'CSS')
-  assert.ok(cssTab)
-  await act(async () => cssTab.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
+  cssTab.click()
+  await settle(host)
   assert.match(dialog.querySelector('[role="tabpanel"]').textContent, /mask:/)
 
   const copyButton = [...dialog.querySelectorAll('button')]
     .find((element) => element.textContent === 'Копировать')
-  assert.ok(copyButton)
-  await act(async () => copyButton.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
+  copyButton.click()
+  await settle(host)
   assert.equal(clipboardWrites.length, 1)
   assert.match(clipboardWrites[0], /background-color/)
 
-  await act(async () => dialog.dispatchEvent(new dom.window.Event('cancel', { cancelable: true })))
-  assert.equal(container.querySelector('dialog'), null)
+  dialog.dispatchEvent(new dom.window.Event('cancel', { cancelable: true }))
+  await settle(host)
+  assert.equal(shadow.querySelector('dialog'), null)
 
-  const themeButton = container.querySelector('[aria-label="Переключить тему"]')
-  await act(async () => themeButton.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
-  assert.equal(container.querySelector('[data-sprite-viewer]').dataset.theme, 'dark')
+  const themeButton = shadow.querySelector('[aria-label="Переключить тему"]')
+  themeButton.click()
+  await settle(host)
+  assert.equal(shadow.querySelector('[data-sprite-viewer]').dataset.theme, 'light')
 
   await act(async () => root.render(createElement(SpriteViewer, {
     sources: [manifest],
     colorTheme: 'light',
   })))
-  assert.equal(container.querySelector('[data-sprite-viewer]').dataset.theme, 'light')
-  assert.equal(container.querySelector('[aria-label="Переключить тему"]'), null)
+  ;({ host, shadow } = await viewerRoot())
+  await settle(host)
+  assert.equal(shadow.querySelector('[data-sprite-viewer]').dataset.theme, 'light')
+  assert.equal(shadow.querySelector('[aria-label="Переключить тему"]'), null)
 
   const controlledChanges = []
   await act(async () => root.render(createElement(SpriteViewer, {
@@ -182,18 +193,22 @@ test('SpriteViewer opens an icon dialog with code tabs and copy action', async (
     colorTheme: 'light',
     onColorThemeChange: (theme) => controlledChanges.push(theme),
   })))
-  const controlledThemeButton = container.querySelector('[aria-label="Переключить тему"]')
-  await act(async () => controlledThemeButton.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
+  ;({ host, shadow } = await viewerRoot())
+  await settle(host)
+  shadow.querySelector('[aria-label="Переключить тему"]').click()
+  await settle(host)
   assert.deepEqual(controlledChanges, ['dark'])
-  assert.equal(container.querySelector('[data-sprite-viewer]').dataset.theme, 'light')
+  assert.equal(shadow.querySelector('[data-sprite-viewer]').dataset.theme, 'light')
 
   await act(async () => root.render(createElement(SpriteViewer, {
     sources: [{ ...manifest, format: 'symbol' }],
   })))
-  const symbolCard = container.querySelector('[data-icon-name="check"]')
-  await act(async () => symbolCard.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })))
+  ;({ host, shadow } = await viewerRoot())
+  await settle(host)
+  shadow.querySelector('[data-icon-name="check"]').click()
+  await settle(host)
   assert.deepEqual(
-    [...container.querySelectorAll('[role="tab"]')].map((element) => element.textContent),
+    [...shadow.querySelectorAll('[role="tab"]')].map((element) => element.textContent),
     ['React', 'SVG'],
   )
 
@@ -207,6 +222,12 @@ test('SpriteViewer opens an icon dialog with code tabs and copy action', async (
     null,
     createElement(SpriteViewer, { sources: [loader] }),
   )))
+  ;({ host, shadow } = await viewerRoot())
+  await act(async () => {
+    await Promise.resolve()
+    await Promise.resolve()
+    await host.updateComplete
+  })
   assert.equal(loaderCalls, 1)
-  assert.match(container.textContent, /controls/)
+  assert.match(shadow.textContent, /controls/)
 })

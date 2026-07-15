@@ -1,0 +1,25 @@
+{
+  "name": "@svg-sprites-fixtures/sveltekit",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "build": "npm run sprites && svelte-kit sync && svelte-check --tsconfig ./tsconfig.json && vite build",
+    "dev": "npm run sprites && vite dev",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "svelte": "5.56.4"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "@sveltejs/adapter-node": "5.5.7",
+    "@sveltejs/kit": "2.69.2",
+    "@sveltejs/vite-plugin-svelte": "7.2.0",
+    "svelte-check": "4.7.2",
+    "typescript": "6.0.2",
+    "vite": "8.1.4"
+  }
+}

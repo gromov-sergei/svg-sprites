@@ -1,0 +1,22 @@
+{
+  "name": "@svg-sprites-fixtures/vue-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "vue-tsc --noEmit",
+    "build": "npm run sprites && vue-tsc --noEmit && vite build",
+    "dev": "npm run sprites && vite"
+  },
+  "dependencies": {
+    "vue": "3.5.39"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "@vitejs/plugin-vue": "6.0.7",
+    "typescript": "6.0.2",
+    "vite": "8.1.4",
+    "vue-tsc": "3.3.7"
+  }
+}

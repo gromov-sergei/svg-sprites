@@ -1,0 +1,24 @@
+{
+  "name": "@svg-sprites-fixtures/react-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run sprites && tsc --noEmit && vite build",
+    "dev": "npm run sprites && vite"
+  },
+  "dependencies": {
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.1",
+    "typescript": "6.0.2",
+    "vite": "8.1.4"
+  }
+}

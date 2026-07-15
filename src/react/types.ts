@@ -1,40 +1,24 @@
-import type { SpriteAssetTarget } from '../targets/types.js'
+import type { NextAssetTarget, ReactAssetTarget, ReactSpriteMode } from '../targets/types.js'
+import type {
+  SpriteViewerManifest,
+  SpriteViewerManifestColor,
+  SpriteViewerManifestIcon,
+  SpriteViewerManifestLoader,
+  SpriteViewerManifestModule,
+  SpriteViewerSource,
+  SpriteViewerSources,
+} from '../viewer/types.js'
 
-export type SpriteManifestColor = {
-  variable: `--icon-color-${number}`
-  fallback: string
-}
+export type SpriteManifestColor = SpriteViewerManifestColor
+export type SpriteManifestIcon = SpriteViewerManifestIcon
 
-export type SpriteManifestIcon = {
-  name: string
-  id: string
-  viewBox: string | null
-  colors: readonly SpriteManifestColor[]
-}
-
-/** Публичные данные одного сгенерированного React-спрайта. */
-export type SpriteManifest = {
-  schemaVersion: 1
-  generator: '@gromlab/svg-sprites'
-  name: string
-  description?: string
+/** Публичные данные одного сгенерированного React- или Next.js-спрайта. */
+export type SpriteManifest = SpriteViewerManifest & {
   componentName: string
-  target: SpriteAssetTarget
-  format: 'stack' | 'symbol'
-  iconCount: number
-  spriteUrl: string
-  icons: readonly SpriteManifestIcon[]
+  mode?: ReactSpriteMode | NextAssetTarget
+  target: ReactAssetTarget | NextAssetTarget
 }
 
-export type SpriteManifestModule = {
-  default?: SpriteManifest
-  spriteManifest?: SpriteManifest
-}
-
-export type SpriteManifestLoader = () => Promise<SpriteManifest | SpriteManifestModule>
-export type SpriteViewerSource = SpriteManifest | SpriteManifestLoader
-
-/** Массив источников либо результат import.meta.glob. */
-export type SpriteViewerSources =
-  | readonly SpriteViewerSource[]
-  | Readonly<Record<string, SpriteViewerSource>>
+export type SpriteManifestModule = SpriteViewerManifestModule
+export type SpriteManifestLoader = SpriteViewerManifestLoader
+export type { SpriteViewerSource, SpriteViewerSources }

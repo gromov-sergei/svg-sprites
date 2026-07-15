@@ -1,0 +1,21 @@
+{
+  "name": "@svg-sprites-fixtures/solid-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run sprites && tsc --noEmit && vite build",
+    "dev": "npm run sprites && vite"
+  },
+  "dependencies": {
+    "solid-js": "1.9.14"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "typescript": "6.0.2",
+    "vite": "8.1.4",
+    "vite-plugin-solid": "2.11.12"
+  }
+}

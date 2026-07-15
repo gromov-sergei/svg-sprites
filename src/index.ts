@@ -1,33 +1,57 @@
-import type { SvgSpritesConfig } from './types.js'
-import type { NextSpriteConfig } from './modes/next/types.js'
-import type { ReactSpriteConfig } from './modes/react/types.js'
+import type { NextSpriteConfig } from './api/next.js'
+import type { ReactSpriteConfig } from './api/react.js'
+import type { SpriteConfig } from './types.js'
 
-export { generateLegacy } from './modes/legacy/generate.js'
-export { resolveSprites, resolveSpriteEntry } from './scanner.js'
+export {
+  isSpriteMode,
+  loadSpriteConfig,
+  resolveSpriteConfig,
+  resolveSpriteConfigSource,
+  validateSpriteConfig,
+} from './config.js'
+export { generateSprite } from './generate.js'
+export type { SpriteGenerationResult } from './generate.js'
+export { generateNextSprite } from './api/next.js'
+export { generateReactSprite } from './api/react.js'
 export { compileSprite, compileSpriteContent } from './compiler.js'
 export type { CompileSpriteOptions } from './compiler.js'
 export { createShapeTransform } from './transforms.js'
-export { generatePreview } from './preview.js'
-export { loadLegacyConfig } from './modes/legacy/config.js'
-export { generateNextSprite } from './modes/next/index.js'
-export {
-  generateReactSprite,
-  loadReactSpriteConfig,
-} from './modes/react/index.js'
+
 export type {
   NextAssetTarget,
   NextBundler,
   NextRouter,
+  AlpineSpriteMode,
+  AngularAssetTarget,
+  AngularSpriteMode,
+  AstroSpriteMode,
+  LitSpriteMode,
+  NuxtSpriteMode,
+  PreactSpriteMode,
+  QwikSpriteMode,
   ReactAssetTarget,
+  ReactSpriteMode,
+  SolidSpriteMode,
+  StandaloneAssetTarget,
+  StandaloneSpriteMode,
+  StaticAssetTarget,
+  SvelteSpriteMode,
   SpriteAssetTarget,
+  SpriteMode,
   ViteAssetTarget,
+  VueSpriteMode,
   WebpackAssetTarget,
 } from './targets/types.js'
-
 export type {
-  SvgSpritesConfig,
-  SpriteEntry,
-  SpriteResult,
+  StandaloneSpriteManifest,
+  StandaloneSpriteManifestColor,
+  StandaloneSpriteManifestData,
+  StandaloneSpriteManifestIcon,
+  StandaloneTargetForMode,
+} from './manifest-types.js'
+export type {
+  ResolvedSpriteConfig,
+  SpriteConfig,
   SpriteFolder,
   SpriteFormat,
   TransformOptions,
@@ -36,24 +60,24 @@ export type {
   NextSpriteConfig,
   NextSpriteGenerationOptions,
   NextSpriteGenerationResult,
-} from './modes/next/types.js'
+} from './api/next.js'
 export type {
   ReactSpriteConfig,
   ReactSpriteGenerationResult,
   ResolvedReactSpriteConfig,
-} from './modes/react/types.js'
+} from './api/react.js'
 
-/** Хелпер для типизации legacy-конфига. */
-export function defineLegacyConfig(config: SvgSpritesConfig): SvgSpritesConfig {
+/** Хелпер для типизации единого sprite-конфига. */
+export function defineSpriteConfig(config: SpriteConfig): SpriteConfig {
   return config
 }
 
-/** Хелпер для типизации локального React-конфига. */
+/** @deprecated Используйте defineSpriteConfig. */
 export function defineReactSpriteConfig(config: ReactSpriteConfig): ReactSpriteConfig {
   return config
 }
 
-/** Хелпер для типизации локального Next.js-конфига. */
+/** @deprecated Используйте defineSpriteConfig. */
 export function defineNextSpriteConfig(config: NextSpriteConfig): NextSpriteConfig {
   return config
 }
