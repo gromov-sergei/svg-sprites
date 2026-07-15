@@ -1,151 +1,108 @@
-# Next.js App Router с Webpack
+# SVG-спрайт для Next.js App Router с Webpack
 
-Это автономный quick start для exact mode key `next@app/webpack`: generated `IconsIcon` совместим с Server Components и Webpack pipeline Next.js.
+Инструкция по быстрому созданию SVG-спрайта в приложении Next.js с App Router и Webpack.
 
-## 1. Генерация спрайта
+## Генерация спрайта
 
-Главное преимущество: генератор не нужно устанавливать и добавлять в `package.json`. `npx` временно скачивает CLI, а generated production runtime не импортирует `@gromlab/svg-sprites`.
+Выберите папку для спрайта. В примере используется `assets/app-icons`, а исходные SVG находятся в `assets/svg-icons`.
 
-```text
-src/sprite/
-├── icons/
-│   ├── check.svg
-│   └── warning.svg
-├── index.ts
-└── svg-sprite.config.ts
-```
+Создайте конфиг `assets/app-icons/svg-sprite.config.json`:
 
-Минимальный plain config:
-
-```ts
-export default {
-  mode: 'next@app/webpack',
-  name: 'icons',
+```json
+{
+  "mode": "next@app/webpack",
+  "name": "app",
+  "input": "../svg-icons/**/*.svg"
 }
 ```
 
-Если `input` не указан, SVG читаются из `./icons` относительно конфига. Также поддерживаются `.js` с `default export` и `.json`.
+Путь в `input` считается от папки с конфигом.
 
-```bash
-npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/sprite/svg-sprite.config.ts
-```
-
-В CI замените `latest` точной версией, например `@gromlab/svg-sprites@1.1.5`. Exact Next commands для этого mode:
+Добавьте команды генерации в `package.json`. Сгенерированные файлы по умолчанию исключены из Git, поэтому `predev` и `prebuild` пересобирают спрайт перед каждым запуском и сборкой:
 
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/sprite/svg-sprite.config.ts",
-    "dev": "npm run sprites && next dev --webpack",
-    "build": "npm run sprites && next build --webpack",
-    "start": "next start",
-    "typecheck": "npm run sprites && tsc --noEmit"
+    "sprites": "npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json",
+    "predev": "npm run sprites",
+    "dev": "next dev --webpack",
+    "prebuild": "npm run sprites",
+    "build": "next build --webpack"
   }
 }
 ```
 
-Не сочетайте явный `npm run sprites` с `predev` или `prebuild`. `.svg-sprite` generated и не коммитится. Generated локальный `.gitignore`, который исключает этот каталог, нужно добавить в Git один раз. Generated declarations self-contained и не зависят от `@gromlab/svg-sprites`.
+## Использование спрайта
+
+Значение `name: "app"` создаёт React-компонент `AppIcon`.
+
+Создайте точку входа `assets/app-icons/index.ts`:
 
 ```ts
-// src/sprite/index.ts
 export * from './.svg-sprite/index.js'
 ```
 
-Production usage в Server Component:
+Используйте компонент в Server Component:
 
 ```tsx
 // app/page.tsx
-import { IconsIcon, iconsIconNames } from '../src/sprite'
+import { AppIcon } from '../assets/app-icons'
 
 export default function Page() {
   return (
-    <main>
-      <IconsIcon
-        icon="check"
-        width={24}
-        height={24}
-        aria-label="Готово"
-        style={{ '--icon-color-1': '#16a34a' }}
-      />
-      <span>{iconsIconNames.length} иконок</span>
-    </main>
+    <AppIcon
+      icon="check"
+      width={24}
+      height={24}
+      role="img"
+      aria-label="Готово"
+      style={{
+        color: '#334155',
+        '--icon-color-2': '#f59e0b',
+      }}
+    />
   )
 }
 ```
 
-Generated component не содержит `'use client'`. Next Webpack обрабатывает `new URL('../sprite.svg', import.meta.url).href` и публикует отдельный SVG asset; не переписывайте этот URL и не переносите sprite в `public` вручную.
+Для `AppIcon` не нужен `'use client'`. Next.js сам добавляет `sprite.svg` в итоговую сборку, поэтому переносить его в `public` не нужно.
 
-## 2. Дебаг и превью
+## Дебаг и превью
 
-Viewer необязателен. Для debug/preview установите package:
+Viewer показывает все иконки на одной странице, позволяет проверить их отображение, изменить цвета и посмотреть связанные CSS-переменные. Он нужен только для разработки и устанавливается отдельно:
 
 ```bash
 npm install --save-dev @gromlab/svg-sprites
 ```
 
-App Router требует отдельную Client Component boundary для Viewer:
+Создайте Client Component `app/svg-sprite/SvgSpriteViewer.tsx`:
 
 ```tsx
-// app/icons-debug/sprite-viewer.tsx
 'use client'
 
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 
 const sources = [
-  () => import('../../src/sprite/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('../../assets/app-icons/.svg-sprite/svg-sprite.manifest.js'),
 ] as const
 
-export function AppSpriteViewer() {
+export function SvgSpriteViewer() {
   return <SpriteViewer sources={sources} title="Иконки проекта" />
 }
 ```
 
+Создайте маршрут `app/svg-sprite/page.tsx`:
+
 ```tsx
-// app/icons-debug/page.tsx
-import { AppSpriteViewer } from './sprite-viewer'
+import { notFound } from 'next/navigation'
 
-export default function IconsDebugPage() {
-  return <AppSpriteViewer />
+import { SvgSpriteViewer } from './SvgSpriteViewer'
+
+export default function SvgSpritePage() {
+  if (process.env.NODE_ENV !== 'development') notFound()
+
+  return <SvgSpriteViewer />
 }
 ```
 
-Статический loader позволяет Webpack связать manifest и emitted SVG. Viewer не входит в production runtime `IconsIcon`.
-
-## 3. Типизация конфига
-
-При локально установленном package используйте helper:
-
-```ts
-import { defineSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineSpriteConfig({
-  mode: 'next@app/webpack',
-  name: 'icons',
-})
-```
-
-Другой package-вариант: type-only import `SpriteConfig` и `satisfies SpriteConfig`.
-
-Без package вставьте локальный type прямо в config:
-
-```ts
-type LocalSpriteConfig = {
-  mode: 'next@app/webpack'
-  name?: string
-  description?: string
-  input?: string | string[]
-  transform?: {
-    removeSize?: boolean
-    replaceColors?: boolean
-    addTransition?: boolean
-  }
-  generatedNotice?: boolean
-}
-
-export default {
-  mode: 'next@app/webpack',
-  name: 'icons',
-} satisfies LocalSpriteConfig
-```
-
-Локальный exact literal исключает случайную генерацию Turbopack или Pages Router output.
+Запустите `npm run dev` и откройте `/svg-sprite`. В production маршрут вернёт 404.

@@ -1,31 +1,25 @@
 # AI skills
 
-Исходники обязательного контекста английского и русского skills находятся в `skills/svg-sprites/src/{en,ru}/`. Канонические exact-mode guides находятся в `docs/{en,ru}/guides/` и копируются в соответствующий skill без изменения. Готовые переносимые артефакты генерируются в `skills/artifacts/`, игнорируются Git и упаковываются в ZIP во время release workflow.
+Исходники обязательного контекста английского и русского skills находятся в `skills/svg-sprites/src/{en,ru}/`. Готовые переносимые артефакты генерируются в `skills/artifacts/`, игнорируются Git и упаковываются в ZIP во время release workflow.
 
-Обе языковые версии имеют одинаковую структуру:
+Русский skill хранит весь обязательный контекст в одном файле:
 
 ```text
-src/<language>/
+src/ru/
 ├── SKILL.md
-├── core/
-│   ├── 00-package-overview.md
-│   ├── 10-mode-selection.md
-│   ├── 20-project-inspection.md
-│   ├── 30-react-next-setup.md
-│   ├── 40-generated-contract.md
-│   ├── 50-usage-and-colors.md
-│   ├── 60-verification.md
-│   └── 70-diagnostics.md
 └── references/
-    ├── programmatic-api.md
     └── complex-svg.md
 ```
 
-`core/` содержит обязательные знания, раскрываемые прямо в итоговый `SKILL.md`. Локальный `references/` содержит только agent-specific материалы. Девять файлов из `docs/<language>/guides/` копируются в `references/guides/`; английский artifact получает только английские guides, русский только русские. Второй набор mode guides и каталог `references/upstream/` не создаются.
+`src/ru/SKILL.md` содержит знания о пакете и рабочий процесс агента. Exact-mode настройка берётся из canonical guides, а не дублируется отдельными source-фрагментами.
+
+Русский artifact дополнительно получает без изменений `README_RU.md` и содержательную пользовательскую документацию из `docs/ru/`. Локальный редакторский `guides/AGENTS.md`, а также навигационные `guides/README.md` и `reference/README.md` не копируются. Файлы находятся в `references/README_RU.md` и `references/docs/ru/`. Agent-specific `complex-svg.md` остаётся отдельным reference.
+
+Английский source пока сохраняет составную структуру с `core/`, а artifact — английские exact-mode guides и локальные `programmatic-api.md`/`complex-svg.md`. Его перевод на единый `SKILL.md` и полную canonical-документацию выполняется отдельно.
 
 ## Композиция Markdown
 
-В любой собираемый документ можно включать фрагменты:
+Сборщик сохраняет поддержку Markdown includes для английского skill и будущих документов:
 
 ```md
 <!-- include: ./core/10-mode-selection.md -->

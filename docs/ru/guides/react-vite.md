@@ -1,141 +1,115 @@
-# React-компонент для Vite
+# SVG-спрайт для React на Vite
 
-Это автономный quick start для exact mode key `react@vite`: генератор создаёт типизированный `IconsIcon`, а Vite публикует отдельный SVG asset.
+Инструкция по быстрому созданию SVG-спрайта в React-приложении на Vite.
 
-## 1. Генерация спрайта
+## Генерация спрайта
 
-Главное преимущество: генератор не нужно устанавливать и добавлять в `package.json`. `npx` временно скачивает CLI, а generated production runtime не импортирует `@gromlab/svg-sprites`.
+Выберите папку для спрайта. В примере используется `assets/app-icons`, а исходные SVG находятся в `assets/svg-icons`.
 
-```text
-src/sprite/
-├── icons/
-│   ├── check.svg
-│   └── warning.svg
-├── index.ts
-└── svg-sprite.config.ts
-```
+Создайте конфиг `assets/app-icons/svg-sprite.config.json`:
 
-Минимальный plain config:
-
-```ts
-export default {
-  mode: 'react@vite',
-  name: 'icons',
+```json
+{
+  "mode": "react@vite",
+  "name": "app",
+  "input": "../svg-icons/**/*.svg"
 }
 ```
 
-Если `input` не указан, SVG читаются из `./icons` относительно конфига. Вместо `.ts` можно использовать `.js` с `default export` или `.json`.
+Путь в `input` считается от папки с конфигом.
 
-```bash
-npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/sprite/svg-sprite.config.ts
-```
-
-В CI замените `latest` на точную версию, например `@gromlab/svg-sprites@1.1.5`. Exact Vite commands:
+Добавьте команды генерации в `package.json`. Сгенерированные файлы по умолчанию исключены из Git, поэтому `predev` и `prebuild` пересобирают спрайт перед каждым запуском и сборкой:
 
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/sprite/svg-sprite.config.ts",
-    "dev": "npm run sprites && vite",
-    "build": "npm run sprites && tsc --noEmit && vite build",
-    "typecheck": "npm run sprites && tsc --noEmit"
+    "sprites": "npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json",
+    "predev": "npm run sprites",
+    "dev": "vite",
+    "prebuild": "npm run sprites",
+    "build": "tsc --noEmit && vite build"
   }
 }
 ```
 
-Не добавляйте `predev`, `prebuild` или `pretypecheck`, если соответствующие scripts уже явно запускают `npm run sprites`. Generated `.svg-sprite` не коммитится. Generated локальный `.gitignore`, который исключает этот каталог, нужно добавить в Git один раз. Generated declarations self-contained: они описывают компонент и manifest без импорта `@gromlab/svg-sprites`.
+## Использование спрайта
 
-Пользовательский barrel возвращает generated API:
+Значение `name: "app"` создаёт React-компонент `AppIcon`.
+
+Создайте точку входа `assets/app-icons/index.ts`:
 
 ```ts
-// src/sprite/index.ts
 export * from './.svg-sprite/index.js'
 ```
 
-Production usage:
+Используйте компонент в приложении:
 
 ```tsx
-import { IconsIcon, iconsIconNames } from './sprite'
+import { AppIcon } from '../assets/app-icons'
 
-export function SaveButton() {
+export function SaveIcon() {
   return (
-    <button type="button">
-      <IconsIcon
-        icon="check"
-        width={24}
-        height={24}
-        aria-hidden="true"
-        style={{ '--icon-color-1': '#16a34a' }}
-      />
-      Сохранить
-    </button>
+    <AppIcon
+      icon="check"
+      width={24}
+      height={24}
+      role="img"
+      aria-label="Готово"
+      style={{
+        color: '#334155',
+        '--icon-color-2': '#f59e0b',
+      }}
+    />
   )
 }
-
-console.log(iconsIconNames)
 ```
 
-Prop `icon` является union имён исходных файлов. Vite автоматически обрабатывает generated CSS Module и импорт `sprite.svg?no-inline`; query запрещает inline и заставляет Vite выпустить отдельный hashed SVG asset. Если TypeScript не знает Vite asset imports, добавьте `/// <reference types="vite/client" />` в `src/vite-env.d.ts`.
+Свойство `icon` принимает имена исходных SVG без расширения. Монохромная иконка наследует `color`, а цвета многоцветной переопределяются через `--icon-color-N`.
 
-## 2. Дебаг и превью
+Vite сам подключает стили компонента и добавляет `sprite.svg` в итоговую сборку.
 
-Viewer необязателен и нужен только для debug/preview. Установите package отдельно:
+## Дебаг и превью
+
+Viewer показывает все иконки на одной странице, позволяет проверить их отображение, изменить цвета и посмотреть связанные CSS-переменные. Он нужен только для разработки и устанавливается отдельно:
 
 ```bash
 npm install --save-dev @gromlab/svg-sprites
 ```
 
-Используйте React bridge со статическим массивом loaders:
+Создайте `svg-sprite.html` в корне проекта:
+
+```html
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <title>Иконки проекта</title>
+  </head>
+  <body>
+    <!-- React-корень Viewer для дебага и превью SVG-спрайта -->
+    <div id="svg-sprite-viewer"></div>
+
+    <!-- Подключение создаваемого ниже скрипта дебаггера -->
+    <script type="module" src="/src/svg-sprite-debug.tsx"></script>
+  </body>
+</html>
+```
+
+Создайте `src/svg-sprite-debug.tsx`:
 
 ```tsx
+import { createRoot } from 'react-dom/client'
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 
 const sources = [
-  () => import('./sprite/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('../assets/app-icons/.svg-sprite/svg-sprite.manifest.js'),
 ] as const
 
-export function IconsDebugPage() {
-  return <SpriteViewer sources={sources} title="Иконки проекта" />
-}
+createRoot(document.getElementById('svg-sprite-viewer')!).render(
+  <SpriteViewer sources={sources} title="Иконки проекта" />,
+)
 ```
 
-Строковый путь в `import()` должен указывать на generated JS manifest. Держите страницу за debug-маршрутом; `SpriteViewer` не входит в production runtime `IconsIcon`.
+Запустите `npm run dev` и откройте `/svg-sprite.html`.
 
-## 3. Типизация конфига
-
-Если package установлен локально, используйте helper:
-
-```ts
-import { defineSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineSpriteConfig({
-  mode: 'react@vite',
-  name: 'icons',
-})
-```
-
-Также можно импортировать `SpriteConfig` только как type и написать объект `satisfies SpriteConfig`.
-
-Без package добавьте локальный type прямо в config:
-
-```ts
-type LocalSpriteConfig = {
-  mode: 'react@vite'
-  name?: string
-  description?: string
-  input?: string | string[]
-  transform?: {
-    removeSize?: boolean
-    replaceColors?: boolean
-    addTransition?: boolean
-  }
-  generatedNotice?: boolean
-}
-
-export default {
-  mode: 'react@vite',
-  name: 'icons',
-} satisfies LocalSpriteConfig
-```
-
-Локальный type проверяет только этот exact mode и не создаёт runtime-зависимость.
+Стандартная production-сборка Vite использует только `index.html` и не включает страницу Viewer.

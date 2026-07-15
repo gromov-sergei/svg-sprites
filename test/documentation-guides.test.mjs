@@ -19,7 +19,12 @@ const guideModes = new Map([
 
 const sectionHeadings = {
   en: ['Generate the sprite', 'Debug and preview', 'Type the config'],
-  ru: ['Генерация спрайта', 'Дебаг и превью', 'Типизация конфига'],
+  ru: ['Генерация спрайта', 'Дебаг и превью'],
+}
+
+const commandPatterns = {
+  en: /npx --yes (?:--package=@gromlab\/svg-sprites@latest svg-sprites|@gromlab\/svg-sprites@latest)/,
+  ru: /npx --yes @gromlab\/svg-sprites(?:\s|$)/,
 }
 
 function markdownFiles(directory) {
@@ -46,15 +51,26 @@ test('exact-mode guides are reusable by docs and skills', () => {
         heading.replace(/^## (?:\d+\. )?/, '')
       ))
       assert.deepEqual(headings, sectionHeadings[language])
-      assert.match(source, /npx --yes (?:--package=@gromlab\/svg-sprites@latest svg-sprites|@gromlab\/svg-sprites@latest)/)
-      assert.match(source, /npm install --save-dev @gromlab\/svg-sprites/)
-      assert.match(source, new RegExp(`mode: '${mode.replaceAll('/', '\\/')}'`))
+      assert.match(source, commandPatterns[language])
+      if (language !== 'ru' || mode !== 'standalone') {
+        assert.match(source, /npm install --save-dev @gromlab\/svg-sprites/)
+      }
+      if (language === 'ru') {
+        assert.doesNotMatch(source, /npx --yes[^\n]*@gromlab\/svg-sprites@/)
+      }
+      const modePattern = language === 'ru'
+        ? new RegExp(`"mode": "${mode.replaceAll('/', '\\/')}"`)
+        : new RegExp(`mode: '${mode.replaceAll('/', '\\/')}'`)
+      assert.match(source, modePattern)
       assert.doesNotMatch(source, /\]\([^)]+\)/, `${language}/${file} must not depend on its location`)
 
       const generation = source.indexOf(sectionHeadings[language][0])
       const preview = source.indexOf(sectionHeadings[language][1])
-      const typing = source.indexOf(sectionHeadings[language][2])
-      assert.ok(generation < preview && preview < typing)
+      assert.ok(generation < preview)
+      if (language === 'en') {
+        const typing = source.indexOf(sectionHeadings[language][2])
+        assert.ok(preview < typing)
+      }
     }
   }
 })

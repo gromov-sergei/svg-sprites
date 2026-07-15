@@ -14,6 +14,21 @@ const result = await generateSprite(
 )
 ```
 
+Результат содержит имя и mode спрайта, количество иконок и абсолютные filesystem paths:
+
+```ts
+result.name
+result.mode
+result.target
+result.iconCount
+result.rootDir
+result.generatedDir
+result.spritePath
+result.manifestPath
+```
+
+Next.js modes дополнительно возвращают `router` и `bundler`.
+
 Для static standalone mode `result.spritePath` можно использовать в build-скрипте,
 чтобы опубликовать SVG по URL приложения:
 
@@ -29,7 +44,7 @@ await copyFile(result.spritePath, 'dist/app-icons/sprite.svg')
 `spritePath` является filesystem path, а не browser URL. Deployment-neutral JSON
 manifest доступен через `result.manifestPath` и копируется независимо от SVG.
 
-Первый аргумент принимает полный путь к config-файлу с любым именем и расширением `.ts`, `.js` или `.json`. Каталог вместо файла включает config-less режим: корнем sprite-модуля становится этот каталог.
+Первый аргумент принимает абсолютный или относительный путь к config-файлу с любым именем и расширением `.ts`, `.js` или `.json`. Каталог вместо файла включает config-less режим: корнем sprite-модуля становится этот каталог.
 
 Второй аргумент содержит необязательные overrides и всегда имеет приоритет над конфигом:
 
@@ -107,13 +122,17 @@ await generateNextSprite('path/to/config.ts', {
 
 ```ts
 import {
+  isSpriteMode,
   loadSpriteConfig,
   resolveSpriteConfig,
+  resolveSpriteConfigSource,
   validateSpriteConfig,
 } from '@gromlab/svg-sprites'
 ```
 
+- `isSpriteMode(value)` проверяет, является ли значение поддерживаемым exact mode.
 - `loadSpriteConfig(file)` загружает явно указанный `.ts`, `.js` или `.json` файл.
+- `resolveSpriteConfigSource(source)` разрешает путь как config-файл или config-less каталог.
 - `validateSpriteConfig(value)` выполняет runtime-валидацию объекта.
 - `resolveSpriteConfig(root, config, overrides)` объединяет значения, добавляет defaults и разрешает пути относительно `root`.
 
@@ -137,6 +156,16 @@ import type { SpriteViewerElement } from '@gromlab/svg-sprites/viewer'
 ```
 
 Browser entry регистрирует `<gromlab-sprite-viewer>`. Bare standalone также может загрузить самостоятельный `dist/viewer-element.js` без bundler.
+
+Для ручной регистрации импортируйте runtime без auto-register entry:
+
+```ts
+import { defineSpriteViewerElement } from '@gromlab/svg-sprites/viewer'
+
+defineSpriteViewerElement()
+```
+
+Этот entry также экспортирует типы `SpriteViewerElement`, `SpriteViewerManifest`, `SpriteViewerSource`, `SpriteViewerSources` и связанные типы manifest и loaders.
 
 React bridge сохраняет компонентный API:
 

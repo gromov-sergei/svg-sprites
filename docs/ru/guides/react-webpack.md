@@ -1,141 +1,126 @@
-# React-компонент для Webpack 5
+# SVG-спрайт для React на Webpack 5
 
-Это автономный quick start для exact mode key `react@webpack`: generated `IconsIcon` использует Webpack 5 Asset Modules и CSS Modules.
+Инструкция по быстрому созданию SVG-спрайта в React-приложении на Webpack 5.
 
-## 1. Генерация спрайта
+## Генерация спрайта
 
-Главное преимущество: генератор не нужно устанавливать и добавлять в `package.json`. `npx` временно скачивает CLI, а generated production runtime не импортирует `@gromlab/svg-sprites`.
+Выберите папку для спрайта. В примере используется `assets/app-icons`, а исходные SVG находятся в `assets/svg-icons`.
 
-```text
-src/sprite/
-├── icons/
-│   ├── check.svg
-│   └── warning.svg
-├── index.ts
-└── svg-sprite.config.ts
-```
+Создайте конфиг `assets/app-icons/svg-sprite.config.json`:
 
-Минимальный plain config:
-
-```ts
-export default {
-  mode: 'react@webpack',
-  name: 'icons',
+```json
+{
+  "mode": "react@webpack",
+  "name": "app",
+  "input": "../svg-icons/**/*.svg"
 }
 ```
 
-Если `input` не указан, SVG читаются из `./icons` относительно конфига. Поддерживаются `.ts`, `.js` с `default export` и `.json` configs.
+Путь в `input` считается от папки с конфигом.
 
-```bash
-npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/sprite/svg-sprite.config.ts
-```
-
-В CI замените `latest` на точную версию, например `@gromlab/svg-sprites@1.1.5`. Exact Webpack commands:
+Добавьте команды генерации в `package.json`. Сгенерированные файлы по умолчанию исключены из Git, поэтому `predev` и `prebuild` пересобирают спрайт перед каждым запуском и сборкой:
 
 ```json
 {
   "scripts": {
-    "sprites": "npx --yes --package=@gromlab/svg-sprites@latest svg-sprites src/sprite/svg-sprite.config.ts",
-    "dev": "npm run sprites && webpack serve --mode development",
-    "build": "npm run sprites && webpack --mode production",
-    "typecheck": "npm run sprites && tsc --noEmit"
+    "sprites": "npx --yes @gromlab/svg-sprites assets/app-icons/svg-sprite.config.json",
+    "predev": "npm run sprites",
+    "dev": "webpack serve --mode development",
+    "prebuild": "npm run sprites",
+    "build": "webpack --mode production"
   }
 }
 ```
 
-Не сочетайте эти явные вызовы с `predev`/`prebuild`: иначе генерация задублируется. `.svg-sprite` не коммитится. Generated локальный `.gitignore`, который исключает этот каталог, нужно добавить в Git один раз. Generated `.d.ts` self-contained и не импортируют generator package.
+## Использование спрайта
+
+Значение `name: "app"` создаёт React-компонент `AppIcon`.
+
+Создайте точку входа `assets/app-icons/index.ts`:
 
 ```ts
-// src/sprite/index.ts
 export * from './.svg-sprite/index.js'
 ```
 
-Production usage:
+Используйте компонент в приложении:
 
 ```tsx
-import { IconsIcon, iconsIconNames } from './sprite'
+import { AppIcon } from '../assets/app-icons'
 
-export function SaveButton() {
+export function SaveIcon() {
   return (
-    <button type="button">
-      <IconsIcon
-        icon="check"
-        width={24}
-        height={24}
-        aria-hidden="true"
-        style={{ '--icon-color-1': '#16a34a' }}
-      />
-      Сохранить
-    </button>
+    <AppIcon
+      icon="check"
+      width={24}
+      height={24}
+      role="img"
+      aria-label="Готово"
+      style={{
+        color: '#334155',
+        '--icon-color-2': '#f59e0b',
+      }}
+    />
   )
 }
-
-console.log(iconsIconNames)
 ```
 
-Generated component получает URL через `new URL('../sprite.svg', import.meta.url).href`. Webpack 5 должен обработать SVG как Asset Module. Исключите generated `sprite.svg` из `@svgr/webpack`, inline/raw loaders и других общих SVG rules либо задайте для него `type: 'asset/resource'`.
+Свойство `icon` принимает имена исходных SVG без расширения. Монохромная иконка наследует `color`, а цвета многоцветной переопределяются через `--icon-color-N`.
 
-Компонент импортирует `react-component.module.css`. Webpack config должен обрабатывать `*.module.css` через `css-loader` с CSS Modules и `style-loader` или `MiniCssExtractPlugin`. Для TypeScript при необходимости добавьте декларацию `declare module '*.module.css'`.
+Компонент использует CSS Modules. Если проект ещё не обрабатывает их с default export, добавьте правило в `webpack.config.js`:
 
-## 2. Дебаг и превью
+```js
+{
+  test: /\.module\.css$/i,
+  use: [
+    'style-loader',
+    {
+      loader: 'css-loader',
+      options: { modules: { namedExport: false } },
+    },
+  ],
+}
+```
 
-Viewer необязателен. Устанавливайте package только для debug/preview:
+Webpack 5 сам добавляет `sprite.svg` в итоговую сборку.
+
+## Дебаг и превью
+
+Viewer показывает все иконки на одной странице, позволяет проверить их отображение, изменить цвета и посмотреть связанные CSS-переменные. Он нужен только для разработки.
+
+Установите Viewer:
 
 ```bash
 npm install --save-dev @gromlab/svg-sprites
 ```
 
-Webpack не использует `import.meta.glob`; передайте статический loader:
+Создайте entry `src/svg-sprite-debug.tsx`:
 
 ```tsx
+import { createRoot } from 'react-dom/client'
 import { SpriteViewer } from '@gromlab/svg-sprites/react'
 
 const sources = [
-  () => import('./sprite/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('../assets/app-icons/.svg-sprite/svg-sprite.manifest.js'),
 ] as const
 
-export function IconsDebugPage() {
-  return <SpriteViewer sources={sources} title="Иконки проекта" />
-}
+const container = document.createElement('div')
+document.body.append(container)
+
+createRoot(container).render(
+  <SpriteViewer sources={sources} title="Иконки проекта" />,
+)
 ```
 
-Webpack создаст chunk manifest и разрешит его SVG через тот же Asset Modules pipeline. Viewer держите только в debug route; production `IconsIcon` от него не зависит.
+Добавьте скрипт к основному entry только в development-режиме. Сохраните остальные настройки `webpack.config.js`:
 
-## 3. Типизация конфига
-
-С локально установленным package доступен helper:
-
-```ts
-import { defineSpriteConfig } from '@gromlab/svg-sprites'
-
-export default defineSpriteConfig({
-  mode: 'react@webpack',
-  name: 'icons',
+```js
+export default (_env, argv) => ({
+  // Остальные настройки Webpack.
+  entry: [
+    './src/main.tsx',
+    ...(argv.mode === 'development' ? ['./src/svg-sprite-debug.tsx'] : []),
+  ],
 })
 ```
 
-Эквивалентная проверка: type-only import `SpriteConfig` и `satisfies SpriteConfig`.
-
-Без package используйте copy-paste type в config:
-
-```ts
-type LocalSpriteConfig = {
-  mode: 'react@webpack'
-  name?: string
-  description?: string
-  input?: string | string[]
-  transform?: {
-    removeSize?: boolean
-    replaceColors?: boolean
-    addTransition?: boolean
-  }
-  generatedNotice?: boolean
-}
-
-export default {
-  mode: 'react@webpack',
-  name: 'icons',
-} satisfies LocalSpriteConfig
-```
-
-Локальный literal не разрешит случайно выбрать Vite или Next mode.
+Запустите `npm run dev`. Viewer появится на основной странице приложения и не попадёт в production-сборку.
