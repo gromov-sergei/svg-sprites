@@ -1,0 +1,22 @@
+{
+  "name": "@svg-sprites-fixtures/nuxt-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "nuxt typecheck",
+    "build": "npm run sprites && nuxt build",
+    "dev": "npm run sprites && nuxt dev",
+    "start": "node .output/server/index.mjs"
+  },
+  "dependencies": {
+    "nuxt": "4.3.1",
+    "vue": "3.5.39"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "typescript": "6.0.2",
+    "vue-tsc": "3.3.7"
+  }
+}

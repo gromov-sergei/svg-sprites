@@ -40,6 +40,10 @@ function startServer(app: (typeof apps)[number], port: number): ChildProcess {
       cwd = appRoot
       command = [path.join(appRoot, 'build/index.js')]
       break
+    case 'solid-start':
+      cwd = appRoot
+      command = [path.join(appRoot, '.output/server/index.mjs')]
+      break
     default:
       command = [path.join(integrationRoot, 'scripts/serve-static.mjs'), path.join(appRoot, app.output), String(port)]
   }
@@ -111,10 +115,12 @@ for (const app of apps) {
       await expect(icon).toBeVisible()
       await expect(icon).toHaveAttribute('data-app', app.id)
 
-      if (app.id === 'standalone-vite' || app.id === 'standalone-webpack') {
+      if (app.id === 'standalone-vite' || app.id === 'standalone-webpack' || ('shadowIcon' in app && app.shadowIcon)) {
         expect(await icon.evaluate((element) => element.tagName.toLowerCase())).toBe('icons-icon')
         expect(await icon.evaluate((element) => element.shadowRoot !== null)).toBe(true)
-        await expect(icon.locator('svg')).toHaveAttribute('viewBox', '0 0 24 24')
+        if (app.id.startsWith('standalone')) {
+          await expect(icon.locator('svg')).toHaveAttribute('viewBox', '0 0 24 24')
+        }
       }
 
       const href = await icon.locator('use').getAttribute('href')
@@ -145,10 +151,10 @@ for (const app of apps) {
       const dialog = viewer.getByRole('dialog', { name: 'check' })
       await expect(dialog).toBeVisible()
       await expect(dialog.getByRole('tab', { name: 'SVG' })).toBeVisible()
-      if (app.id.startsWith('standalone')) {
-        await expect(dialog.getByRole('tab', { name: 'React' })).toHaveCount(0)
+      if ('frameworkTab' in app) {
+        await expect(dialog.getByRole('tab', { name: app.frameworkTab })).toBeVisible()
       } else {
-        await expect(dialog.getByRole('tab', { name: 'React' })).toBeVisible()
+        await expect(dialog.getByRole('tab', { name: 'React' })).toHaveCount(0)
       }
 
       const colorSwatch = dialog.getByRole('button', { name: /Изменить цвет --icon-color-1/ })

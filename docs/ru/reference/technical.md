@@ -15,6 +15,26 @@
 - [Next.js App Router + Webpack](../guides/next-app-webpack.md)
 - [Next.js Pages Router + Turbopack](../guides/next-pages-turbopack.md)
 - [Next.js Pages Router + Webpack](../guides/next-pages-webpack.md)
+- [Vue + Vite](../guides/vue-vite.md)
+- [Vue + Webpack](../guides/vue-webpack.md)
+- [Nuxt + Vite](../guides/nuxt-vite.md)
+- [Nuxt + Webpack](../guides/nuxt-webpack.md)
+- [Svelte + Vite](../guides/svelte-vite.md)
+- [Svelte + Webpack](../guides/svelte-webpack.md)
+- [SvelteKit + Vite](../guides/sveltekit-vite.md)
+- [Angular application builder](../guides/angular-application.md)
+- [Angular + Webpack](../guides/angular-webpack.md)
+- [Astro + Vite](../guides/astro-vite.md)
+- [Solid + Vite](../guides/solid-vite.md)
+- [Solid + Webpack](../guides/solid-webpack.md)
+- [SolidStart + Vite](../guides/solid-start-vite.md)
+- [Preact + Vite](../guides/preact-vite.md)
+- [Preact + Webpack](../guides/preact-webpack.md)
+- [Qwik + Vite](../guides/qwik-vite.md)
+- [Lit + Vite](../guides/lit-vite.md)
+- [Lit + Webpack](../guides/lit-webpack.md)
+- [Alpine.js + Vite](../guides/alpine-vite.md)
+- [Alpine.js + Webpack](../guides/alpine-webpack.md)
 
 ## Требования
 
@@ -51,6 +71,26 @@ svg-sprites [options] <config-file-or-directory>
 | Standalone + Webpack 5 | `standalone@webpack` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
+| Vue + Vite | `vue@vite` |
+| Vue + Webpack | `vue@webpack` |
+| Nuxt + Vite | `nuxt@vite` |
+| Nuxt + Webpack | `nuxt@webpack` |
+| Svelte + Vite | `svelte@vite` |
+| Svelte + Webpack | `svelte@webpack` |
+| SvelteKit + Vite | `sveltekit@vite` |
+| Angular application builder | `angular@application` |
+| Angular + Webpack | `angular@webpack` |
+| Astro + Vite | `astro@vite` |
+| Solid + Vite | `solid@vite` |
+| Solid + Webpack | `solid@webpack` |
+| SolidStart + Vite | `solid-start@vite` |
+| Preact + Vite | `preact@vite` |
+| Preact + Webpack | `preact@webpack` |
+| Qwik + Vite | `qwik@vite` |
+| Lit + Vite | `lit@vite` |
+| Lit + Webpack | `lit@webpack` |
+| Alpine.js + Vite | `alpine@vite` |
+| Alpine.js + Webpack | `alpine@webpack` |
 | Next.js App Router + Turbopack | `next@app/turbopack` |
 | Next.js App Router + Webpack 5 | `next@app/webpack` |
 | Next.js Pages Router + Turbopack | `next@pages/turbopack` |
@@ -309,7 +349,7 @@ folder open.svg → icon="folder open" → id="icon-<stable-hash>"
 
 ## Множественные спрайты
 
-Каждый каталог с конфигом создаёт независимый mode-specific контракт. React и Next.js создают React-компонент и типы, `standalone@vite` и `standalone@webpack` — Web Component и типы, а bare `standalone` — SVG и JSON manifest:
+Каждый каталог с конфигом создаёт независимый mode-specific контракт. Framework modes создают нативный компонент и declarations, standalone bundler modes — Web Component и declarations, а bare `standalone` — SVG и JSON manifest:
 
 ```text
 app-icons       → AppIcon       → общие иконки
@@ -331,7 +371,7 @@ editor-icons    → EditorIcon    → иконки редактора
 
 ### Generated-компонент
 
-Для React и Next.js используйте generated React-компонент. Он знает внутренние ID, формирует URL и предоставляет TypeScript API:
+Используйте generated native-компонент из guide выбранного exact mode. Он знает внутренние ID, формирует URL и предоставляет TypeScript API. Для React и Next.js это выглядит так:
 
 ```tsx
 <AppIcon icon="search" width={24} height={24} />
@@ -569,7 +609,7 @@ export const IconsDebugPage = () => (
 )
 ```
 
-Viewer показывает группы, поиск, `viewBox`, CSS-переменные и fallback-цвета. React/Next manifests получают вкладки React, SVG, IMG и CSS; standalone manifests получают SVG, IMG и CSS. Цветовые значения можно менять в интерфейсе и сразу проверять результат.
+Viewer показывает группы, поиск, `viewBox`, CSS-переменные и fallback-цвета. Framework manifests получают вкладку своего framework, а также SVG, IMG и CSS; standalone manifests получают SVG, IMG и CSS. Цветовые значения можно менять в интерфейсе и сразу проверять результат.
 
 ### Тема Viewer
 

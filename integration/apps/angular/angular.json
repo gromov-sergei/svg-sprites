@@ -21,6 +21,9 @@
                 "input": "public"
               }
             ],
+            "loader": {
+              ".svg": "file"
+            },
             "styles": ["src/styles.css"],
             "outputPath": "dist/angular"
           },

@@ -1,0 +1,22 @@
+{
+  "name": "@svg-sprites-fixtures/solid-start-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run sprites && npm run typecheck && vinxi build",
+    "dev": "npm run sprites && vinxi dev"
+  },
+  "dependencies": {
+    "@solidjs/router": "^0.15.0",
+    "@solidjs/start": "^1.1.0",
+    "solid-js": "1.9.14",
+    "vinxi": "^0.5.0"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "typescript": "6.0.2"
+  }
+}

@@ -1,4 +1,6 @@
 ---
+import { IconsIcon } from '../sprite/index.js'
+
 const title = 'Astro sprite fixture'
 ---
 
@@ -12,15 +14,29 @@ const title = 'Astro sprite fixture'
   <body>
     <main>
       <h1>Astro</h1>
-      <svg
+      <IconsIcon
         data-testid="icon"
         data-app="astro"
+        icon="check"
         aria-label="Check icon"
-        viewBox="0 0 24 24"
-      >
-        <use href="/sprites/icons.sprite.svg#check"></use>
-      </svg>
+        width="64"
+        height="64"
+        style="--icon-color-1: #16a34a"
+      />
+      <gromlab-sprite-viewer id="sprite-viewer"></gromlab-sprite-viewer>
     </main>
+    <script>
+      import '@gromlab/svg-sprites/viewer/element'
+
+      const viewer = /** @type {import('@gromlab/svg-sprites/viewer').SpriteViewerElement | null} */ (
+        document.querySelector('#sprite-viewer')
+      )
+      if (!viewer) throw new Error('Sprite Viewer element is missing.')
+      Object.assign(viewer, {
+        viewerTitle: 'Astro Vite Viewer',
+        sources: [() => import('../sprite/.svg-sprite/svg-sprite.manifest.js')],
+      })
+    </script>
   </body>
 </html>
 
@@ -40,5 +56,10 @@ const title = 'Astro sprite fixture'
     width: 64px;
     height: 64px;
     color: #16a34a;
+  }
+
+  gromlab-sprite-viewer {
+    display: block;
+    margin-top: 32px;
   }
 </style>

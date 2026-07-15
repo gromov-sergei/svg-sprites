@@ -5,6 +5,7 @@ import type {
   ReactAssetTarget,
   StandaloneAssetTarget,
   SpriteMode,
+  SpriteAssetTarget,
 } from '../targets/types.js'
 import type { ResolvedSpriteConfig, SpriteFolder } from '../types.js'
 
@@ -38,7 +39,11 @@ export type StandaloneModeResultMetadata = {
   readonly target: StandaloneAssetTarget
 }
 
-export type ModeResultMetadata = ReactModeResultMetadata | NextModeResultMetadata | StandaloneModeResultMetadata
+export type FrameworkModeResultMetadata = {
+  readonly target: SpriteAssetTarget
+}
+
+export type ModeResultMetadata = FrameworkModeResultMetadata | NextModeResultMetadata
 
 export type OutputPlan = {
   readonly files: readonly GeneratedFile[]

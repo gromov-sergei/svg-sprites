@@ -1,0 +1,23 @@
+{
+  "name": "@svg-sprites-fixtures/lit-webpack",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.json",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run sprites && npm run typecheck && webpack --mode production",
+    "dev": "npm run sprites && webpack serve --mode development"
+  },
+  "dependencies": {
+    "lit": "3.3.3"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "html-webpack-plugin": "5.6.7",
+    "typescript": "6.0.2",
+    "webpack": "5.108.4",
+    "webpack-cli": "7.2.1",
+    "webpack-dev-server": "5.2.2"
+  }
+}

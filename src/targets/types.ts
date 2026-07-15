@@ -37,6 +37,23 @@ export type ReactAssetTarget = ViteAssetTarget | WebpackAssetTarget
 /** Полный ключ React mode, используемый конфигом, CLI и manifest. */
 export type ReactSpriteMode = `react@${ReactAssetTarget}`
 
+/** Среда сборки Vue sprite-модуля. */
+export type VueAssetTarget = ViteAssetTarget
+
+/** Полный ключ Vue mode, используемый конфигом, CLI и manifest. */
+export type VueSpriteMode = `vue@${ViteAssetTarget | WebpackAssetTarget}`
+
+export type NuxtSpriteMode = `nuxt@${ViteAssetTarget | WebpackAssetTarget}`
+export type SvelteSpriteMode = `svelte@${ViteAssetTarget | WebpackAssetTarget}` | 'sveltekit@vite'
+export type AngularAssetTarget = 'application' | WebpackAssetTarget
+export type AngularSpriteMode = `angular@${AngularAssetTarget}`
+export type AstroSpriteMode = 'astro@vite'
+export type SolidSpriteMode = `solid@${ViteAssetTarget | WebpackAssetTarget}` | 'solid-start@vite'
+export type PreactSpriteMode = `preact@${ViteAssetTarget | WebpackAssetTarget}`
+export type QwikSpriteMode = 'qwik@vite'
+export type LitSpriteMode = `lit@${ViteAssetTarget | WebpackAssetTarget}`
+export type AlpineSpriteMode = `alpine@${ViteAssetTarget | WebpackAssetTarget}`
+
 /** Среда standalone sprite-модуля. */
 export type StandaloneAssetTarget = StaticAssetTarget | ViteAssetTarget | WebpackAssetTarget
 
@@ -44,10 +61,23 @@ export type StandaloneAssetTarget = StaticAssetTarget | ViteAssetTarget | Webpac
 export type StandaloneSpriteMode = 'standalone' | `standalone@${ViteAssetTarget | WebpackAssetTarget}`
 
 /** Любая среда, для которой может быть сгенерирован React sprite-модуль. */
-export type SpriteAssetTarget = ReactAssetTarget | NextAssetTarget | StaticAssetTarget
+export type SpriteAssetTarget = ReactAssetTarget | NextAssetTarget | StaticAssetTarget | AngularAssetTarget
 
 /** Режим генерации sprite-модуля. */
-export type SpriteMode = ReactSpriteMode | NextAssetTarget | StandaloneSpriteMode
+export type SpriteMode =
+  | ReactSpriteMode
+  | VueSpriteMode
+  | NuxtSpriteMode
+  | SvelteSpriteMode
+  | AngularSpriteMode
+  | AstroSpriteMode
+  | SolidSpriteMode
+  | PreactSpriteMode
+  | QwikSpriteMode
+  | LitSpriteMode
+  | AlpineSpriteMode
+  | NextAssetTarget
+  | StandaloneSpriteMode
 
 /** Фрагменты кода, необходимые компоненту для получения URL SVG asset. */
 export type SpriteAssetUrlCode = {

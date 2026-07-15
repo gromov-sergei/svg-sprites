@@ -1,6 +1,8 @@
 import type { SpriteViewerManifest, SpriteViewerManifestIcon } from './types.js'
 
-export type SpriteViewerTab = 'react' | 'vue' | 'svg' | 'img' | 'css'
+import type { SpriteViewerManifestUsage } from './types.js'
+
+export type SpriteViewerTab = SpriteViewerManifestUsage['framework'] | 'svg' | 'img' | 'css'
 export type SpriteViewerCodeLanguage = 'tsx' | 'html' | 'css'
 
 const COMMON_TABS: ReadonlyArray<{ id: SpriteViewerTab; label: string }> = [
@@ -9,7 +11,21 @@ const COMMON_TABS: ReadonlyArray<{ id: SpriteViewerTab; label: string }> = [
   { id: 'css', label: 'CSS' },
 ]
 
-function usageForManifest(manifest: SpriteViewerManifest): { framework: 'react' | 'vue'; componentName: string } | null {
+const FRAMEWORK_LABELS: Record<SpriteViewerManifestUsage['framework'], string> = {
+  react: 'React',
+  vue: 'Vue',
+  svelte: 'Svelte',
+  angular: 'Angular',
+  astro: 'Astro',
+  solid: 'Solid',
+  'solid-start': 'SolidStart',
+  preact: 'Preact',
+  qwik: 'Qwik',
+  lit: 'Lit',
+  alpine: 'Alpine',
+}
+
+function usageForManifest(manifest: SpriteViewerManifest): SpriteViewerManifestUsage | null {
   if (manifest.usage) return manifest.usage
   if (manifest.componentName) return { framework: 'react', componentName: manifest.componentName }
   return null
@@ -18,12 +34,12 @@ function usageForManifest(manifest: SpriteViewerManifest): { framework: 'react' 
 export function tabsForManifest(manifest: SpriteViewerManifest): ReadonlyArray<{ id: SpriteViewerTab; label: string }> {
   const usage = usageForManifest(manifest)
   const frameworkTab = usage
-    ? [{ id: usage.framework, label: usage.framework === 'react' ? 'React' : 'Vue' } as const]
+    ? [{ id: usage.framework, label: FRAMEWORK_LABELS[usage.framework] }]
     : []
   const tabs = [...frameworkTab, ...COMMON_TABS]
   return manifest.format === 'stack'
     ? tabs
-    : tabs.filter((tab) => tab.id === 'react' || tab.id === 'vue' || tab.id === 'svg')
+    : tabs.filter((tab) => tab.id !== 'img' && tab.id !== 'css')
 }
 
 export function viewBoxSize(viewBox: string | null): string | null {
@@ -96,11 +112,32 @@ export function generateViewerCode(options: {
   const href = `${manifest.spriteUrl}#${icon.id}`
   const overrides = styleLines(colorOverrides)
 
-  if (tab === 'react' || tab === 'vue') {
+  if (!['svg', 'img', 'css'].includes(tab)) {
     const usage = usageForManifest(manifest)
     if (!usage) throw new Error(`The ${tab} code tab requires component metadata.`)
 
-    if (tab === 'vue') {
+    if (usage.framework === 'alpine') {
+      return {
+        code: `<svg ${usage.directive}=${JSON.stringify(JSON.stringify(icon.name))}></svg>`,
+        language: 'html',
+      }
+    }
+
+    if (usage.framework === 'lit') {
+      return {
+        code: `<${usage.tagName} icon=${JSON.stringify(icon.name)}></${usage.tagName}>`,
+        language: 'html',
+      }
+    }
+
+    if (usage.framework === 'angular') {
+      return {
+        code: `<${usage.selector} icon=${JSON.stringify(icon.name)}></${usage.selector}>`,
+        language: 'html',
+      }
+    }
+
+    if (usage.framework === 'vue') {
       const style = Object.entries(colorOverrides)
         .map(([variable, color]) => `${JSON.stringify(variable)}: ${JSON.stringify(color)}`)
         .join(', ')

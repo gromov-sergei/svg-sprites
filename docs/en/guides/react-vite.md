@@ -4,9 +4,9 @@ A quick guide to creating an SVG sprite in a React application built with Vite.
 
 ## Generate the sprite
 
-Choose a folder for the sprite. This example uses `assets/app-icons`, with source SVG files, including the `check.svg` used below, in `assets/svg-icons`.
+Choose a directory for the future SVG sprite, for example `assets/app-icons`, and create `svg-sprite.config.json` inside it. In `input`, specify the path to existing SVG files relative to the configuration file. There is no need to move or copy the icons.
 
-Create `assets/app-icons/svg-sprite.config.json`:
+Example configuration:
 
 ```json
 {
@@ -16,7 +16,7 @@ Create `assets/app-icons/svg-sprite.config.json`:
 }
 ```
 
-The `input` path is relative to the config folder.
+The package does not need to be a project dependency: generation runs through `npx`.
 
 Add generation commands to `package.json`. Generated files are excluded from Git by default, so `predev` and `prebuild` rebuild the sprite before every start and build:
 
@@ -50,7 +50,7 @@ import { AppIcon } from '../assets/app-icons'
 export function SaveIcon() {
   return (
     <AppIcon
-      icon="check"
+      icon="icon-name"
       width={24}
       height={24}
       role="img"

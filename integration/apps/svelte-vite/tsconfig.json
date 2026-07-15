@@ -5,10 +5,12 @@
     "moduleResolution": "Bundler",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "allowArbitraryExtensions": true,
+    "allowJs": true,
+    "checkJs": true,
     "isolatedModules": true,
     "strict": true,
     "noEmit": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*.ts", "src/**/*.svelte"]
+  "include": ["src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
 }

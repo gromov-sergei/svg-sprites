@@ -437,7 +437,7 @@ class GromlabSpriteViewerElement extends LitElement {
       cssColor: this._cssColor,
     })
     const dimensions = viewBoxSize(icon.viewBox)
-    const colorsVisible = activeTab === 'react' || activeTab === 'vue' || activeTab === 'svg'
+    const colorsVisible = activeTab !== 'img' && activeTab !== 'css'
 
     return html`
       <dialog

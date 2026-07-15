@@ -4,13 +4,10 @@ export default defineConfig({
   entry: {
     index: 'src/index.ts',
     cli: 'src/cli.ts',
-    react: 'src/react.ts',
-    viewer: 'src/viewer.ts',
   },
   format: 'esm',
   dts: true,
   clean: true,
   sourcemap: true,
   target: 'node18',
-  noExternal: ['lit', 'vanilla-colorful'],
 })

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "sprites": "svg-sprites --mode legacy .",
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
     "typecheck": "astro check",
     "build": "npm run sprites && astro check && astro build",
     "dev": "npm run sprites && astro dev"

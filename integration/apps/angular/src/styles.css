@@ -9,8 +9,13 @@ body {
   padding: 40px;
 }
 
-[data-testid='icon'] {
+icons-icon[data-testid='icon'] {
   width: 64px;
   height: 64px;
   color: #16a34a;
+}
+
+gromlab-sprite-viewer {
+  display: block;
+  margin-top: 32px;
 }

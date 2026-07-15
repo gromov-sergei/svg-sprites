@@ -1,17 +1,43 @@
+<script>
+  import { IconsIcon } from '../sprite/index.js'
+
+  const viewerSources = [
+    () => import('../sprite/.svg-sprite/svg-sprite.manifest.js'),
+  ]
+
+  /** @param {HTMLElement & { sources: unknown; viewerTitle: string }} node */
+  function connectViewer(node) {
+    let connected = true
+    void import('@gromlab/svg-sprites/viewer/element').then(() => {
+      if (!connected) return
+      node.sources = viewerSources
+      node.viewerTitle = 'SvelteKit Vite Viewer'
+    })
+
+    return {
+      destroy() {
+        connected = false
+      },
+    }
+  }
+</script>
+
 <svelte:head>
   <title>SvelteKit sprite fixture</title>
 </svelte:head>
 
 <main>
   <h1>SvelteKit</h1>
-  <svg
+  <IconsIcon
     data-testid="icon"
     data-app="sveltekit"
+    icon="check"
     aria-label="Check icon"
-    viewBox="0 0 24 24"
-  >
-    <use href="/sprites/icons.sprite.svg#check"></use>
-  </svg>
+    width="64"
+    height="64"
+    style="--icon-color-1: #16a34a"
+  />
+  <gromlab-sprite-viewer use:connectViewer></gromlab-sprite-viewer>
 </main>
 
 <style>
@@ -26,9 +52,8 @@
     padding: 40px;
   }
 
-  [data-testid='icon'] {
-    width: 64px;
-    height: 64px;
-    color: #16a34a;
+  gromlab-sprite-viewer {
+    display: block;
+    margin-top: 32px;
   }
 </style>

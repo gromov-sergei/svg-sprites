@@ -6,32 +6,9 @@ Combine SVG icons into one file and use them on an HTML page.
 
 You do not need to install the package in your project.
 
-This guide uses the following project structure:
-
-```text
-/
-├── index.html
-└── assets/
-    ├── app-icons/
-    └── svg-icons/
-        ├── check.svg
-        └── warning.svg
-```
-
 ### 1. Create the sprite config
 
-Choose a folder for the sprite. This example uses `assets/app-icons`. Create `svg-sprite.config.json` inside it:
-
-```json
-{
-  "mode": "standalone",
-  "name": "icons"
-}
-```
-
-### 2. Set the icon source
-
-`input` can point to a folder, an individual SVG file, or a glob pattern. To use multiple sources, provide an array with any combination of these values:
+Choose a directory for the future SVG sprite, for example `assets/app-icons`, and create `svg-sprite.config.json` inside it. In `input`, specify the path to existing SVG files relative to the configuration file. There is no need to move or copy the icons.
 
 ```json
 {
@@ -41,7 +18,7 @@ Choose a folder for the sprite. This example uses `assets/app-icons`. Create `sv
 }
 ```
 
-### 3. Generate the sprite
+### 2. Generate the sprite
 
 Pass the config path to the command:
 
@@ -62,7 +39,7 @@ assets/app-icons/.svg-sprite/
 
 The `.svg-sprite` directory is created automatically and fully replaced on every generation. Do not edit its contents manually.
 
-### 4. Use an icon
+### 3. Use an icon
 
 In `index.html`, point to the generated `sprite.svg`. After `#`, add the icon file name without the `.svg` extension:
 
@@ -72,11 +49,9 @@ In `index.html`, point to the generated `sprite.svg`. After `#`, add the icon fi
   height="24"
   aria-label="Done"
 >
-  <use href="./assets/app-icons/.svg-sprite/sprite.svg#check"></use>
+  <use href="./assets/app-icons/.svg-sprite/sprite.svg#icon-name"></use>
 </svg>
 ```
-
-The icon from `check.svg` is available as `#check`.
 
 ## Debug and preview
 

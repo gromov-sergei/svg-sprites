@@ -11,6 +11,26 @@ const guideModes = new Map([
   ['standalone-webpack.md', 'standalone@webpack'],
   ['react-vite.md', 'react@vite'],
   ['react-webpack.md', 'react@webpack'],
+  ['vue-vite.md', 'vue@vite'],
+  ['vue-webpack.md', 'vue@webpack'],
+  ['nuxt-vite.md', 'nuxt@vite'],
+  ['nuxt-webpack.md', 'nuxt@webpack'],
+  ['svelte-vite.md', 'svelte@vite'],
+  ['svelte-webpack.md', 'svelte@webpack'],
+  ['sveltekit-vite.md', 'sveltekit@vite'],
+  ['angular-application.md', 'angular@application'],
+  ['angular-webpack.md', 'angular@webpack'],
+  ['astro-vite.md', 'astro@vite'],
+  ['solid-vite.md', 'solid@vite'],
+  ['solid-webpack.md', 'solid@webpack'],
+  ['solid-start-vite.md', 'solid-start@vite'],
+  ['preact-vite.md', 'preact@vite'],
+  ['preact-webpack.md', 'preact@webpack'],
+  ['qwik-vite.md', 'qwik@vite'],
+  ['lit-vite.md', 'lit@vite'],
+  ['lit-webpack.md', 'lit@webpack'],
+  ['alpine-vite.md', 'alpine@vite'],
+  ['alpine-webpack.md', 'alpine@webpack'],
   ['next-app-turbopack.md', 'next@app/turbopack'],
   ['next-app-webpack.md', 'next@app/webpack'],
   ['next-pages-turbopack.md', 'next@pages/turbopack'],
@@ -33,6 +53,11 @@ const sectionHeadings = {
 const commandPatterns = {
   en: /npx --yes @gromlab\/svg-sprites(?:\s|$)/,
   ru: /npx --yes @gromlab\/svg-sprites(?:\s|$)/,
+}
+
+const spriteDirectoryPatterns = {
+  en: /Choose a directory for the future SVG sprite/,
+  ru: /Выберите каталог для будущего SVG-спрайта/,
 }
 
 function markdownFiles(directory) {
@@ -67,10 +92,12 @@ test('exact-mode guides are reusable by docs and skills', () => {
           ]
       assert.deepEqual(headings, expectedHeadings)
       assert.match(source, commandPatterns[language])
+      assert.match(source, spriteDirectoryPatterns[language])
       if (mode !== 'standalone') {
         assert.match(source, /npm install --save-dev @gromlab\/svg-sprites/)
       }
       assert.doesNotMatch(source, /npx --yes[^\n]*@gromlab\/svg-sprites@/)
+      assert.doesNotMatch(source, /check\.svg|icon="check"|#check|iconName: 'check'/)
       const modePattern = new RegExp(`"mode": "${mode.replaceAll('/', '\\/')}"`)
       assert.match(source, modePattern)
       assert.doesNotMatch(source, /\]\([^)]+\)/, `${language}/${file} must not depend on its location`)

@@ -9,6 +9,7 @@ export default defineConfig({
   clean: false,
   splitting: false,
   sourcemap: true,
-  target: 'node18',
+  target: 'es2022',
+  platform: 'browser',
   noExternal: ['lit', 'vanilla-colorful'],
 })

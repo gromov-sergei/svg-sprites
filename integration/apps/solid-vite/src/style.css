@@ -12,5 +12,8 @@ body {
 [data-testid='icon'] {
   width: 64px;
   height: 64px;
-  color: #16a34a;
+}
+
+.viewer {
+  margin-top: 32px;
 }

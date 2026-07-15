@@ -15,6 +15,26 @@ Reference for the configuration, generated API, and behavior of `@gromlab/svg-sp
 - [Next.js App Router + Webpack](../guides/next-app-webpack.md)
 - [Next.js Pages Router + Turbopack](../guides/next-pages-turbopack.md)
 - [Next.js Pages Router + Webpack](../guides/next-pages-webpack.md)
+- [Vue + Vite](../guides/vue-vite.md)
+- [Vue + Webpack](../guides/vue-webpack.md)
+- [Nuxt + Vite](../guides/nuxt-vite.md)
+- [Nuxt + Webpack](../guides/nuxt-webpack.md)
+- [Svelte + Vite](../guides/svelte-vite.md)
+- [Svelte + Webpack](../guides/svelte-webpack.md)
+- [SvelteKit + Vite](../guides/sveltekit-vite.md)
+- [Angular application builder](../guides/angular-application.md)
+- [Angular + Webpack](../guides/angular-webpack.md)
+- [Astro + Vite](../guides/astro-vite.md)
+- [Solid + Vite](../guides/solid-vite.md)
+- [Solid + Webpack](../guides/solid-webpack.md)
+- [SolidStart + Vite](../guides/solid-start-vite.md)
+- [Preact + Vite](../guides/preact-vite.md)
+- [Preact + Webpack](../guides/preact-webpack.md)
+- [Qwik + Vite](../guides/qwik-vite.md)
+- [Lit + Vite](../guides/lit-vite.md)
+- [Lit + Webpack](../guides/lit-webpack.md)
+- [Alpine.js + Vite](../guides/alpine-vite.md)
+- [Alpine.js + Webpack](../guides/alpine-webpack.md)
 
 ## Requirements
 
@@ -51,6 +71,26 @@ svg-sprites [options] <config-file-or-directory>
 | Standalone + Webpack 5 | `standalone@webpack` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
+| Vue + Vite | `vue@vite` |
+| Vue + Webpack | `vue@webpack` |
+| Nuxt + Vite | `nuxt@vite` |
+| Nuxt + Webpack | `nuxt@webpack` |
+| Svelte + Vite | `svelte@vite` |
+| Svelte + Webpack | `svelte@webpack` |
+| SvelteKit + Vite | `sveltekit@vite` |
+| Angular application builder | `angular@application` |
+| Angular + Webpack | `angular@webpack` |
+| Astro + Vite | `astro@vite` |
+| Solid + Vite | `solid@vite` |
+| Solid + Webpack | `solid@webpack` |
+| SolidStart + Vite | `solid-start@vite` |
+| Preact + Vite | `preact@vite` |
+| Preact + Webpack | `preact@webpack` |
+| Qwik + Vite | `qwik@vite` |
+| Lit + Vite | `lit@vite` |
+| Lit + Webpack | `lit@webpack` |
+| Alpine.js + Vite | `alpine@vite` |
+| Alpine.js + Webpack | `alpine@webpack` |
 | Next.js App Router + Turbopack | `next@app/turbopack` |
 | Next.js App Router + Webpack 5 | `next@app/webpack` |
 | Next.js Pages Router + Turbopack | `next@pages/turbopack` |
@@ -310,7 +350,7 @@ The component does not add accessibility semantics automatically. Pass appropria
 
 ## Multiple sprites
 
-Each directory with a configuration creates an independent mode-specific contract. React and Next.js modes generate a React component and types, `standalone@vite` and `standalone@webpack` generate a Web Component and types, and bare `standalone` generates an SVG and JSON manifest:
+Each directory with a configuration creates an independent mode-specific contract. Framework modes generate their native component and declarations, standalone bundler modes generate a Web Component and declarations, and bare `standalone` generates an SVG and JSON manifest:
 
 ```text
 app-icons       → AppIcon       → shared icons
@@ -332,7 +372,7 @@ All current modes generate the `stack` format.
 
 ### Generated component
 
-For React and Next.js, use the generated React component. It knows the internal IDs, constructs the URL, and provides a TypeScript API:
+Use the generated native component documented by the selected exact-mode guide. It knows the internal IDs, constructs the URL, and provides a TypeScript API. React and Next.js use it like this:
 
 ```tsx
 <AppIcon icon="search" width={24} height={24} />
@@ -570,7 +610,7 @@ export const IconsDebugPage = () => (
 )
 ```
 
-The Viewer displays groups, search, `viewBox`, CSS custom properties, and fallback colors. React/Next manifests get React, SVG, IMG, and CSS tabs; standalone manifests get SVG, IMG, and CSS. You can change color values in the interface and immediately inspect the result.
+The Viewer displays groups, search, `viewBox`, CSS custom properties, and fallback colors. Framework manifests get their framework-specific tab plus SVG, IMG, and CSS; standalone manifests get SVG, IMG, and CSS. You can change color values in the interface and immediately inspect the result.
 
 ### Viewer theme
 

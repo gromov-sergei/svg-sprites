@@ -6,7 +6,7 @@
 
 `@gromlab/svg-sprites` is an SVG sprite generator for modern web applications. It combines selected SVG icons into one or more external, cacheable sprites and prepares them for use in the UI.
 
-For vanilla applications using Vite/Webpack, the package generates a native typed Web Component; for React and Next.js, it generates a React component. In every case, the SVG remains a separate cacheable asset.
+Each exact mode generates a native typed component for its framework and bundler: Web Component, React, Vue, Svelte, Angular, Astro, Solid, Preact, Qwik, Lit, or Alpine.js. In every case, the SVG remains a separate cacheable asset.
 
 ## An SVG sprite as simple as a regular SVG icon
 
@@ -205,26 +205,21 @@ Create themes, states, and hover effects without editing the SVG or making addit
 
 ## SpriteViewer: every sprite on one debug page
 
-`SpriteViewer` renders all standalone, React, and Next.js project sprites in one place. One Web Component owns the visuals, while React uses a thin bridge to it.
+`SpriteViewer` renders sprites from every supported exact mode in one place. One Web Component owns the visuals, while React also provides a thin bridge to it.
 
 For each icon, you can see the generated CSS variables and their fallback colors. Change the values directly in the Viewer and see the result immediately.
 
-It also provides ready-to-use integration examples for:
-
-- React;
-- `<svg><use>`;
-- `<img>`;
-- CSS.
+It also provides ready-to-use examples for the manifest's framework, `<svg><use>`, `<img>`, and CSS.
 
 ![SpriteViewer](https://raw.githubusercontent.com/gromlab-ru/svg-sprites/master/preview-image.png)
 
 The Viewer is added only to an internal debug page and does not become part of the generated icon components.
 
-With bare standalone, the application loads the Viewer as a browser script and HTML element; bundler modes use the npm entry, while React and Next.js import `SpriteViewer` from `@gromlab/svg-sprites/react`.
+With bare standalone, the application loads the Viewer as a browser script and HTML element. Bundler and framework modes use the npm Web Component entry; React and Next.js may instead import the bridge from `@gromlab/svg-sprites/react`.
 
-## Standalone, React, and Next.js
+## 29 exact modes
 
-The package generates low-level standalone sprites for static HTML, Vite, and Webpack 5, plus typed React components for React and Next.js.
+The package provides isolated contracts for standalone, React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Astro, Solid, SolidStart, Preact, Qwik, Lit, and Alpine.js across their supported Vite, Webpack, Turbopack, and application-builder variants.
 
 ## Clean Git history
 
@@ -249,6 +244,26 @@ This README introduces the project's capabilities and demonstrates the primary u
 - [Standalone + Webpack 5](docs/en/guides/standalone-webpack.md)
 - [React + Vite](docs/en/guides/react-vite.md)
 - [React + Webpack 5](docs/en/guides/react-webpack.md)
+- [Vue + Vite](docs/en/guides/vue-vite.md)
+- [Vue + Webpack](docs/en/guides/vue-webpack.md)
+- [Nuxt + Vite](docs/en/guides/nuxt-vite.md)
+- [Nuxt + Webpack](docs/en/guides/nuxt-webpack.md)
+- [Svelte + Vite](docs/en/guides/svelte-vite.md)
+- [Svelte + Webpack](docs/en/guides/svelte-webpack.md)
+- [SvelteKit + Vite](docs/en/guides/sveltekit-vite.md)
+- [Angular application builder](docs/en/guides/angular-application.md)
+- [Angular + Webpack](docs/en/guides/angular-webpack.md)
+- [Astro + Vite](docs/en/guides/astro-vite.md)
+- [Solid + Vite](docs/en/guides/solid-vite.md)
+- [Solid + Webpack](docs/en/guides/solid-webpack.md)
+- [SolidStart + Vite](docs/en/guides/solid-start-vite.md)
+- [Preact + Vite](docs/en/guides/preact-vite.md)
+- [Preact + Webpack](docs/en/guides/preact-webpack.md)
+- [Qwik + Vite](docs/en/guides/qwik-vite.md)
+- [Lit + Vite](docs/en/guides/lit-vite.md)
+- [Lit + Webpack](docs/en/guides/lit-webpack.md)
+- [Alpine.js + Vite](docs/en/guides/alpine-vite.md)
+- [Alpine.js + Webpack](docs/en/guides/alpine-webpack.md)
 - [Next.js App Router + Turbopack](docs/en/guides/next-app-turbopack.md)
 - [Next.js App Router + Webpack](docs/en/guides/next-app-webpack.md)
 - [Next.js Pages Router + Turbopack](docs/en/guides/next-pages-turbopack.md)

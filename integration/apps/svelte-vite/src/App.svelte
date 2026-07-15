@@ -1,13 +1,33 @@
+<script>
+  import '@gromlab/svg-sprites/viewer/element'
+
+  import { IconsIcon } from './sprite/index.js'
+
+  const viewerSources = [
+    () => import('./sprite/.svg-sprite/svg-sprite.manifest.js'),
+  ]
+
+  /** @param {HTMLElement & { sources: unknown }} node */
+  function connectViewer(node) {
+    node.sources = viewerSources
+  }
+</script>
+
 <main>
   <h1>Svelte + Vite</h1>
-  <svg
+  <IconsIcon
     data-testid="icon"
     data-app="svelte-vite"
+    icon="check"
     aria-label="Check icon"
-    viewBox="0 0 24 24"
-  >
-    <use href="/sprites/icons.sprite.svg#check"></use>
-  </svg>
+    width="64"
+    height="64"
+    style="--icon-color-1: #16a34a"
+  />
+  <gromlab-sprite-viewer
+    use:connectViewer
+    viewer-title="Svelte Vite Viewer"
+  ></gromlab-sprite-viewer>
 </main>
 
 <style>
@@ -22,9 +42,8 @@
     padding: 40px;
   }
 
-  [data-testid='icon'] {
-    width: 64px;
-    height: 64px;
-    color: #16a34a;
+  gromlab-sprite-viewer {
+    display: block;
+    margin-top: 32px;
   }
 </style>

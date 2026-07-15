@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "sprites": "svg-sprites --mode legacy .",
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
     "typecheck": "svelte-check --tsconfig ./tsconfig.json",
     "build": "npm run sprites && svelte-check --tsconfig ./tsconfig.json && vite build",
     "dev": "npm run sprites && vite"

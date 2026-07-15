@@ -2,15 +2,15 @@
 
 ## What the package does
 
-`@gromlab/svg-sprites` is a CLI generator that builds SVG sprites from user-provided SVG files. The package does not include its own icon set: it compiles project SVGs into an external sprite asset, creates a native typed Web Component for standalone bundler modes, and creates a React component for React/Next.js.
+`@gromlab/svg-sprites` is a CLI generator that builds SVG sprites from user-provided SVG files. The package does not include its own icon set: it compiles project SVGs into an external sprite asset and creates a typed native component for the selected exact framework and bundler mode.
 
 The package supports multiple independent sprites in one project. Each explicitly selected config file or config-less directory describes one sprite and gets its own:
 
 - SVG asset;
 - mode-specific manifest data;
-- icon name types and production entry `.svg-sprite/index.js` for bundler modes;
+- icon name types and production entry `.svg-sprite/index.js` for every mode except bare `standalone`;
+- an isolated framework-native component and declarations for framework modes;
 - a native Web Component with an explicit registration function for `standalone@vite`/`standalone@webpack`;
-- a React component only for React/Next.js;
 - a deployment-neutral JSON manifest without a public URL for bare `standalone`.
 
 The project determines how many sprite directories exist and where they live. For example, `name: 'file-manager'` produces `FileManagerIcon`, `FileManagerIconName`, and `fileManagerIconNames`, while another directory with `name: 'navigation'` produces a separate `NavigationIcon`. These are examples of per-sprite APIs, not fixed package exports.
@@ -28,6 +28,26 @@ Select exactly one supported mode key:
 | Standalone + Webpack 5 | `standalone@webpack` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
+| Vue + Vite | `vue@vite` |
+| Vue + Webpack | `vue@webpack` |
+| Nuxt + Vite | `nuxt@vite` |
+| Nuxt + Webpack | `nuxt@webpack` |
+| Svelte + Vite | `svelte@vite` |
+| Svelte + Webpack | `svelte@webpack` |
+| SvelteKit + Vite | `sveltekit@vite` |
+| Angular application builder | `angular@application` |
+| Angular + Webpack | `angular@webpack` |
+| Astro + Vite | `astro@vite` |
+| Solid + Vite | `solid@vite` |
+| Solid + Webpack | `solid@webpack` |
+| SolidStart + Vite | `solid-start@vite` |
+| Preact + Vite | `preact@vite` |
+| Preact + Webpack | `preact@webpack` |
+| Qwik + Vite | `qwik@vite` |
+| Lit + Vite | `lit@vite` |
+| Lit + Webpack | `lit@webpack` |
+| Alpine.js + Vite | `alpine@vite` |
+| Alpine.js + Webpack | `alpine@webpack` |
 | Next.js App Router + Turbopack | `next@app/turbopack` |
 | Next.js App Router + Webpack 5 | `next@app/webpack` |
 | Next.js Pages Router + Turbopack | `next@pages/turbopack` |
@@ -48,7 +68,7 @@ The CLI accepts exactly one path. A `.ts`, `.js`, or `.json` file loads that exa
 }
 ```
 
-Generation through `npx` does not add the package to the project. Do not use incomplete `react`, `next@app`, `next@pages`, or `standalone@` keys, or the removed `legacy` mode. Use bare `standalone` only when the application publishes the SVG itself; use the complete Vite/Webpack key otherwise. Create one command per config file or directory when the project has multiple sprites.
+Generation through `npx` does not add the package to the project. Do not invent shortened or generic mode keys, and do not use the removed `legacy` mode. Select one complete key from the table. Use bare `standalone` only when the application publishes the SVG itself. Create one command per config file or directory when the project has multiple sprites.
 
 ## Inspecting the project
 
@@ -56,7 +76,7 @@ Establish the project's actual contract before making changes:
 
 1. Read the root `package.json`, lockfile, and workspace configuration; identify the framework, bundler, and existing commands.
 2. Find config files, commands containing `svg-sprites`, and imports of generated components. Config names are arbitrary; use the explicit CLI path and object fields.
-3. For React, determine whether the project uses Vite or Webpack 5 from its scripts and configuration. For Next.js, separately determine the App/Pages Router and the bundler used by the actual `dev`/`build` commands.
+3. Determine the framework, router when applicable, and actual bundler from scripts and configuration. For Next.js, separately determine the App/Pages Router and the bundler used by the real `dev`/`build` commands.
 4. Check existing `predev`, `prebuild`, `pretypecheck`, and orchestration scripts. Do not overwrite them.
 5. For a new sprite, choose a target directory without imposing a particular application layer or architecture.
 6. Check TypeScript and alias settings. Package subpath exports require TypeScript 5+ with `moduleResolution: 'bundler'`, `'node16'`, or `'nodenext'`.
@@ -88,13 +108,13 @@ Work in this order:
 7. If the application imports the sprite-module directory, create a user-owned `index.ts` next to `.svg-sprite`; do not place user files inside the generated directory.
 8. Run the first generation before typecheck or application startup, then inspect the mode-specific output and the actual component import.
 
-Do not add the Viewer automatically. Connect it only when requested or when visual verification of the set, colors, or complex SVGs is needed. Get the production isolation pattern from the exact guide: Vite, Webpack, App Router, and Pages Router use different boundaries.
+Do not add the Viewer automatically. Connect it only when requested or when visual verification of the set, colors, or complex SVGs is needed. Get the production isolation pattern from the exact guide: frameworks, bundlers, and routers use different boundaries.
 
 Do not copy snippets between exact modes even when their APIs look similar. Asset URLs, generated files, CSS handling, router boundaries, and debug-tool setup differ.
 
 ## Generated directory contract
 
-After generation, a React/Next.js directory has this structure:
+For example, after generation a React/Next.js directory has this structure:
 
 ```text
 svg-sprite/
@@ -126,14 +146,14 @@ export * from './.svg-sprite/index.js'
 
 The generator owns the complete `.svg-sprite` directory and replaces it on every run. Never put user files inside it. The generator also owns `.gitignore` when the selected mode creates it. Bare `standalone` preserves a user-owned `.gitignore`, but removes a managed `.gitignore` left by another mode. Generated paths must not contain symlinks.
 
-In React/Next modes, the internal `index.js` exports the component from `react/react-component.js` and the readonly name array; `index.d.ts` adds props/style types and the icon-name union. Standalone bundler modes export Web Component helpers and types without `react/`; bare `standalone` does not create a facade. Bundler-mode manifest declarations define their types locally and do not import the generator package. The manifest contains mode, target, icon list, and icon metadata for debug tools; bundler manifests also contain a URL and are not imported by the production component.
+Every exact-mode adapter owns its facade, framework directory, native component runtime, declarations, manifest source, styles, and asset URL. React/Next use `react/`; other framework modes use their own generated contract documented by the matching guide. Standalone bundler modes export Web Component helpers and types; bare `standalone` does not create a facade. Manifest declarations define their types locally and do not import the generator package.
 
 In bundler modes, the sprite remains a separate asset and SVG path data is not embedded in JavaScript. The content hash depends on bundler settings. Bare `standalone` creates a fixed filename, and the application owns its public name and versioning:
 
-- `react@vite` generates a static `sprite.svg?no-inline` import, preventing Vite from inlining it;
+- Vite-based adapters use a mode-owned static asset import that keeps the sprite external;
 - `standalone@vite` uses the same Vite asset mechanism and exports an href helper plus a native Web Component without React;
 - `standalone@webpack` uses Webpack Asset Modules and exports the same mode-local Web Component without React;
-- React Webpack 5 and all Next modes obtain the asset through `new URL(..., import.meta.url).href`, which must be processed by the selected bundler;
+- Webpack-based adapters and all Next modes use their adapter-owned external asset mechanism, commonly `new URL(..., import.meta.url).href`;
 - a custom Webpack SVG loader must not intercept the generated `sprite.svg`;
 - in Next mode, the generated component does not contain `'use client'` and works in Server Components, SSR, and SSG; do not add a client boundary solely for an icon;
 - the Next build command and mode key must agree: Turbopack with `.../turbopack`, Webpack with `.../webpack`.
@@ -156,7 +176,7 @@ defineFileManagerIconElement()
 
 The native element has no runtime dependencies, selects the generated ID and `viewBox`, obtains the URL through the bundler, and renders `<svg><use>` in Shadow DOM. Its `icon` property is typed with the exact name union, while plain HTML attribute values are validated only at runtime. It defaults to `1em × 1em`; resize the host with CSS. Bare `standalone` does not generate a Web Component.
 
-In React/Next.js, the same `name: 'file-manager'` creates the `FileManagerIcon` React component. For `name: 'navigation'`, use the generated `NavigationIcon`.
+In component modes, the same `name: 'file-manager'` creates a native `FileManagerIcon` component. Its syntax and props follow the exact-mode guide. For React/Next.js, `name: 'navigation'` creates `NavigationIcon`.
 
 Import the component from the root of its sprite directory. `width` and `height` are optional: ordinary CSS classes can control the size.
 
@@ -201,7 +221,7 @@ Automatic replacement targets `fill`/`stroke` attributes and inline `style`. The
 
 `SpriteViewer` is optional. Install `@gromlab/svg-sprites` as a development dependency only when the project needs the Viewer. It accepts manifests or statically discoverable loaders and provides search, themes, colors, and examples, but production components do not depend on it.
 
-Open the exact guide before connecting the Viewer. Vite uses a separate HTML entry, plain Webpack uses a development-only entry, Next.js uses a debug route, and the App Router additionally requires a separate Client Component boundary. Do not transfer setup between modes.
+Open the exact guide before connecting the Viewer. Frameworks, bundlers, and routers require different debug entries or client boundaries. Do not transfer setup between modes.
 
 ## Verifying the result
 
@@ -211,7 +231,7 @@ After changing a config or SVG, perform these required checks:
 2. Inspect the output for the selected exact mode:
    - bare `standalone` creates `sprite.svg` and `svg-sprite.manifest.json`;
    - `standalone@vite` and `standalone@webpack` additionally create `index.*`, `icon-data.*`, and a JS manifest, but no `react/` directory;
-   - React and Next.js modes also create `react/react-component.js`, its declaration, and its CSS Module.
+   - framework modes also create their adapter-owned native component runtime, declaration, and styles.
 3. For modes with a public facade, inspect `.svg-sprite/index.js`, the adjacent `index.d.ts`, the name list, and the actual import through the user-owned barrel.
 4. Inspect the manifest: mode and target must match the selected adapter, and the icon list must match the source SVGs. In bundler modes the URL must use the mode-specific mechanism; the bare JSON manifest intentionally has no public `spriteUrl`.
 5. Run the project's existing typecheck when the mode creates types or user-owned TypeScript changed.
@@ -254,7 +274,7 @@ References are included in the built skill. Open only the documents relevant to 
 
 ### Overview
 
-- [Package README](./references/README.md) covers capabilities, the primary React/Next.js scenario, and documentation links.
+- [Package README](./references/README.md) covers capabilities, the primary React/Next.js example, all supported families, and documentation links.
 
 ### Configuration
 
@@ -267,6 +287,26 @@ References are included in the built skill. Open only the documents relevant to 
 - [`standalone@webpack`](./references/docs/en/guides/standalone-webpack.md) covers a vanilla Webpack 5 application and the Web Component.
 - [`react@vite`](./references/docs/en/guides/react-vite.md) covers React with Vite.
 - [`react@webpack`](./references/docs/en/guides/react-webpack.md) covers React with Webpack 5.
+- [`vue@vite`](./references/docs/en/guides/vue-vite.md) covers Vue with Vite.
+- [`vue@webpack`](./references/docs/en/guides/vue-webpack.md) covers Vue with Webpack.
+- [`nuxt@vite`](./references/docs/en/guides/nuxt-vite.md) covers Nuxt with Vite.
+- [`nuxt@webpack`](./references/docs/en/guides/nuxt-webpack.md) covers Nuxt with Webpack.
+- [`svelte@vite`](./references/docs/en/guides/svelte-vite.md) covers Svelte with Vite.
+- [`svelte@webpack`](./references/docs/en/guides/svelte-webpack.md) covers Svelte with Webpack.
+- [`sveltekit@vite`](./references/docs/en/guides/sveltekit-vite.md) covers SvelteKit with Vite.
+- [`angular@application`](./references/docs/en/guides/angular-application.md) covers the Angular application builder.
+- [`angular@webpack`](./references/docs/en/guides/angular-webpack.md) covers Angular with Webpack.
+- [`astro@vite`](./references/docs/en/guides/astro-vite.md) covers Astro with Vite.
+- [`solid@vite`](./references/docs/en/guides/solid-vite.md) covers Solid with Vite.
+- [`solid@webpack`](./references/docs/en/guides/solid-webpack.md) covers Solid with Webpack.
+- [`solid-start@vite`](./references/docs/en/guides/solid-start-vite.md) covers SolidStart with Vite.
+- [`preact@vite`](./references/docs/en/guides/preact-vite.md) covers Preact with Vite.
+- [`preact@webpack`](./references/docs/en/guides/preact-webpack.md) covers Preact with Webpack.
+- [`qwik@vite`](./references/docs/en/guides/qwik-vite.md) covers Qwik with Vite.
+- [`lit@vite`](./references/docs/en/guides/lit-vite.md) covers Lit with Vite.
+- [`lit@webpack`](./references/docs/en/guides/lit-webpack.md) covers Lit with Webpack.
+- [`alpine@vite`](./references/docs/en/guides/alpine-vite.md) covers Alpine.js with Vite.
+- [`alpine@webpack`](./references/docs/en/guides/alpine-webpack.md) covers Alpine.js with Webpack.
 - [`next@app/turbopack`](./references/docs/en/guides/next-app-turbopack.md) covers the Next.js App Router with Turbopack.
 - [`next@app/webpack`](./references/docs/en/guides/next-app-webpack.md) covers the Next.js App Router with Webpack.
 - [`next@pages/turbopack`](./references/docs/en/guides/next-pages-turbopack.md) covers the Next.js Pages Router with Turbopack.

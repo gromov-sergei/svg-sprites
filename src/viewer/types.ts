@@ -12,10 +12,21 @@ export type SpriteViewerManifestIcon = {
   colors: readonly SpriteViewerManifestColor[]
 }
 
-export type SpriteViewerManifestUsage = {
-  framework: 'react' | 'vue'
-  componentName: string
-}
+export type SpriteViewerComponentFramework =
+  | 'react'
+  | 'vue'
+  | 'svelte'
+  | 'astro'
+  | 'solid'
+  | 'solid-start'
+  | 'preact'
+  | 'qwik'
+
+export type SpriteViewerManifestUsage =
+  | { framework: SpriteViewerComponentFramework; componentName: string; ssr?: boolean }
+  | { framework: 'angular'; componentName: string; selector: string }
+  | { framework: 'lit'; componentName: string; tagName: string; defineFunction: string }
+  | { framework: 'alpine'; pluginName: string; directive: string; magic: string }
 
 /** Нормализованный manifest, который может отобразить framework-neutral Viewer. */
 export type SpriteViewerManifest = {

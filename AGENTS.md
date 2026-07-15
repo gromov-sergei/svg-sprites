@@ -13,7 +13,27 @@
 - `standalone`;
 - `standalone@vite`;
 - `standalone@webpack`;
-- будущие `vue@*` и другие modes.
+- `vue@vite`;
+- `vue@webpack`;
+- `nuxt@vite`;
+- `nuxt@webpack`;
+- `svelte@vite`;
+- `svelte@webpack`;
+- `sveltekit@vite`;
+- `angular@application`;
+- `angular@webpack`;
+- `astro@vite`;
+- `solid@vite`;
+- `solid@webpack`;
+- `solid-start@vite`;
+- `preact@vite`;
+- `preact@webpack`;
+- `qwik@vite`;
+- `lit@vite`;
+- `lit@webpack`;
+- `alpine@vite`;
+- `alpine@webpack`;
+- будущие exact modes.
 
 Для каждого exact mode используется отдельный каталог `src/modes/<mode-slug>/`. Adapter самостоятельно определяет:
 
@@ -59,7 +79,9 @@ Core не генерирует JavaScript, declarations, manifest source, CSS и
 
 Один config разрешается ровно в один mode и один output. Множественные modes не генерируются в один root; orchestration выполняется независимыми config/API/CLI вызовами.
 
-Runtime генерируется как ESM JavaScript. Типизация добавляется отдельными `.d.ts`; TypeScript/TSX не используется как runtime output.
+Каждый adapter генерирует один нативный для фреймворка runtime-контракт, совместимый со стандартными JavaScript- и TypeScript-конфигурациями этого фреймворка. Предпочтительный output — ESM JavaScript; если framework compiler требует собственный формат, допускаются framework-native контейнеры с JavaScript-синтаксисом (`.jsx`, `.svelte`, `.astro` и аналогичные). `.tsx` и TypeScript runtime запрещены, кроме frameworks вроде Angular, чей штатный production toolchain требует TypeScript. Типизация всегда добавляется отдельными `.d.ts`; отдельные JS- и TS-реализации одного компонента не создаются.
+
+Integration-стенд должен собирать runtime как JavaScript-потребитель без дополнительной TypeScript-настройки, когда framework это допускает. TypeScript-совместимость того же generated API проверяется отдельным type probe внутри стенда. Framework-native adapter нельзя подменять consumer-примером другого mode или Web Component facade.
 
 Core writer полностью владеет каталогом `.svg-sprite` и при каждой генерации заменяет его через временный каталог с rollback при ошибке. Корневым `.gitignore` writer владеет, когда exact-mode adapter запрашивает его через `OutputPlan`. Bare `standalone` не создаёт `.gitignore`; остальные modes создают.
 

@@ -1,0 +1,25 @@
+{
+  "name": "@svg-sprites-fixtures/svelte-webpack",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "typecheck": "svelte-check --tsconfig ./tsconfig.json",
+    "build": "npm run sprites && svelte-check --tsconfig ./tsconfig.json && webpack --mode production",
+    "dev": "npm run sprites && webpack serve --mode development"
+  },
+  "dependencies": {
+    "svelte": "5.56.4"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "html-webpack-plugin": "5.6.7",
+    "svelte-check": "4.7.2",
+    "svelte-loader": "3.2.4",
+    "typescript": "6.0.2",
+    "webpack": "5.108.4",
+    "webpack-cli": "7.2.1",
+    "webpack-dev-server": "5.2.2"
+  }
+}

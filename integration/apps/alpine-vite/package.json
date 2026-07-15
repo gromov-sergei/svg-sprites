@@ -1,0 +1,20 @@
+{
+  "name": "@svg-sprites-fixtures/alpine-vite",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "svg-sprites src/sprite/svg-sprite.config.json",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run sprites && npm run typecheck && vite build",
+    "dev": "npm run sprites && vite"
+  },
+  "dependencies": {
+    "alpinejs": "3.15.12"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../..",
+    "typescript": "6.0.2",
+    "vite": "8.1.4"
+  }
+}
