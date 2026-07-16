@@ -6,6 +6,7 @@ import {
 import type { ModeResultMetadata } from './core/mode-adapter.js'
 import { writeOutputPlan } from './core/output-writer.js'
 import { prepareSprite } from './core/prepare-sprite.js'
+import { prepareRemoteSprite } from './release/load.js'
 import type { SpriteGenerationBaseResult } from './core/result.js'
 import { log } from './logger.js'
 import { getModeAdapter } from './mode-registry.js'
@@ -25,10 +26,23 @@ export async function generateSprite(
     overrides,
   )
   const adapter = getModeAdapter(config.mode)
-  const prepared = prepareSprite(config)
+  const prepared = config.source === 'remote'
+    ? await prepareRemoteSprite(config.input[0] as string)
+    : adapter.prepare
+      ? await adapter.prepare(config)
+      : prepareSprite(config)
+  const materializedConfig = prepared.kind === 'remote'
+    ? {
+        ...config,
+        name: prepared.manifest.name,
+        description: prepared.manifest.description,
+        transform: prepared.manifest.transform,
+        generatedNotice: prepared.manifest.generatedNotice,
+      }
+    : config
   const plan = await adapter.generate({
     rootDir: resolvedSource.rootDir,
-    config,
+    config: materializedConfig,
     prepared,
   })
   const plannedPaths = new Set(plan.files.map((file) => file.path.replaceAll('\\', '/')))
@@ -51,11 +65,11 @@ export async function generateSprite(
 
   const generatedDir = path.resolve(resolvedSource.rootDir, plan.paths.generatedDir)
   const iconLabel = prepared.iconNames.length === 1 ? 'icon' : 'icons'
-  log.success(`✓ ${config.name} · ${prepared.iconNames.length} ${iconLabel} · ${config.mode}`)
+  log.success(`✓ ${materializedConfig.name} · ${prepared.iconNames.length} ${iconLabel} · ${config.mode}`)
   log.detail(`  → ${path.relative(process.cwd(), generatedDir)}`)
 
   return {
-    name: config.name,
+    name: materializedConfig.name,
     rootDir: resolvedSource.rootDir,
     generatedDir,
     spritePath: path.resolve(resolvedSource.rootDir, plan.paths.sprite),

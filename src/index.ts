@@ -13,8 +13,8 @@ export { generateSprite } from './generate.js'
 export type { SpriteGenerationResult } from './generate.js'
 export { generateNextSprite } from './api/next.js'
 export { generateReactSprite } from './api/react.js'
-export { compileSprite, compileSpriteContent } from './compiler.js'
-export type { CompileSpriteOptions } from './compiler.js'
+export { compileSprite, compileSpriteContent, compileSpriteSourceContent } from './compiler.js'
+export type { CompileSpriteOptions, SpriteSourceContent } from './compiler.js'
 export { createShapeTransform } from './transforms.js'
 
 export type {
@@ -34,6 +34,8 @@ export type {
   SolidSpriteMode,
   StandaloneAssetTarget,
   StandaloneSpriteMode,
+  ServerAssetTarget,
+  ServerSpriteMode,
   StaticAssetTarget,
   SvelteSpriteMode,
   SpriteAssetTarget,
@@ -54,8 +56,15 @@ export type {
   SpriteConfig,
   SpriteFolder,
   SpriteFormat,
+  SpriteSource,
+  ServerSvgInput,
   TransformOptions,
 } from './types.js'
+export type {
+  ServerSpriteAsset,
+  ServerSpriteManifest,
+  SpriteCompileProfile,
+} from './release/types.js'
 export type {
   NextSpriteConfig,
   NextSpriteGenerationOptions,

@@ -1,18 +1,28 @@
-import { IconsIcon, iconsIconNames } from './src/sprite'
-import type { IconsIconName, IconsIconProps, IconsIconStyle } from './src/sprite'
-import { IconsIcon as GeneratedIconsIcon } from './src/sprite/.svg-sprite/react/react-component.js'
-import type { IconsIconName as GeneratedIconName } from './src/sprite/.svg-sprite/icon-data.js'
-import { iconsIconNames as generatedIconNames } from './src/sprite/.svg-sprite/icon-data.js'
+import { AppIcon, appIconNames } from './src/app-icons'
+import type { AppIconName, AppIconProps, AppIconStyle } from './src/app-icons'
+import { AppIcon as GeneratedAppIcon } from './src/app-icons/.svg-sprite/react/react-component.js'
+import type { AppIconName as GeneratedAppIconName } from './src/app-icons/.svg-sprite/icon-data.js'
+import { appIconNames as generatedAppIconNames } from './src/app-icons/.svg-sprite/icon-data.js'
+import { RemoteAppIcon, remoteAppIconNames } from './src/remote-app-icons'
+import type { RemoteAppIconName, RemoteAppIconProps } from './src/remote-app-icons'
+import { RemoteAppIcon as GeneratedRemoteAppIcon } from './src/remote-app-icons/.svg-sprite/react/react-component.js'
+import type { RemoteAppIconName as GeneratedRemoteAppIconName } from './src/remote-app-icons/.svg-sprite/icon-data.js'
+import { remoteAppIconNames as generatedRemoteAppIconNames } from './src/remote-app-icons/.svg-sprite/icon-data.js'
 
-const iconName: IconsIconName = iconsIconNames[0]
-const generatedIconName: GeneratedIconName = generatedIconNames[0]
-const allIconNames: readonly IconsIconName[] = iconsIconNames
-const style: IconsIconStyle = { '--icon-color-1': '#16a34a' }
-const props: IconsIconProps = { icon: iconName, style }
+const appIconName: AppIconName = appIconNames[0]
+const generatedAppIconName: GeneratedAppIconName = generatedAppIconNames[0]
+const allAppIconNames: readonly AppIconName[] = appIconNames
+const style: AppIconStyle = { '--icon-color-1': '#16a34a' }
+const appProps: AppIconProps = { icon: appIconName, style }
+const remoteAppIconName: RemoteAppIconName = remoteAppIconNames[0]
+const generatedRemoteAppIconName: GeneratedRemoteAppIconName = generatedRemoteAppIconNames[0]
+const remoteAppProps: RemoteAppIconProps = { icon: remoteAppIconName, style }
 
-void allIconNames
-void <IconsIcon {...props} />
-void <GeneratedIconsIcon icon={generatedIconName} />
+void allAppIconNames
+void <AppIcon {...appProps} />
+void <GeneratedAppIcon icon={generatedAppIconName} />
+void <RemoteAppIcon {...remoteAppProps} />
+void <GeneratedRemoteAppIcon icon={generatedRemoteAppIconName} />
 
 // @ts-expect-error Unknown icon names must be rejected by generated declarations.
-void <IconsIcon icon="missing" />
+void <AppIcon icon="missing" />

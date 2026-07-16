@@ -1,5 +1,16 @@
 import type { SpriteMode } from './targets/types.js'
 
+export type SpriteSource = 'local' | 'remote'
+
+/** HTTP SVG input серверного mode. Имя задаёт публичное имя иконки. */
+export type ServerSvgInput = {
+  name: string
+  url: string
+  sha256?: string
+}
+
+export type SpriteInput = string | ServerSvgInput
+
 /** Формат спрайта: stack или symbol. */
 export type SpriteFormat = 'stack' | 'symbol'
 
@@ -24,16 +35,18 @@ export type TransformOptions = {
   addTransition?: boolean
 }
 
-/** Единая конфигурация локального sprite-модуля. */
+/** Единая конфигурация sprite-модуля. Exact mode уточняет допустимый input. */
 export type SpriteConfig = {
   /** Режим можно определить в конфиге либо передать через CLI/API. */
   mode?: SpriteMode
+  /** Локальные SVG по умолчанию либо готовый server manifest. */
+  source?: SpriteSource
   /** Логическое имя спрайта. По умолчанию выводится из каталога модуля. */
   name?: string
   /** Описание спрайта для generated types и manifest. */
   description?: string
   /** Путь или glob-шаблоны исходных SVG относительно корня модуля. По умолчанию: ./icons. */
-  input?: string | string[]
+  input?: SpriteInput | SpriteInput[]
   /** Настройки трансформации SVG. По умолчанию все включены. */
   transform?: TransformOptions
   /** Добавлять развёрнутое предупреждение в generated-файлы. По умолчанию: true. */
@@ -43,9 +56,10 @@ export type SpriteConfig = {
 /** Полностью разрешённая конфигурация, готовая к генерации. */
 export type ResolvedSpriteConfig = {
   mode: SpriteMode
+  source: SpriteSource
   name: string
   description?: string
-  input: string[]
+  input: SpriteInput[]
   transform: Required<TransformOptions>
   generatedNotice: boolean
 }

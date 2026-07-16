@@ -27,7 +27,9 @@ result.spritePath
 result.manifestPath
 ```
 
-Next.js modes дополнительно возвращают `router` и `bundler`.
+Next.js modes дополнительно возвращают `router` и `bundler`. `standalone@server`
+возвращает `target: 'server'`; его `spritePath` указывает на стандартный
+content-addressed profile, а `manifestPath` — на server manifest.
 
 Для static standalone mode `result.spritePath` можно использовать в build-скрипте,
 чтобы опубликовать SVG по URL приложения:
@@ -101,6 +103,11 @@ export default defineSpriteConfig({
 `input` принимает одну папку, SVG-файл или glob-паттерн либо массив, объединяющий такие источники. Если поле не задано, используется `./icons`; относительные пути считаются от папки с конфигом.
 
 `defineSpriteConfig` является identity helper для TypeScript autocomplete. JS может экспортировать тот же объект через `export default`, а JSON содержит объект непосредственно.
+
+Публичные типы `ServerSvgInput`, `ServerSpriteManifest`, `ServerSpriteAsset` и
+`SpriteCompileProfile` описывают inputs и release data для `standalone@server`.
+Consumer использует тот же API с `source: 'remote'` и одним local path или HTTP(S)
+URL manifest в `input`.
 
 ## Специализированные обёртки
 

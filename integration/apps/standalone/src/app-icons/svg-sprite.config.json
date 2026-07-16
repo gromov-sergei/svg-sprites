@@ -1,0 +1,6 @@
+{
+  "mode": "standalone",
+  "name": "app",
+  "input": "../../../../fixtures/icons/check.svg",
+  "generatedNotice": false
+}

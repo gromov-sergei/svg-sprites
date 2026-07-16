@@ -4,7 +4,8 @@ body {
   font-family: system-ui, sans-serif;
 }
 
-[data-testid='icon'] {
+[data-testid='icon'],
+[data-testid='remote-icon'] {
   width: 64px;
   height: 64px;
   color: #16a34a;

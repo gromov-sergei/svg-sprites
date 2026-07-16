@@ -5,7 +5,7 @@
 
 Общий формат JSON, JavaScript и TypeScript config-файлов описан в [руководстве по конфигурации](configuration.md).
 
-## Гайды быстрого старта
+## Быстрый старт для consumer modes
 
 | Проект | Exact mode | Guide |
 |---|---|---|
@@ -39,11 +39,15 @@
 | Next.js Pages Router + Turbopack | `next@pages/turbopack` | [Pages Router + Turbopack](guides/next-pages-turbopack.md) |
 | Next.js Pages Router + Webpack | `next@pages/webpack` | [Pages Router + Webpack](guides/next-pages-webpack.md) |
 
-Все guides используют один порядок:
+Все consumer guides используют один порядок:
 
 1. Генерация спрайта через `npx` без добавления package в проект.
 2. Использование спрайта в приложении.
 3. Необязательное подключение Viewer для дебага и превью.
+
+## Серверная генерация
+
+Используйте [`standalone@server`](guides/standalone-server.md), чтобы сгенерировать на сервере или в CI/CD универсальный SVG-спрайт для всех consumer modes.
 
 ## Справочники
 

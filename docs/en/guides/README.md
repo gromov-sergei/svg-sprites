@@ -1,5 +1,7 @@
 # Quick Start Guides
 
+## Consumer Applications
+
 - `standalone`: [bare standalone](standalone.md)
 - `standalone@vite`: [standalone with Vite](standalone-vite.md)
 - `standalone@webpack`: [standalone with Webpack](standalone-webpack.md)
@@ -29,3 +31,7 @@
 - `next@app/webpack`: [App Router with Webpack](next-app-webpack.md)
 - `next@pages/turbopack`: [Pages Router with Turbopack](next-pages-turbopack.md)
 - `next@pages/webpack`: [Pages Router with Webpack](next-pages-webpack.md)
+
+## Server-Side Generation
+
+- `standalone@server`: [generate a universal sprite on the server](standalone-server.md)

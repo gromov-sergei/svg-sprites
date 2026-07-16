@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "sprites": "svg-sprites src/sprite/svg-sprite.config.ts",
+    "sprites": "npm run sprites:local && npm run sprites:remote",
+    "sprites:local": "svg-sprites src/app-icons/svg-sprite.config.ts",
+    "sprites:remote": "svg-sprites src/remote-app-icons/svg-sprite.config.js",
     "typecheck": "tsc --noEmit",
     "build": "npm run sprites && next build --webpack",
     "dev": "npm run sprites && next dev --webpack",

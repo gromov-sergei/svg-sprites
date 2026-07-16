@@ -74,11 +74,10 @@ function component(config: ResolvedSpriteConfig): string {
   const ids = `${camel(config.name)}IconIds`
   return [
     header(config.generatedNotice),
-    '/// <reference path="../assets.d.ts" />',
     "import { ChangeDetectionStrategy, Component, input } from '@angular/core'",
     `import type { ${typeName} } from '../icon-data.js'`,
     `import { ${ids} } from '../icon-data.js'`,
-    "import spriteUrl from '../sprite.svg'",
+    "import spriteManifest from '../svg-sprite.manifest.js'",
     '',
     '@Component({',
     `  selector: '${config.name}-icon',`,
@@ -91,7 +90,7 @@ function component(config: ResolvedSpriteConfig): string {
     `  readonly icon = input.required<${typeName}>()`,
     '',
     '  get href(): string {',
-    `    return spriteUrl + '#' + ${ids}[this.icon()]`,
+    `    return spriteManifest.spriteUrl + '#' + ${ids}[this.icon()]`,
     '  }',
     '}',
     '',
@@ -134,17 +133,6 @@ function indexDeclarations(config: ResolvedSpriteConfig): string {
     `export { ${componentName} } from './angular/angular-component'`,
     `export { ${camel(config.name)}IconNames } from './icon-data.js'`,
     `export type { ${componentName}Name } from './icon-data.js'`,
-    '',
-  ].join('\n')
-}
-
-function assetDeclarations(config: ResolvedSpriteConfig): string {
-  return [
-    header(config.generatedNotice),
-    "declare module '*.svg' {",
-    '  const url: string',
-    '  export default url',
-    '}',
     '',
   ].join('\n')
 }
@@ -229,7 +217,6 @@ export function generateOutputFiles(config: ResolvedSpriteConfig, artifact: Comp
   return [
     { path: path.posix.join(OUTPUT_DIR, 'index.ts'), content: index(config) },
     { path: path.posix.join(OUTPUT_DIR, 'index.d.ts'), content: indexDeclarations(config) },
-    { path: path.posix.join(OUTPUT_DIR, 'assets.d.ts'), content: assetDeclarations(config) },
     { path: path.posix.join(OUTPUT_DIR, 'sprite.svg'), content: svg(artifact.bytes, config.generatedNotice) },
     { path: path.posix.join(OUTPUT_DIR, 'icon-data.js'), content: iconData(config, artifact) },
     { path: path.posix.join(OUTPUT_DIR, 'icon-data.d.ts'), content: iconDeclarations(config, artifact) },

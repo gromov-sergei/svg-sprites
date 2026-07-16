@@ -18,6 +18,7 @@ import { qwikViteAdapter } from './modes/qwik-vite/adapter.js'
 import { reactViteAdapter } from './modes/react-vite/adapter.js'
 import { reactWebpackAdapter } from './modes/react-webpack/adapter.js'
 import { standaloneAdapter } from './modes/standalone/adapter.js'
+import { standaloneServerAdapter } from './modes/standalone-server/adapter.js'
 import { standaloneViteAdapter } from './modes/standalone-vite/adapter.js'
 import { standaloneWebpackAdapter } from './modes/standalone-webpack/adapter.js'
 import { solidStartViteAdapter } from './modes/solid-start-vite/adapter.js'
@@ -32,6 +33,7 @@ import type { SpriteMode } from './targets/types.js'
 
 const modeRegistry: Record<SpriteMode, ModeAdapter> = {
   standalone: standaloneAdapter,
+  'standalone@server': standaloneServerAdapter,
   'standalone@vite': standaloneViteAdapter,
   'standalone@webpack': standaloneWebpackAdapter,
   'react@vite': reactViteAdapter,

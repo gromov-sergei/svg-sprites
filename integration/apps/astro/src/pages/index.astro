@@ -1,5 +1,6 @@
 ---
-import { IconsIcon } from '../sprite/index.js'
+import { AppIcon } from '../app-icons/index.js'
+import { RemoteAppIcon } from '../remote-app-icons/index.js'
 
 const title = 'Astro sprite fixture'
 ---
@@ -14,14 +15,23 @@ const title = 'Astro sprite fixture'
   <body>
     <main>
       <h1>Astro</h1>
-      <IconsIcon
+      <AppIcon
         data-testid="icon"
         data-app="astro"
         icon="check"
         aria-label="Check icon"
         width="64"
         height="64"
-        style="--icon-color-1: #16a34a"
+        style="color: #16a34a; --icon-color-1: #16a34a"
+      />
+      <RemoteAppIcon
+        data-testid="remote-icon"
+        data-app="astro-remote"
+        icon="check"
+        aria-label="Remote check icon"
+        width="64"
+        height="64"
+        style="color: #16a34a; --icon-color-1: #16a34a"
       />
       <gromlab-sprite-viewer id="sprite-viewer"></gromlab-sprite-viewer>
     </main>
@@ -34,7 +44,10 @@ const title = 'Astro sprite fixture'
       if (!viewer) throw new Error('Sprite Viewer element is missing.')
       Object.assign(viewer, {
         viewerTitle: 'Astro Vite Viewer',
-        sources: [() => import('../sprite/.svg-sprite/svg-sprite.manifest.js')],
+        sources: [
+          () => import('../app-icons/.svg-sprite/svg-sprite.manifest.js'),
+          () => import('../remote-app-icons/.svg-sprite/svg-sprite.manifest.js'),
+        ],
       })
     </script>
   </body>
@@ -52,7 +65,8 @@ const title = 'Astro sprite fixture'
     padding: 40px;
   }
 
-  [data-testid='icon'] {
+  [data-testid='icon'],
+  [data-testid='remote-icon'] {
     width: 64px;
     height: 64px;
     color: #16a34a;

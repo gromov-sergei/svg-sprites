@@ -1,5 +1,4 @@
-import { compileSpriteContent } from '../../compiler.js'
-import { createCompiledSpriteArtifact } from '../../core/compiled-artifact.js'
+import { resolveCompiledSpriteArtifact } from '../../core/resolve-compiled-artifact.js'
 import type { ModeAdapterContext, OutputPlan } from '../../core/mode-adapter.js'
 import { generateOutputFiles } from './output.js'
 
@@ -15,12 +14,11 @@ type AngularApplicationAdapter = {
 export const angularApplicationAdapter: AngularApplicationAdapter = {
   mode: 'angular@application',
   async generate(context) {
-    const bytes = await compileSpriteContent(
-      context.prepared.folder,
+    const artifact = await resolveCompiledSpriteArtifact(
+      context.prepared,
       context.config.transform,
       { rootViewBox: false },
     )
-    const artifact = createCompiledSpriteArtifact(bytes, context.prepared.iconNames, 'stack')
 
     return {
       files: generateOutputFiles(context.config, artifact),

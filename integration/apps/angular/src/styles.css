@@ -9,7 +9,8 @@ body {
   padding: 40px;
 }
 
-icons-icon[data-testid='icon'] {
+app-icon[data-testid='icon'],
+remote-app-icon[data-testid='remote-icon'] {
   width: 64px;
   height: 64px;
   color: #16a34a;

@@ -3,11 +3,19 @@ import path from 'node:path'
 import { createJiti } from 'jiti'
 import { toKebabCase, validateSpriteName } from './core/naming.js'
 import type { SpriteMode } from './targets/types.js'
-import type { ResolvedSpriteConfig, SpriteConfig, TransformOptions } from './types.js'
+import type {
+  ResolvedSpriteConfig,
+  ServerSvgInput,
+  SpriteConfig,
+  SpriteInput,
+  SpriteSource,
+  TransformOptions,
+} from './types.js'
 
 const CONFIG_EXTENSIONS = new Set(['.js', '.json', '.ts'])
 const CONFIG_FIELDS = new Set([
   'mode',
+  'source',
   'name',
   'description',
   'input',
@@ -19,6 +27,7 @@ const MODES = new Set<SpriteMode>([
   'standalone',
   'standalone@vite',
   'standalone@webpack',
+  'standalone@server',
   'react@vite',
   'react@webpack',
   'vue@vite',
@@ -57,6 +66,52 @@ export function isSpriteMode(value: unknown): value is SpriteMode {
   return typeof value === 'string' && MODES.has(value as SpriteMode)
 }
 
+function isServerSvgInput(value: unknown): value is ServerSvgInput {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const input = value as Record<string, unknown>
+  if (Object.keys(input).some((field) => !['name', 'url', 'sha256'].includes(field))) return false
+  return typeof input.name === 'string'
+    && input.name.trim() !== ''
+    && !/[\\/]/.test(input.name)
+    && !input.name.endsWith('.svg')
+    && typeof input.url === 'string'
+    && input.url.trim() !== ''
+    && (input.sha256 === undefined || (typeof input.sha256 === 'string' && /^[a-f0-9]{64}$/i.test(input.sha256)))
+}
+
+function inputEntries(input: unknown): unknown[] {
+  return Array.isArray(input) ? input : [input]
+}
+
+function validateInput(config: Record<string, unknown>): void {
+  if (config.input === undefined) return
+
+  const entries = inputEntries(config.input)
+  if (entries.length === 0) {
+    throw configError('"input" must be a non-empty string or an array of non-empty strings.')
+  }
+
+  if (config.source === 'remote') {
+    if (typeof config.input !== 'string' || config.input.trim() === '') {
+      throw configError('remote "input" must be one manifest path or HTTP(S) URL.')
+    }
+    return
+  }
+
+  if (config.mode === 'standalone@server') {
+    if (entries.some((entry) => (
+      typeof entry === 'string' ? entry.trim() === '' : !isServerSvgInput(entry)
+    ))) {
+      throw configError('standalone@server "input" must contain local paths/globs or { name, url, sha256? } entries.')
+    }
+    return
+  }
+
+  if (entries.some((entry) => typeof entry !== 'string' || entry.trim() === '')) {
+    throw configError('"input" must be a non-empty string or an array of non-empty strings.')
+  }
+}
+
 function getDefaultName(rootDir: string): string {
   const rootName = path.basename(rootDir)
   const source = rootName === 'svg-sprite' || rootName === 'svg-sprites'
@@ -92,21 +147,24 @@ export function validateSpriteConfig(value: unknown): asserts value is SpriteCon
   if (config.mode !== undefined && !isSpriteMode(config.mode)) {
     throw configError(`unsupported "mode": ${String(config.mode)}.`)
   }
+  if (config.source !== undefined && config.source !== 'local' && config.source !== 'remote') {
+    throw configError('"source" must be "local" or "remote".')
+  }
+  if (config.mode === 'standalone@server' && config.source === 'remote') {
+    throw configError('standalone@server cannot consume a remote manifest.')
+  }
+  if (config.source === 'remote') {
+    for (const field of ['name', 'description', 'transform', 'generatedNotice']) {
+      if (field in config) throw configError(`remote config does not support "${field}".`)
+    }
+  }
   if (config.name !== undefined && typeof config.name !== 'string') {
     throw configError('"name" must be a string.')
   }
   if (config.description !== undefined && typeof config.description !== 'string') {
     throw configError('"description" must be a string.')
   }
-  if (config.input !== undefined && (
-    typeof config.input !== 'string'
-      ? !Array.isArray(config.input)
-        || config.input.length === 0
-        || config.input.some((entry) => typeof entry !== 'string' || entry.trim() === '')
-      : config.input.trim() === ''
-  )) {
-    throw configError('"input" must be a non-empty string or an array of non-empty strings.')
-  }
+  validateInput(config)
   if (config.transform !== undefined) {
     if (
       config.transform === null
@@ -210,27 +268,38 @@ export function resolveSpriteConfig(
   validateSpriteConfig(config)
   validateSpriteConfig(overrides)
 
-  const configValues = definedEntries(config)
-  const overrideValues = definedEntries(overrides)
-  const transform: TransformOptions = {
-    ...config.transform,
-    ...overrides.transform,
+  const configValues = definedEntries(config) as Record<string, unknown>
+  const overrideValues = definedEntries(overrides) as Record<string, unknown>
+  const source = (overrideValues.source ?? configValues.source ?? 'local') as SpriteSource
+  const sourceChangedByOverride = overrideValues.source !== undefined && overrideValues.source !== configValues.source
+  if (sourceChangedByOverride && overrideValues.input === undefined) {
+    throw new Error('Changing "source" through overrides also requires an "input" override.')
   }
-  const merged: SpriteConfig = {
+  const transform: TransformOptions = {
+    ...(source === 'remote' ? {} : config.transform),
+    ...(source === 'remote' ? {} : overrides.transform),
+  }
+  const merged = {
     ...configValues,
     ...overrideValues,
+    source,
     transform,
-  }
+  } as Record<string, unknown>
 
-  if (!merged.mode) {
+  if (!merged.mode || !isSpriteMode(merged.mode)) {
     throw new Error('Sprite mode is required. Set "mode" in the config or pass it through CLI/API.')
   }
+  if (source === 'remote' && merged.mode === 'standalone@server') {
+    throw new Error('Mode "standalone@server" cannot consume a remote manifest.')
+  }
 
-  const name = merged.name ?? getDefaultName(rootDir)
+  const name = source === 'remote' ? getDefaultName(rootDir) : (merged.name as string | undefined) ?? getDefaultName(rootDir)
   validateSpriteName(name)
-  const configuredInput = merged.input ?? 'icons'
+  const configuredInput = (merged.input ?? 'icons') as SpriteInput | SpriteInput[]
   const input = (Array.isArray(configuredInput) ? configuredInput : [configuredInput])
     .map((entry) => {
+      if (typeof entry !== 'string') return entry
+      if (source === 'remote' && /^https?:\/\//i.test(entry)) return entry
       const negated = entry.startsWith('!')
       const resolved = path.resolve(rootDir, negated ? entry.slice(1) : entry)
       const normalized = path.sep === '/' ? resolved : resolved.replaceAll(path.sep, '/')
@@ -239,14 +308,15 @@ export function resolveSpriteConfig(
 
   return {
     mode: merged.mode,
+    source,
     name,
-    description: merged.description,
+    description: source === 'remote' ? undefined : merged.description as string | undefined,
     input,
     transform: {
       removeSize: transform.removeSize ?? true,
       replaceColors: transform.replaceColors ?? true,
       addTransition: transform.addTransition ?? true,
     },
-    generatedNotice: merged.generatedNotice ?? true,
+    generatedNotice: source === 'remote' ? true : (merged.generatedNotice as boolean | undefined) ?? true,
   }
 }

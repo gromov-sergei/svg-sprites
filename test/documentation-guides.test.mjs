@@ -9,6 +9,7 @@ const guideModes = new Map([
   ['standalone.md', 'standalone'],
   ['standalone-vite.md', 'standalone@vite'],
   ['standalone-webpack.md', 'standalone@webpack'],
+  ['standalone-server.md', 'standalone@server'],
   ['react-vite.md', 'react@vite'],
   ['react-webpack.md', 'react@webpack'],
   ['vue-vite.md', 'vue@vite'],
@@ -92,14 +93,24 @@ test('exact-mode guides are reusable by docs and skills', () => {
           ]
       assert.deepEqual(headings, expectedHeadings)
       assert.match(source, commandPatterns[language])
-      assert.match(source, spriteDirectoryPatterns[language])
-      if (mode !== 'standalone') {
+      if (mode !== 'standalone@server') assert.match(source, spriteDirectoryPatterns[language])
+      if (mode !== 'standalone' && mode !== 'standalone@server') {
         assert.match(source, /npm install --save-dev @gromlab\/svg-sprites/)
       }
       assert.doesNotMatch(source, /npx --yes[^\n]*@gromlab\/svg-sprites@/)
       assert.doesNotMatch(source, /check\.svg|icon="check"|#check|iconName: 'check'/)
-      const modePattern = new RegExp(`"mode": "${mode.replaceAll('/', '\\/')}"`)
-      assert.match(source, modePattern)
+      if (mode === 'standalone@server') {
+        assert.match(source, /--mode standalone@server/)
+        assert.match(source, /--input '\.\/icons\/\*\*\/\*\.svg' \\\n  \./)
+        assert.doesNotMatch(source, /"mode": "standalone@server"/)
+        assert.match(source, /aws s3 sync \.\/\.svg-sprite\/ s3:\/\/my-bucket\/app-icons\//)
+        assert.match(source, /https:\/\/cdn\.example\.com\/app-icons\/svg-sprite\.manifest\.json/)
+        assert.match(source, /"mode": "react@vite"/)
+        assert.match(source, /"source": "remote"/)
+      } else {
+        const modePattern = new RegExp(`"mode": "${mode.replaceAll('/', '\\/')}"`)
+        assert.match(source, modePattern)
+      }
       assert.doesNotMatch(source, /\]\([^)]+\)/, `${language}/${file} must not depend on its location`)
     }
   }

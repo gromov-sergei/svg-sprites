@@ -8,16 +8,35 @@ import type {
   SpriteAssetTarget,
 } from '../targets/types.js'
 import type { ResolvedSpriteConfig, SpriteFolder } from '../types.js'
+import type { SpriteSourceContent } from '../compiler.js'
+import type { ServerSpriteManifest } from '../release/types.js'
 
 export type GeneratedFile = {
   readonly path: string
   readonly content: string | Uint8Array
 }
 
-export type PreparedSprite = {
+export type PreparedLocalSprite = {
+  readonly kind: 'local'
   readonly folder: SpriteFolder
   readonly iconNames: readonly string[]
 }
+
+export type PreparedContentSprite = {
+  readonly kind: 'content'
+  readonly name: string
+  readonly sources: readonly SpriteSourceContent[]
+  readonly iconNames: readonly string[]
+}
+
+export type PreparedRemoteSprite = {
+  readonly kind: 'remote'
+  readonly manifest: ServerSpriteManifest
+  readonly manifestLocation: string
+  readonly iconNames: readonly string[]
+}
+
+export type PreparedSprite = PreparedLocalSprite | PreparedContentSprite | PreparedRemoteSprite
 
 export type ModeAdapterContext = {
   readonly rootDir: string
@@ -60,5 +79,6 @@ export type OutputPlan = {
 
 export interface ModeAdapter<M extends SpriteMode = SpriteMode> {
   readonly mode: M
+  prepare?(config: ResolvedSpriteConfig): Promise<PreparedSprite>
   generate(context: ModeAdapterContext): Promise<OutputPlan>
 }

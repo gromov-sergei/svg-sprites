@@ -1,0 +1,6 @@
+{
+  "mode": "lit@vite",
+  "name": "app",
+  "input": "../../../../fixtures/icons/check.svg",
+  "generatedNotice": false
+}

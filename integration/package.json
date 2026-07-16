@@ -7,7 +7,7 @@
     "apps/*"
   ],
   "scripts": {
-    "generate": "node scripts/run-workspaces.mjs sprites",
+    "generate": "node scripts/generate-sprites.mjs",
     "typecheck": "node scripts/run-workspaces.mjs typecheck",
     "build": "node scripts/run-workspaces.mjs build",
     "test:e2e": "playwright test",

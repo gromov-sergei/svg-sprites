@@ -1,10 +1,14 @@
-import type { IconsIconName } from './sprite'
-import type { SpriteManifest } from './sprite/.svg-sprite/svg-sprite.manifest.js'
+import type { AppIconName } from './app-icons'
+import type { SpriteManifest as AppSpriteManifest } from './app-icons/.svg-sprite/svg-sprite.manifest.js'
+import type { RemoteAppIconName } from './remote-app-icons'
+import type { SpriteManifest as RemoteAppSpriteManifest } from './remote-app-icons/.svg-sprite/svg-sprite.manifest.js'
 
-const icon: IconsIconName = 'check'
-const mode: SpriteManifest['mode'] = 'angular@application'
+const icon: AppIconName = 'check'
+const remoteIcon: RemoteAppIconName = 'check'
+const mode: AppSpriteManifest['mode'] = 'angular@application'
+const remoteMode: RemoteAppSpriteManifest['mode'] = 'angular@application'
 
 // @ts-expect-error Unknown source file names are rejected by the generated union.
-const unknownIcon: IconsIconName = 'missing'
+const unknownIcon: AppIconName = 'missing'
 
-export { icon, mode, unknownIcon }
+export { icon, mode, remoteIcon, remoteMode, unknownIcon }

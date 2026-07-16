@@ -1,5 +1,7 @@
 # Гайды быстрого старта
 
+## Consumer-приложения
+
 - `standalone`: [bare standalone](standalone.md)
 - `standalone@vite`: [standalone с Vite](standalone-vite.md)
 - `standalone@webpack`: [standalone с Webpack](standalone-webpack.md)
@@ -29,3 +31,7 @@
 - `next@app/webpack`: [App Router с Webpack](next-app-webpack.md)
 - `next@pages/turbopack`: [Pages Router с Turbopack](next-pages-turbopack.md)
 - `next@pages/webpack`: [Pages Router с Webpack](next-pages-webpack.md)
+
+## Серверная генерация
+
+- `standalone@server`: [сгенерировать универсальный спрайт на сервере](standalone-server.md)

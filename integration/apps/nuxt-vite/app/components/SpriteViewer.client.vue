@@ -4,7 +4,8 @@ import { defineSpriteViewerElement } from '@gromlab/svg-sprites/viewer'
 defineSpriteViewerElement()
 
 const viewerSources = [
-  () => import('../../src/sprite/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('../../src/app-icons/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('../../src/remote-app-icons/.svg-sprite/svg-sprite.manifest.js'),
 ]
 </script>
 

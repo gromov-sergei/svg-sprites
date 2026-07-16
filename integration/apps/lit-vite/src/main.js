@@ -1,20 +1,31 @@
 import '@gromlab/svg-sprites/viewer/element'
-import spriteManifest from './sprite/.svg-sprite/svg-sprite.manifest.js'
-import { defineIconsIcon } from './sprite/index.js'
+import appManifest from './app-icons/.svg-sprite/svg-sprite.manifest.js'
+import { defineAppIcon } from './app-icons/index.js'
+import remoteAppManifest from './remote-app-icons/.svg-sprite/svg-sprite.manifest.js'
+import { defineRemoteAppIcon } from './remote-app-icons/index.js'
 
-defineIconsIcon()
+defineAppIcon()
+defineRemoteAppIcon()
 
 document.querySelector('#app').innerHTML = `
   <h1>Lit + Vite</h1>
-  <icons-icon
+  <app-icon
     data-testid="icon"
     data-app="lit-vite"
     icon="check"
     role="img"
     aria-label="Check icon"
     style="width:64px;height:64px;color:#16a34a;--icon-color-1:#16a34a"
-  ></icons-icon>
+  ></app-icon>
+  <remote-app-icon
+    data-testid="remote-icon"
+    data-app="lit-vite-remote"
+    icon="check"
+    role="img"
+    aria-label="Remote check icon"
+    style="width:64px;height:64px;color:#16a34a;--icon-color-1:#16a34a"
+  ></remote-app-icon>
   <gromlab-sprite-viewer viewer-title="Lit Vite Viewer"></gromlab-sprite-viewer>
 `
 
-document.querySelector('gromlab-sprite-viewer').sources = [spriteManifest]
+document.querySelector('gromlab-sprite-viewer').sources = [appManifest, remoteAppManifest]
