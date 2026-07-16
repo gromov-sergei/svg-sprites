@@ -1,6 +1,6 @@
 {
   "name": "@gromlab/svg-sprites",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Generate external SVG sprites and typed native icon components for modern web frameworks",
   "type": "module",
   "main": "./dist/index.js",
