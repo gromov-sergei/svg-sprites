@@ -1,0 +1,15 @@
+{
+  "name": "@svg-sprites-fixtures/standalone-server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "sprites": "npm run sprites:mixed && npm run sprites:http && npm run sprites:plain && node verify-release.mjs",
+    "sprites:mixed": "svg-sprites cases/mixed-input/svg-sprite.config.js",
+    "sprites:http": "svg-sprites cases/http-only/svg-sprite.config.js",
+    "sprites:plain": "svg-sprites cases/transforms-disabled/svg-sprite.config.js"
+  },
+  "devDependencies": {
+    "@gromlab/svg-sprites": "file:../../.."
+  }
+}

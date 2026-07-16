@@ -1,9 +1,17 @@
 import type { ComponentProps } from 'svelte'
-import { IconsIcon } from './sprite/index.js'
-import type { IconsIconName, IconsIconProps } from './sprite/index.js'
+import { AppIcon } from './app-icons/index.js'
+import type { AppIconName, AppIconProps } from './app-icons/index.js'
+import { RemoteAppIcon } from './remote-app-icons/index.js'
+import type { RemoteAppIconName, RemoteAppIconProps } from './remote-app-icons/index.js'
 
-const icon: IconsIconName = 'check'
-const inferred: ComponentProps<typeof IconsIcon> = { icon, 'aria-label': 'Check icon' }
-const declared: IconsIconProps = inferred
+const iconName: AppIconName = 'check'
+const inferred: ComponentProps<typeof AppIcon> = { icon: iconName, 'aria-label': 'Check icon' }
+const declared: AppIconProps = inferred
+const remoteIconName: RemoteAppIconName = 'check'
+const remoteInferred: ComponentProps<typeof RemoteAppIcon> = {
+  icon: remoteIconName,
+  'aria-label': 'Remote check icon',
+}
+const remoteDeclared: RemoteAppIconProps = remoteInferred
 
-void declared
+void [declared, remoteDeclared]

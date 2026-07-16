@@ -68,7 +68,6 @@ test('Angular application adapter emits a standalone component for the applicati
     '.svg-sprite/angular/angular-component.css',
     '.svg-sprite/angular/angular-component.d.ts',
     '.svg-sprite/angular/angular-component.ts',
-    '.svg-sprite/assets.d.ts',
     '.svg-sprite/icon-data.d.ts',
     '.svg-sprite/icon-data.js',
     '.svg-sprite/index.d.ts',
@@ -85,8 +84,8 @@ test('Angular application adapter emits a standalone component for the applicati
   assert.match(component, /standalone: true/)
   assert.match(component, /export class AppIcon/)
   assert.match(component, /input\.required<AppIconName>\(\)/)
-  assert.match(component, /reference path="\.\.\/assets\.d\.ts"/)
-  assert.match(component, /import spriteUrl from '\.\.\/sprite\.svg'/)
+  assert.match(component, /import spriteManifest from '\.\.\/svg-sprite\.manifest\.js'/)
+  assert.match(component, /spriteManifest\.spriteUrl/)
   assert.match(declarations, /InputSignal<AppIconName>/)
   assert.match(declarations, /ɵɵComponentDeclaration/)
   assert.match(manifest, /import spriteUrl from '\.\/sprite\.svg'/)

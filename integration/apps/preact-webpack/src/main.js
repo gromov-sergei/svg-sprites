@@ -1,11 +1,13 @@
 import { h, render } from 'preact'
 
 import '@gromlab/svg-sprites/viewer/element'
-import { IconsIcon } from './sprite/index.js'
+import { AppIcon } from './app-icons/index.js'
+import { RemoteAppIcon } from './remote-app-icons/index.js'
 import './style.css'
 
 const viewerSources = [
-  () => import('./sprite/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('./app-icons/.svg-sprite/svg-sprite.manifest.js'),
+  () => import('./remote-app-icons/.svg-sprite/svg-sprite.manifest.js'),
 ]
 
 function App() {
@@ -15,11 +17,20 @@ function App() {
 
   return h('main', null,
     h('h1', null, 'Preact + Webpack'),
-    h(IconsIcon, {
+    h(AppIcon, {
       'data-testid': 'icon',
       'data-app': 'preact-webpack',
       icon: 'check',
       'aria-label': 'Check icon',
+      width: 64,
+      height: 64,
+      style: { '--icon-color-1': '#16a34a' },
+    }),
+    h(RemoteAppIcon, {
+      'data-testid': 'remote-icon',
+      'data-app': 'preact-webpack-remote',
+      icon: 'check',
+      'aria-label': 'Remote check icon',
       width: 64,
       height: 64,
       style: { '--icon-color-1': '#16a34a' },

@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "sprites": "svg-sprites src/sprite/svg-sprite.config.json",
+    "sprites": "npm run sprites:local && npm run sprites:remote",
+    "sprites:local": "svg-sprites src/app-icons/svg-sprite.config.json",
+    "sprites:remote": "svg-sprites src/remote-app-icons/svg-sprite.config.js",
     "build": "npm run sprites && node build.mjs",
     "dev": "npm run build && node ../../scripts/serve-static.mjs dist 4173"
   },

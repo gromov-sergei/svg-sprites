@@ -69,6 +69,7 @@ svg-sprites [options] <config-file-or-directory>
 | Static HTML / собственная публикация | `standalone` |
 | Standalone + Vite | `standalone@vite` |
 | Standalone + Webpack 5 | `standalone@webpack` |
+| Server release | `standalone@server` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
 | Vue + Vite | `vue@vite` |
@@ -100,7 +101,7 @@ Config-файл может иметь любое имя и расширение 
 
 Если передан каталог, все настройки берутся из CLI. Если передан config-файл, CLI-параметры перекрывают значения файла. Общий порядок: `defaults → config → CLI`.
 
-`--help` и `-h` выводят справку без обязательного пути. Для генерации доступны `--mode`, `--name`, `--description`, повторяемый `--input <path-or-glob>`, а также пары `--remove-size`/`--no-remove-size`, `--replace-colors`/`--no-replace-colors`, `--add-transition`/`--no-add-transition` и `--generated-notice`/`--no-generated-notice`. Переданные transform-флаги перекрывают отдельные поля, а хотя бы один `--input` полностью заменяет значение `input` из config.
+`--help` и `-h` выводят справку без обязательного пути. Для генерации доступны `--mode`, `--source <local|remote>`, `--name`, `--description`, повторяемый `--input <path-or-glob>`, а также пары `--remove-size`/`--no-remove-size`, `--replace-colors`/`--no-replace-colors`, `--add-transition`/`--no-add-transition` и `--generated-notice`/`--no-generated-notice`. Переданные transform-флаги перекрывают отдельные поля, а хотя бы один `--input` полностью заменяет значение `input` из config.
 
 В CLI заключайте glob-паттерны в одинарные кавычки, чтобы shell не раскрыл их до запуска генератора:
 
@@ -138,11 +139,19 @@ export default defineSpriteConfig({
 | Опция | Тип | По умолчанию | Назначение |
 |---|---|---|---|
 | `mode` | `SpriteMode` | Нет | Режим генерации; можно передать через CLI/API |
+| `source` | `local \| remote` | `local` | Исходные SVG либо готовый server manifest |
 | `name` | `string` | Выводится из каталога | Имя спрайта; в modes с компонентом также задаёт имя компонента и публичных типов |
 | `description` | `string` | Нет | Описание для типов и debug manifest |
-| `input` | `string \| string[]` | `./icons` | Папки, SVG-файлы и glob-паттерны относительно папки конфига |
+| `input` | `SpriteInput \| SpriteInput[]` | `./icons` | Локальные SVG sources, server HTTP descriptors либо один remote manifest в зависимости от mode и source |
 | `transform` | `TransformOptions` | Все включены | Настройки подготовки SVG |
 | `generatedNotice` | `boolean` | `true` | Полное или короткое предупреждение в generated-файлах |
+
+При `source: 'remote'` поле `input` содержит один local path или HTTP(S) URL
+manifest, созданного `standalone@server`. Remote consumer config может содержать
+только `mode`, `source` и `input`: name, description, transforms и generated notice
+проверяются и наследуются из server manifest. До codegen генератор скачивает profile,
+необходимый exact consumer mode, и проверяет его SHA-256 и размер. Runtime-зависимости
+от server manifest нет.
 
 ### Имя спрайта
 
@@ -175,6 +184,26 @@ file-manager → FileManagerIcon
 | `!pattern` | Исключение совпадений из всего объединённого input |
 
 Каждый включающий источник или паттерн должен найти хотя бы один SVG, иначе генерация завершается ошибкой. Повторяющиеся пути удаляются, а итоговый список файлов детерминированно сортируется. Разные SVG с одинаковым basename по-прежнему считаются конфликтом, потому что basename задаёт публичное имя иконки.
+
+### Server SVG inputs
+
+`standalone@server` принимает те же local strings и HTTP(S) descriptors в массиве
+`input`:
+
+```ts
+{
+  name: 'brand-logo',
+  url: 'https://assets.example.com/brand-logo.svg',
+  sha256: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+}
+```
+
+`name` становится публичным именем иконки. Необязательный `sha256` проверяется по
+скачанным байтам. URL credentials и активное SVG-содержимое, включая scripts,
+event handlers, `foreignObject` и doctype, запрещены. Один HTTP source ограничен
+2 MiB, все источники вместе — 25 MiB, timeout запроса равен 15 секундам. Local и
+HTTP entries используют единое пространство имён, поэтому duplicate icon names
+завершают генерацию с ошибкой.
 
 ## Generated-модуль
 
@@ -224,6 +253,20 @@ runtime asset и deployment-neutral manifest data:
 `icon-data.*` и resolved `svg-sprite.manifest.*`. Их facade содержит нативный
 generated Web Component без внешних runtime-зависимостей. Bare `standalone`
 намеренно не создаёт JavaScript-компонент.
+
+`standalone@server` создаёт готовый к публикации release без JavaScript runtime и
+`.gitignore`:
+
+```text
+.svg-sprite/
+├── sprite.<content-hash>.svg
+├── sprite-root-viewbox.<content-hash>.svg
+└── svg-sprite.manifest.json
+```
+
+Manifest описывает оба compile profiles через relative `href`, полный SHA-256 и
+размер в байтах. Публикуйте весь каталог атомарно; consumer разрешает каждый profile
+относительно URL или local path manifest.
 
 `.svg-sprite` полностью управляется генератором и при каждой генерации заменяется целиком. Любые добавленные в него файлы будут удалены. Пользовательские файлы размещайте рядом, например в корневом `index.ts`:
 

@@ -1,15 +1,15 @@
-import { compileSpriteContent } from '../../compiler.js'
-import { createCompiledSpriteArtifact } from '../../core/compiled-artifact.js'
+import { resolveCompiledSpriteArtifact } from '../../core/resolve-compiled-artifact.js'
 import type { ModeAdapter } from '../../core/mode-adapter.js'
 import { generateOutputFiles } from './output.js'
 
 export const standaloneViteAdapter: ModeAdapter<'standalone@vite'> = {
   mode: 'standalone@vite',
   async generate(context) {
-    const bytes = await compileSpriteContent(context.prepared.folder, context.config.transform, {
-      rootViewBox: false,
-    })
-    const artifact = createCompiledSpriteArtifact(bytes, context.prepared.iconNames, 'stack')
+    const artifact = await resolveCompiledSpriteArtifact(
+      context.prepared,
+      context.config.transform,
+      { rootViewBox: false },
+    )
 
     return {
       files: generateOutputFiles(context.config, artifact),

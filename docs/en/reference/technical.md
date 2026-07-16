@@ -69,6 +69,7 @@ svg-sprites [options] <config-file-or-directory>
 | Static HTML / custom publishing | `standalone` |
 | Standalone + Vite | `standalone@vite` |
 | Standalone + Webpack 5 | `standalone@webpack` |
+| Server release | `standalone@server` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
 | Vue + Vite | `vue@vite` |
@@ -100,7 +101,7 @@ The config file may have any name and use the `.ts`, `.js`, or `.json` extension
 
 When a directory is passed, all settings come from CLI options. When a config file is passed, CLI options override the file. The full order is `defaults → config → CLI`.
 
-`--help` and `-h` print usage information without requiring a path. Generation options are `--mode`, `--name`, `--description`, repeatable `--input <path-or-glob>`, plus the `--remove-size`/`--no-remove-size`, `--replace-colors`/`--no-replace-colors`, `--add-transition`/`--no-add-transition`, and `--generated-notice`/`--no-generated-notice` pairs. Transform flags override individual fields, while supplying at least one `--input` replaces the complete config `input` value.
+`--help` and `-h` print usage information without requiring a path. Generation options are `--mode`, `--source <local|remote>`, `--name`, `--description`, repeatable `--input <path-or-glob>`, plus the `--remove-size`/`--no-remove-size`, `--replace-colors`/`--no-replace-colors`, `--add-transition`/`--no-add-transition`, and `--generated-notice`/`--no-generated-notice` pairs. Transform flags override individual fields, while supplying at least one `--input` replaces the complete config `input` value.
 
 Quote CLI glob patterns with single quotes so the shell does not expand them before the generator receives them:
 
@@ -138,11 +139,19 @@ export default defineSpriteConfig({
 | Option | Type | Default | Purpose |
 |---|---|---|---|
 | `mode` | `SpriteMode` | None | Generation mode; may be supplied by CLI/API |
+| `source` | `local \| remote` | `local` | Source SVG files or a ready server manifest |
 | `name` | `string` | Derived from the directory | Sprite name; in modes with a component, it also determines the component and public type names |
 | `description` | `string` | None | Description for types and the debug manifest |
-| `input` | `string \| string[]` | `./icons` | SVG folders, files, and glob patterns relative to the config directory |
+| `input` | `SpriteInput \| SpriteInput[]` | `./icons` | Local SVG sources, server HTTP descriptors, or one remote manifest, depending on mode and source |
 | `transform` | `TransformOptions` | All enabled | SVG preparation settings |
 | `generatedNotice` | `boolean` | `true` | Full or abbreviated warning in generated files |
+
+With `source: 'remote'`, `input` contains one local path or HTTP(S) URL to a
+manifest produced by `standalone@server`. A remote consumer config may contain
+only `mode`, `source`, and `input`: the name, description, transforms, and generated
+notice are verified and inherited from the server manifest. Generation downloads
+the profile required by the exact consumer mode and verifies its SHA-256 and byte
+length before codegen. There is no runtime network dependency on the server manifest.
 
 ### Sprite name
 
@@ -175,6 +184,26 @@ Supported glob syntax includes:
 | `!pattern` | Exclude matches from the full combined input |
 
 Every positive source or pattern must find at least one SVG, otherwise generation fails. Duplicate paths are removed and the final file list is sorted deterministically. Different SVG files with the same basename remain a conflict because the basename defines the public icon name.
+
+### Server SVG inputs
+
+`standalone@server` accepts the same local strings plus HTTP(S) descriptors in its
+`input` array:
+
+```ts
+{
+  name: 'brand-logo',
+  url: 'https://assets.example.com/brand-logo.svg',
+  sha256: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
+}
+```
+
+`name` becomes the public icon name. `sha256` is optional and, when present, is
+checked against the downloaded bytes. URL credentials and active SVG content such
+as scripts, event handlers, `foreignObject`, or a doctype are rejected. One HTTP
+source is limited to 2 MiB, all combined sources to 25 MiB, and requests time out
+after 15 seconds. Local and HTTP entries share one namespace, so duplicate icon
+names fail generation.
 
 ## Generated module
 
@@ -224,6 +253,20 @@ runtime asset and deployment-neutral manifest data:
 `icon-data.*`, and a resolved `svg-sprite.manifest.*`. Their facade contains a
 native generated Web Component with no external runtime dependencies. Bare
 `standalone` intentionally does not generate a JavaScript component.
+
+`standalone@server` creates a publishable release without JavaScript runtime or
+`.gitignore`:
+
+```text
+.svg-sprite/
+├── sprite.<content-hash>.svg
+├── sprite-root-viewbox.<content-hash>.svg
+└── svg-sprite.manifest.json
+```
+
+The manifest identifies both compile profiles by relative `href`, full SHA-256,
+and byte length. Publish the complete directory atomically; consumers resolve each
+profile relative to the manifest URL or local manifest path.
 
 The generator fully manages `.svg-sprite` and replaces the whole directory on every generation through a staged write with rollback on replacement failure. Any files added inside it are deleted during the next generation. Keep user-owned files alongside it, for example in a root `index.ts` barrel:
 

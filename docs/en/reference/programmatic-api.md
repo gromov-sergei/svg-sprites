@@ -30,7 +30,8 @@ result.manifestPath
 Next.js modes additionally return `router` and `bundler`.
 For bare `standalone`, `target` is `static`; standalone bundler and React modes
 return `vite` or `webpack`; Next.js modes return their full exact mode as the
-target.
+target. `standalone@server` returns `server`; its `spritePath` identifies the
+standard content-addressed profile and `manifestPath` identifies the server manifest.
 
 For static standalone mode, use `result.spritePath` in a build script to publish the
 SVG under an application URL:
@@ -104,6 +105,11 @@ export default defineSpriteConfig({
 `input` accepts one folder, SVG file, or glob pattern, or an array that combines them. When omitted, it defaults to `./icons`; relative paths start at the config directory.
 
 `defineSpriteConfig` is an identity helper for TypeScript autocomplete. JavaScript can export the same object with `export default`, while JSON contains the object directly.
+
+The public `ServerSvgInput`, `ServerSpriteManifest`, `ServerSpriteAsset`, and
+`SpriteCompileProfile` types describe `standalone@server` inputs and release data.
+A consumer uses the same API with `source: 'remote'` and one local path or HTTP(S)
+manifest URL in `input`.
 
 ## Specialized wrappers
 

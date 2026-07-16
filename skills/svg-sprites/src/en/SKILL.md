@@ -12,10 +12,16 @@ The package supports multiple independent sprites in one project. Each explicitl
 - an isolated framework-native component and declarations for framework modes;
 - a native Web Component with an explicit registration function for `standalone@vite`/`standalone@webpack`;
 - a deployment-neutral JSON manifest without a public URL for bare `standalone`.
+- a content-addressed server release with two compile profiles and an integrity manifest for `standalone@server`.
 
 The project determines how many sprite directories exist and where they live. For example, `name: 'file-manager'` produces `FileManagerIcon`, `FileManagerIconName`, and `fileManagerIconNames`, while another directory with `name: 'navigation'` produces a separate `NavigationIcon`. These are examples of per-sprite APIs, not fixed package exports.
 
 Generated production runtime and declarations do not import `@gromlab/svg-sprites`. Generation through `npx --yes @gromlab/svg-sprites <path-to-config>` does not add the package to the project. Install it as a development dependency only for the Viewer, package-provided config types, or the programmatic API.
+
+Any consumer exact mode can use `source: 'remote'` with one local path or HTTP(S)
+URL to a manifest produced by `standalone@server`. Generation verifies and downloads
+the required profile before the adapter creates its normal local API and asset; the
+browser never depends on the server manifest at runtime.
 
 ## Selecting a mode
 
@@ -26,6 +32,7 @@ Select exactly one supported mode key:
 | Static HTML / custom publishing | `standalone` |
 | Standalone + Vite | `standalone@vite` |
 | Standalone + Webpack 5 | `standalone@webpack` |
+| Server or CI release | `standalone@server` |
 | React + Vite | `react@vite` |
 | React + Webpack 5 | `react@webpack` |
 | Vue + Vite | `vue@vite` |
@@ -68,7 +75,7 @@ The CLI accepts exactly one path. A `.ts`, `.js`, or `.json` file loads that exa
 }
 ```
 
-Generation through `npx` does not add the package to the project. Do not invent shortened or generic mode keys, and do not use the removed `legacy` mode. Select one complete key from the table. Use bare `standalone` only when the application publishes the SVG itself. Create one command per config file or directory when the project has multiple sprites.
+Generation through `npx` does not add the package to the project. Do not invent shortened or generic mode keys, and do not use the removed `legacy` mode. Select one complete key from the table. Use bare `standalone` only when the application publishes the SVG itself, and `standalone@server` only for a centralized release consumed during generation. Create one command per config file or directory when the project has multiple sprites.
 
 ## Inspecting the project
 
@@ -81,7 +88,7 @@ Establish the project's actual contract before making changes:
 5. For a new sprite, choose a target directory without imposing a particular application layer or architecture.
 6. Check TypeScript and alias settings. Package subpath exports require TypeScript 5+ with `moduleResolution: 'bundler'`, `'node16'`, or `'nodenext'`.
 
-All input paths are relative to the directory containing the explicitly selected config file; in config-less mode they are relative to the supplied directory. Inspect `input` using this single contract:
+For a regular local consumer, all input paths are relative to the directory containing the explicitly selected config file; in config-less mode they are relative to the supplied directory. Inspect local `input` using this contract:
 
 - `input?: string | string[]` defaults to `./icons`;
 - each string is a folder, an exact SVG file, or a glob;
@@ -90,6 +97,12 @@ All input paths are relative to the directory containing the explicitly selected
 - every positive source must resolve to at least one SVG, so a missing or empty folder, an unmatched glob, a missing file, or a non-SVG exact file is an error;
 - resolved files are deduplicated and sorted deterministically;
 - different files with the same basename are a conflict, even when they came from different sources.
+
+Branch before applying those rules:
+
+- `standalone@server` may combine local strings with `{ name, url, sha256? }` HTTP(S) descriptors; `name` is the public icon name and optional `sha256` verifies the downloaded bytes;
+- `source: 'remote'` requires exactly one string containing a local manifest path or HTTP(S) manifest URL and does not accept source globs or descriptors;
+- a remote consumer config contains only `mode`, `source`, and `input`; name, description, transforms, and generated notice come from the verified server manifest.
 
 Do not copy a shared SVG into several folders: add its exact path or a suitable glob to `input` in every sprite that needs it. Use `**/*.svg` only when recursive inclusion is intentional.
 
@@ -107,6 +120,12 @@ Work in this order:
 6. Do not run one generation twice through both a concurrent `predev` and `npm run sprites && ...`. For multiple sprites, create separate commands and one aggregate script.
 7. If the application imports the sprite-module directory, create a user-owned `index.ts` next to `.svg-sprite`; do not place user files inside the generated directory.
 8. Run the first generation before typecheck or application startup, then inspect the mode-specific output and the actual component import.
+
+For a centralized release, open `references/docs/en/guides/standalone-server.md`.
+Generate and publish the complete `.svg-sprite` directory atomically. In each consumer,
+retain its own exact framework mode, set `source: 'remote'`, and point `input` to that
+manifest. Do not copy server files into a framework output or fetch the manifest from
+application runtime.
 
 Do not add the Viewer automatically. Connect it only when requested or when visual verification of the set, colors, or complex SVGs is needed. Get the production isolation pattern from the exact guide: frameworks, bundlers, and routers use different boundaries.
 
@@ -138,6 +157,12 @@ svg-sprite/
 
 Standalone modes do not create `react/`. Bare `standalone` generates `sprite.svg` and `svg-sprite.manifest.json`; `standalone@vite`/`standalone@webpack` additionally generate `index.*`, `icon-data.*`, and a resolved manifest. Their `index.*` also contains a native generated Web Component; bare `standalone` gets no JavaScript runtime and does not create `.gitignore`.
 
+`standalone@server` generates `sprite.<content-hash>.svg`,
+`sprite-root-viewbox.<content-hash>.svg`, and `svg-sprite.manifest.json`. It has no
+consumer facade, browser runtime, Viewer entry, or `.gitignore`. The manifest records
+both relative profile URLs, full SHA-256 digests, byte lengths, icon metadata, and
+transform settings.
+
 Edit the source SVGs, selected config, and user-owned `index.ts`. Do not manually change anything in `.svg-sprite`: the next generation will overwrite it. In every mode except bare `standalone`, the generated `.gitignore` is also managed by the generator. To import from the sprite-module root, create a barrel:
 
 ```ts
@@ -157,6 +182,7 @@ In bundler modes, the sprite remains a separate asset and SVG path data is not e
 - a custom Webpack SVG loader must not intercept the generated `sprite.svg`;
 - in Next mode, the generated component does not contain `'use client'` and works in Server Components, SSR, and SSG; do not add a client boundary solely for an icon;
 - the Next build command and mode key must agree: Turbopack with `.../turbopack`, Webpack with `.../webpack`.
+- remote consumers still publish through their own adapter's local asset pipeline; do not preserve or construct the server profile URL in generated application code.
 
 For bundler modes, do not move the generated sprite into `public` or rewrite its URL manually. For bare `standalone`, do not move the managed original: the application may explicitly copy it into deploy output and owns the public URL and stale-copy cleanup. Regenerate with the new complete key when changing mode.
 
@@ -229,8 +255,9 @@ After changing a config or SVG, perform these required checks:
 
 1. Run the exact sprite command. It must exit with code `0` and report the name, icon count, mode, and `.svg-sprite` directory.
 2. Inspect the output for the selected exact mode:
-   - bare `standalone` creates `sprite.svg` and `svg-sprite.manifest.json`;
-   - `standalone@vite` and `standalone@webpack` additionally create `index.*`, `icon-data.*`, and a JS manifest, but no `react/` directory;
+    - bare `standalone` creates `sprite.svg` and `svg-sprite.manifest.json`;
+    - `standalone@server` creates two content-addressed SVG profiles and a server manifest whose hashes and relative paths match those files;
+    - `standalone@vite` and `standalone@webpack` additionally create `index.*`, `icon-data.*`, and a JS manifest, but no `react/` directory;
    - framework modes also create their adapter-owned native component runtime, declaration, and styles.
 3. For modes with a public facade, inspect `.svg-sprite/index.js`, the adjacent `index.d.ts`, the name list, and the actual import through the user-owned barrel.
 4. Inspect the manifest: mode and target must match the selected adapter, and the icon list must match the source SVGs. In bundler modes the URL must use the mode-specific mechanism; the bare JSON manifest intentionally has no public `spriteUrl`.
@@ -265,6 +292,8 @@ Match the symptom to the relevant check and fix the root cause:
 | `color` does not change a multicolor icon | The icon uses several variables or is rendered through `<img>`/CSS background | Use `<FileManagerIcon>`/`<svg><use>` and the required `--icon-color-N` properties. |
 | Gradient/filter renders incorrectly | Automatic color replacement cannot guarantee complex paint servers | Inspect the generated SVG; disable `replaceColors` for the sprite or simplify the source if necessary. |
 | Viewer is empty | The manifest was not generated, the loader is not discoverable by the bundler, or the Client Component boundary is wrong | Generate the sprite first, then compare the manifest import and setup with the exact guide; in the App Router keep `'use client'` only in the Viewer component. |
+| Remote manifest is rejected | It is not a `standalone@server` schema, contains an unsafe profile path, or its metadata is inconsistent | Publish the untouched complete server release and point `input` to its JSON manifest. |
+| Remote sprite integrity check fails | The SVG is stale, truncated, or was changed independently from the manifest | Republish the manifest and both content-addressed profiles atomically; never overwrite a hashed SVG with different bytes. |
 
 For an unknown error, record the complete CLI command, mode, config-file or directory path, and first stack/error message. Then reduce it to one sprite without deleting user files or a managed `.gitignore`.
 
@@ -285,6 +314,7 @@ References are included in the built skill. Open only the documents relevant to 
 - [`standalone`](./references/docs/en/guides/standalone.md) covers static HTML and custom SVG publishing.
 - [`standalone@vite`](./references/docs/en/guides/standalone-vite.md) covers a vanilla Vite application and the Web Component.
 - [`standalone@webpack`](./references/docs/en/guides/standalone-webpack.md) covers a vanilla Webpack 5 application and the Web Component.
+- [`standalone@server`](./references/docs/en/guides/standalone-server.md) covers centralized content-addressed releases and remote consumers.
 - [`react@vite`](./references/docs/en/guides/react-vite.md) covers React with Vite.
 - [`react@webpack`](./references/docs/en/guides/react-webpack.md) covers React with Webpack 5.
 - [`vue@vite`](./references/docs/en/guides/vue-vite.md) covers Vue with Vite.

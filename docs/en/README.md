@@ -5,7 +5,7 @@ can also be used unchanged by AI skills.
 
 The common format for JSON, JavaScript, and TypeScript config files is described in the [configuration guide](configuration.md).
 
-## Quick Start Guides
+## Consumer Quick Starts
 
 | Project | Exact mode | Guide |
 |---|---|---|
@@ -39,11 +39,15 @@ The common format for JSON, JavaScript, and TypeScript config files is described
 | Next.js Pages Router + Turbopack | `next@pages/turbopack` | [Pages Router + Turbopack](guides/next-pages-turbopack.md) |
 | Next.js Pages Router + Webpack | `next@pages/webpack` | [Pages Router + Webpack](guides/next-pages-webpack.md) |
 
-Every guide follows the same order:
+Every consumer guide follows the same order:
 
 1. Generate the sprite through `npx` without adding the package to the project.
 2. Use the sprite in the application.
 3. Optionally add the Viewer for debugging and previews.
+
+## Server-Side Generation
+
+Use [`standalone@server`](guides/standalone-server.md) to generate a universal SVG sprite on a server or in CI/CD for all consumer modes.
 
 ## Reference
 

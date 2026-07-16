@@ -4,7 +4,7 @@ import net from 'node:net'
 import path from 'node:path'
 import { setTimeout as delay } from 'node:timers/promises'
 
-import { expect, test } from '@playwright/test'
+import { expect, test, type Locator } from '@playwright/test'
 import { PNG } from 'pngjs'
 
 import { apps } from '../scripts/apps.mjs'
@@ -93,6 +93,16 @@ async function stopServer(child: ChildProcess): Promise<void> {
   ])
 }
 
+async function expectGreenPixels(icon: Locator): Promise<void> {
+  const screenshot = PNG.sync.read(await icon.screenshot())
+  let coloredPixels = 0
+  for (let index = 0; index < screenshot.data.length; index += 4) {
+    const [red, green, blue, alpha] = screenshot.data.subarray(index, index + 4)
+    if (alpha > 0 && green > red + 30 && green > blue + 30) coloredPixels++
+  }
+  expect(coloredPixels).toBeGreaterThan(20)
+}
+
 for (const app of apps) {
   test(`${app.id} renders an external generated sprite`, async ({ page }) => {
     const port = await getFreePort()
@@ -112,40 +122,67 @@ for (const app of apps) {
       expect(browserErrors).toEqual([])
 
       const icon = page.getByTestId('icon')
+      const remoteIcon = page.getByTestId('remote-icon')
       await expect(icon).toBeVisible()
+      await expect(remoteIcon).toBeVisible()
       await expect(icon).toHaveAttribute('data-app', app.id)
+      await expect(remoteIcon).toHaveAttribute('data-app', `${app.id}-remote`)
 
       if (app.id === 'standalone-vite' || app.id === 'standalone-webpack' || ('shadowIcon' in app && app.shadowIcon)) {
-        expect(await icon.evaluate((element) => element.tagName.toLowerCase())).toBe('icons-icon')
+        expect(await icon.evaluate((element) => element.tagName.toLowerCase())).toBe('app-icon')
+        expect(await remoteIcon.evaluate((element) => element.tagName.toLowerCase())).toBe('remote-app-icon')
         expect(await icon.evaluate((element) => element.shadowRoot !== null)).toBe(true)
+        expect(await remoteIcon.evaluate((element) => element.shadowRoot !== null)).toBe(true)
         if (app.id.startsWith('standalone')) {
           await expect(icon.locator('svg')).toHaveAttribute('viewBox', '0 0 24 24')
+          await expect(remoteIcon.locator('svg')).toHaveAttribute('viewBox', '0 0 24 24')
         }
       }
 
       const href = await icon.locator('use').getAttribute('href')
+      const remoteHref = await remoteIcon.locator('use').getAttribute('href')
       expect(href).toBeTruthy()
+      expect(remoteHref).toBeTruthy()
       expect(href).not.toMatch(/^(?:blob|data|file):/)
+      expect(remoteHref).not.toMatch(/^(?:blob|data|file):/)
 
       const spriteUrl = new URL(href!.split('#')[0], page.url())
+      const remoteSpriteUrl = new URL(remoteHref!.split('#')[0], page.url())
+      expect(remoteSpriteUrl.href).not.toBe(spriteUrl.href)
       if ('expectedSpritePath' in app) {
         expect(spriteUrl.pathname).toBe(app.expectedSpritePath)
+        expect(remoteSpriteUrl.pathname).toBe(app.expectedRemoteSpritePath)
       }
       const spriteResponse = await fetch(spriteUrl)
+      const remoteSpriteResponse = await fetch(remoteSpriteUrl)
       expect(spriteResponse.status).toBe(200)
+      expect(remoteSpriteResponse.status).toBe(200)
       expect(spriteResponse.headers.get('content-type') ?? '').toMatch(/image\/svg\+xml/)
+      expect(remoteSpriteResponse.headers.get('content-type') ?? '').toMatch(/image\/svg\+xml/)
       expect(await spriteResponse.text()).toMatch(/id="check"/)
+      const remoteSprite = await remoteSpriteResponse.text()
+      expect(remoteSprite).toMatch(/id="check"/)
+      expect(remoteSprite).toMatch(/id="duotone"/)
 
       const viewer = page.locator('gromlab-sprite-viewer')
       await expect(viewer).toBeVisible()
       await expect(viewer.locator('[data-sprite-viewer]')).toBeVisible()
 
-      const viewerCard = viewer.locator('[data-icon-name="check"]')
+      await expect(viewer.locator('.gromlab-sprite-viewer__summary')).toContainText('2 спрайта')
+      const appGroup = viewer.getByRole('heading', { name: 'app', exact: true }).locator('..').locator('..')
+      const remoteAppGroup = viewer.getByRole('heading', { name: 'remote-app', exact: true }).locator('..').locator('..')
+      const viewerCard = appGroup.locator('[data-icon-name="check"]')
+      const remoteViewerCard = remoteAppGroup.locator('[data-icon-name="check"]')
       await expect(viewerCard).toBeVisible()
+      await expect(remoteViewerCard).toBeVisible()
       const viewerHref = await viewerCard.locator('use').getAttribute('href')
+      const remoteViewerHref = await remoteViewerCard.locator('use').getAttribute('href')
       expect(viewerHref).toBeTruthy()
+      expect(remoteViewerHref).toBeTruthy()
       expect(viewerHref!.split('#')[1]).toBe('check')
+      expect(remoteViewerHref!.split('#')[1]).toBe('check')
       expect(new URL(viewerHref!.split('#')[0], page.url()).href).toBe(spriteUrl.href)
+      expect(new URL(remoteViewerHref!.split('#')[0], page.url()).href).toBe(remoteSpriteUrl.href)
 
       await viewerCard.click()
       const dialog = viewer.getByRole('dialog', { name: 'check' })
@@ -177,13 +214,8 @@ for (const app of apps) {
       await dialog.getByRole('button', { name: 'Закрыть' }).click()
       await expect(dialog).toHaveCount(0)
 
-      const screenshot = PNG.sync.read(await icon.screenshot())
-      let coloredPixels = 0
-      for (let index = 0; index < screenshot.data.length; index += 4) {
-        const [red, green, blue, alpha] = screenshot.data.subarray(index, index + 4)
-        if (alpha > 0 && green > red + 30 && green > blue + 30) coloredPixels++
-      }
-      expect(coloredPixels).toBeGreaterThan(20)
+      await expectGreenPixels(icon)
+      await expectGreenPixels(remoteIcon)
       expect(browserErrors).toEqual([])
     } finally {
       await stopServer(server)

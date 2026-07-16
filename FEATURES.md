@@ -42,7 +42,7 @@
 
     `SpriteViewer` рендерит все спрайты проекта в одном месте и показывает, какие иконки вошли в каждый набор и как они выглядят. Для каждой иконки видны созданные CSS-переменные и их fallback-цвета. Значения можно менять прямо в Viewer и сразу наблюдать результат. Здесь же доступны готовые примеры для framework из manifest, `<svg><use>`, `<img>` и CSS.
 
-11. **29 exact modes**
+11. **29 consumer exact modes и `standalone@server`**
 
     Изолированные adapters создают нативные компоненты для standalone, React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Astro, Solid, SolidStart, Preact, Qwik, Lit и Alpine.js. Каждый exact mode учитывает свой Vite, Webpack, Turbopack или application-builder контракт.
 

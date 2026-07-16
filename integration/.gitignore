@@ -15,3 +15,5 @@ apps/*/public/sprites/
 apps/*/static/sprites/
 apps/*/*.tsbuildinfo
 apps/*/src/sprite/.svg-sprite/
+apps/*/src/*-icons/.svg-sprite/
+apps/standalone-server/cases/*/.svg-sprite/

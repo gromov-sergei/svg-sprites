@@ -4,7 +4,7 @@
 
 ![npm](https://img.shields.io/npm/v/@gromlab/svg-sprites) ![license](https://img.shields.io/npm/l/@gromlab/svg-sprites)
 
-`@gromlab/svg-sprites` is an SVG sprite generator for modern web applications. It combines selected SVG icons into one or more external, cacheable sprites and prepares them for use in the UI.
+`@gromlab/svg-sprites` is a CLI tool for generating SVG sprites in modern web applications. It combines selected SVG icons into one or more external, cacheable sprites and prepares them for use in the UI.
 
 Each exact mode generates a native typed component for its framework and bundler: Web Component, React, Vue, Svelte, Angular, Astro, Solid, Preact, Qwik, Lit, or Alpine.js. In every case, the SVG remains a separate cacheable asset.
 
@@ -217,9 +217,19 @@ The Viewer is added only to an internal debug page and does not become part of t
 
 With bare standalone, the application loads the Viewer as a browser script and HTML element. Bundler and framework modes use the npm Web Component entry; React and Next.js may instead import the bridge from `@gromlab/svg-sprites/react`.
 
-## 29 exact modes
+## 30 exact modes
 
-The package provides isolated contracts for standalone, React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Astro, Solid, SolidStart, Preact, Qwik, Lit, and Alpine.js across their supported Vite, Webpack, Turbopack, and application-builder variants.
+The package supports 30 isolated exact modes: `standalone@server` for server-side generation of a universal SVG sprite and 29 consumer modes for modern frameworks and bundlers.
+
+`standalone@server` lets you generate an SVG sprite ahead of time on a server or in CI/CD and publish it for shared use. The resulting sprite is not tied to a specific framework or bundler and works with every consumer mode.
+
+The 29 consumer modes cover standalone, React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, Astro, Solid, SolidStart, Preact, Qwik, Lit, and Alpine.js across their supported Vite, Webpack, Turbopack, and application-builder variants.
+
+All 29 consumer modes can work with sprites generated locally in the project or with universal sprites generated ahead of time on the server through `standalone@server`. The component API and the way icons are used in the application remain the same in both scenarios.
+
+The integration matrix covers all 30 exact modes. A dedicated producer fixture verifies server-side generation of the universal sprite, while each of the 29 consumer applications generates and renders two independent sprites: one local and one remote.
+
+All consumer applications pass a production build and Playwright tests, while typed modes are additionally checked by their framework-native toolchain. Every E2E test confirms that both local and remote sprites load and render, checks for browser errors, and verifies both groups in SpriteViewer.
 
 ## Clean Git history
 
@@ -237,7 +247,11 @@ Production components use only local generated code, styles, and the external SV
 
 This README introduces the project's capabilities and demonstrates the primary use case. For setup, choose the guide for your stack.
 
-### Quick start
+### Server-side generation
+
+- [Standalone + Server](docs/en/guides/standalone-server.md)
+
+### Consumer quick starts
 
 - [Bare standalone](docs/en/guides/standalone.md)
 - [Standalone + Vite](docs/en/guides/standalone-vite.md)

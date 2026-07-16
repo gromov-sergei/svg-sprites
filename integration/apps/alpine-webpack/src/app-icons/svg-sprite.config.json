@@ -1,0 +1,6 @@
+{
+  "mode": "alpine@webpack",
+  "name": "app",
+  "input": "../../../../fixtures/icons/check.svg",
+  "generatedNotice": false
+}

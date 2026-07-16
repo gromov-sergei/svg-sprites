@@ -48,7 +48,7 @@ const russianDocumentation = [
 export default [
   {
     name: 'svg-sprites',
-    description: 'Use only when configuring, generating, or troubleshooting @gromlab/svg-sprites. Triggers: @gromlab/svg-sprites, svg-sprite.config.json, defineSpriteConfig, generateSprite, exact modes for standalone, React, Next.js, Vue, Nuxt, Svelte, Angular, Astro, Solid, Preact, Qwik, Lit, or Alpine.js, SpriteConfig.input, --input, SpriteViewer, or --icon-color-N. Do NOT use for custom SVG sprites, favicons, raster images, icon fonts, choosing an icon set, or inline SVG without this package.',
+    description: 'Use only when configuring, generating, or troubleshooting @gromlab/svg-sprites. Triggers: @gromlab/svg-sprites, svg-sprite.config.json, defineSpriteConfig, generateSprite, standalone@server, source: remote, ServerSvgInput, exact modes for standalone, React, Next.js, Vue, Nuxt, Svelte, Angular, Astro, Solid, Preact, Qwik, Lit, or Alpine.js, SpriteConfig.input, --input, SpriteViewer, or --icon-color-N. Do NOT use for custom SVG sprites, favicons, raster images, icon fonts, choosing an icon set, or inline SVG without this package.',
     output: '../artifacts/svg-sprites',
     maxSkillBytes: 48_000,
     documents: documents('en'),
@@ -56,7 +56,7 @@ export default [
   },
   {
     name: 'svg-sprites-ru',
-    description: 'Используй только при настройке, изменении или диагностике @gromlab/svg-sprites. Триггеры: @gromlab/svg-sprites, svg-sprite.config.json, defineSpriteConfig, generateSprite, exact modes для standalone, React, Next.js, Vue, Nuxt, Svelte, Angular, Astro, Solid, Preact, Qwik, Lit или Alpine.js, SpriteConfig.input, --input, SpriteViewer и --icon-color-N. НЕ используй для самописных SVG-спрайтов, inline SVG, favicon, растровых изображений, icon fonts или выбора библиотеки иконок.',
+    description: 'Используй только при настройке, изменении или диагностике @gromlab/svg-sprites. Триггеры: @gromlab/svg-sprites, svg-sprite.config.json, defineSpriteConfig, generateSprite, standalone@server, source: remote, ServerSvgInput, exact modes для standalone, React, Next.js, Vue, Nuxt, Svelte, Angular, Astro, Solid, Preact, Qwik, Lit или Alpine.js, SpriteConfig.input, --input, SpriteViewer и --icon-color-N. НЕ используй для самописных SVG-спрайтов, inline SVG, favicon, растровых изображений, icon fonts или выбора библиотеки иконок.',
     output: '../artifacts/svg-sprites-ru',
     maxSkillBytes: 48_000,
     documents: documents('ru'),

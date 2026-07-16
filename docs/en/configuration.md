@@ -32,6 +32,7 @@ JSON works for most projects and does not require installing the package locally
 | Field | Default | Purpose |
 |---|---|---|
 | `mode` | None | Exact mode matching the framework and bundler |
+| `source` | `local` | `local` for source SVG files or `remote` for a `standalone@server` manifest |
 | `name` | Kebab-case module directory name; for `svg-sprite` and `svg-sprites`, the parent directory name | Sprite name; in modes with a component, it also determines the component and type names |
 | `description` | None | Description used in types and the Viewer |
 | `input` | `./icons` | Directory, SVG file, glob pattern, or array of sources |
@@ -39,6 +40,45 @@ JSON works for most projects and does not require installing the package locally
 | `generatedNotice` | `true` | Full or compact warning in generated files |
 
 Paths and glob patterns in `input` are resolved relative to the config file's directory. A pattern prefixed with `!` excludes matches.
+
+## Remotely built sprite
+
+A consumer config for a server manifest only contains the mode, source, and input:
+
+```json
+{
+  "mode": "react@vite",
+  "source": "remote",
+  "input": "https://assets.example/releases/app/svg-sprite.manifest.json"
+}
+```
+
+`input` accepts one HTTP(S) URL or local manifest path. The name, description,
+transforms, and generated notice come from the manifest. The generator downloads
+and verifies the matching SVG profile before the adapter creates its normal local
+components, types, and bundler asset.
+
+## Server build
+
+`standalone@server` combines local paths/globs with HTTP(S) SVG descriptors:
+
+```js
+export default {
+  mode: 'standalone@server',
+  name: 'app',
+  input: [
+    './icons/**/*.svg',
+    {
+      name: 'remote-logo',
+      url: 'https://assets.example/logo.svg',
+    },
+  ],
+}
+```
+
+The mode creates two content-addressed SVG profiles and `svg-sprite.manifest.json`.
+`sha256` is optional for HTTP inputs; when present, it must be the expected 64-character
+hexadecimal SHA-256 digest and the build verifies the received bytes.
 
 ## JavaScript
 

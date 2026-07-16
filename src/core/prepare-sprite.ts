@@ -4,7 +4,7 @@ import { getSpriteShapeId } from '../shape-id.js'
 import type { ResolvedSpriteConfig } from '../types.js'
 import type { PreparedSprite } from './mode-adapter.js'
 
-function validateIconIds(iconNames: readonly string[]): void {
+export function validateIconIds(iconNames: readonly string[]): void {
   const namesById = new Map<string, string>()
 
   for (const iconName of iconNames) {
@@ -23,15 +23,21 @@ function validateIconIds(iconNames: readonly string[]): void {
 
 /** Подготавливает mode-neutral набор исходников. */
 export function prepareSprite(config: ResolvedSpriteConfig): PreparedSprite {
+  if (config.source !== 'local') {
+    throw new Error('Local sprite preparation requires source "local".')
+  }
+  if (config.input.some((entry) => typeof entry !== 'string')) {
+    throw new Error(`Mode "${config.mode}" only accepts local path or glob inputs.`)
+  }
   const folder = resolveSpriteSources({
     name: config.name,
     format: 'stack',
-    input: config.input,
+    input: config.input as string[],
   })
   const iconNames = folder.files
     .map((filePath) => path.basename(filePath, '.svg'))
     .sort()
 
   validateIconIds(iconNames)
-  return { folder, iconNames }
+  return { kind: 'local', folder, iconNames }
 }

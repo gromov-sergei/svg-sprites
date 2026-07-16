@@ -1,5 +1,5 @@
 import { isSpriteMode } from '../config.js'
-import type { SpriteConfig, TransformOptions } from '../types.js'
+import type { SpriteConfig, SpriteSource, TransformOptions } from '../types.js'
 import type { CliArgs } from './types.js'
 
 export const CLI_USAGE = [
@@ -14,6 +14,7 @@ export const CLI_USAGE = [
   '  standalone',
   '  standalone@vite',
   '  standalone@webpack',
+  '  standalone@server',
   '  react@vite',
   '  react@webpack',
   '  vue@vite',
@@ -43,6 +44,7 @@ export const CLI_USAGE = [
   '',
   'Options:',
   '  --mode <mode>',
+  '  --source <local|remote>',
   '  --name <name>',
   '  --description <text>',
   '  --input <path-or-glob>      Repeat for multiple inputs',
@@ -66,8 +68,18 @@ function optionValue(argv: string[], index: number, option: string): [string, nu
   return [value, index + 1]
 }
 
+type MutableCliOverrides = {
+  mode?: SpriteConfig['mode']
+  source?: SpriteSource
+  name?: string
+  description?: string
+  input?: string | string[]
+  transform?: TransformOptions
+  generatedNotice?: boolean
+}
+
 function setTransform(
-  overrides: SpriteConfig,
+  overrides: MutableCliOverrides,
   option: keyof TransformOptions,
   value: boolean,
 ): void {
@@ -81,7 +93,7 @@ export function parseCliArgs(argv: string[]): CliArgs | { help: true } {
   if (argv.includes('--help') || argv.includes('-h')) return { help: true }
 
   const positional: string[] = []
-  const overrides: SpriteConfig = {}
+  const overrides: MutableCliOverrides = {}
 
   for (let index = 0; index < argv.length; index++) {
     const argument = argv[index]
@@ -90,6 +102,15 @@ export function parseCliArgs(argv: string[]): CliArgs | { help: true } {
       const [value, nextIndex] = optionValue(argv, index, '--mode')
       if (!isSpriteMode(value)) throw new Error(`Unsupported sprite mode: ${value}.\n\n${CLI_USAGE}`)
       overrides.mode = value
+      index = nextIndex
+      continue
+    }
+    if (argument === '--source' || argument.startsWith('--source=')) {
+      const [value, nextIndex] = optionValue(argv, index, '--source')
+      if (value !== 'local' && value !== 'remote') {
+        throw new Error(`Unsupported sprite source: ${value}. Expected local or remote.`)
+      }
+      overrides.source = value
       index = nextIndex
       continue
     }
@@ -157,6 +178,6 @@ export function parseCliArgs(argv: string[]): CliArgs | { help: true } {
 
   return {
     path: positional[0],
-    overrides,
+    overrides: overrides as SpriteConfig,
   }
 }

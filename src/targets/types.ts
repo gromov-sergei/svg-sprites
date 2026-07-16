@@ -14,6 +14,9 @@ export type ViteAssetTarget = 'vite'
  */
 export type WebpackAssetTarget = 'webpack'
 
+/** Target серверной сборки immutable sprite release. */
+export type ServerAssetTarget = 'server'
+
 /** Asset target для проекта без сборщика. */
 export type StaticAssetTarget = 'static'
 
@@ -60,8 +63,11 @@ export type StandaloneAssetTarget = StaticAssetTarget | ViteAssetTarget | Webpac
 /** Полный ключ standalone mode, используемый конфигом, CLI и manifest. */
 export type StandaloneSpriteMode = 'standalone' | `standalone@${ViteAssetTarget | WebpackAssetTarget}`
 
+/** Серверный mode, публикующий готовые sprite profiles и manifest. */
+export type ServerSpriteMode = 'standalone@server'
+
 /** Любая среда, для которой может быть сгенерирован React sprite-модуль. */
-export type SpriteAssetTarget = ReactAssetTarget | NextAssetTarget | StaticAssetTarget | AngularAssetTarget
+export type SpriteAssetTarget = ReactAssetTarget | NextAssetTarget | StaticAssetTarget | AngularAssetTarget | ServerAssetTarget
 
 /** Режим генерации sprite-модуля. */
 export type SpriteMode =
@@ -78,6 +84,7 @@ export type SpriteMode =
   | AlpineSpriteMode
   | NextAssetTarget
   | StandaloneSpriteMode
+  | ServerSpriteMode
 
 /** Фрагменты кода, необходимые компоненту для получения URL SVG asset. */
 export type SpriteAssetUrlCode = {

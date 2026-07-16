@@ -10,6 +10,11 @@ export type CompileSpriteOptions = {
   rootViewBox?: boolean
 }
 
+export type SpriteSourceContent = {
+  readonly name: string
+  readonly content: string
+}
+
 /** Конфигурация режима для svg-sprite. */
 function getModeConfig(
   format: SpriteFormat,
@@ -75,6 +80,21 @@ export async function compileSpriteContent(
   transform: TransformOptions = {},
   options: CompileSpriteOptions = {},
 ): Promise<Uint8Array> {
+  const sources = folder.files.map((filePath) => ({
+    name: path.basename(filePath, '.svg'),
+    content: fs.readFileSync(filePath, 'utf-8'),
+  }))
+  return compileSpriteSourceContent(folder.name, folder.format, sources, transform, options)
+}
+
+/** Компилирует SVG sources из памяти без промежуточных файлов. */
+export async function compileSpriteSourceContent(
+  name: string,
+  format: SpriteFormat,
+  sources: readonly SpriteSourceContent[],
+  transform: TransformOptions = {},
+  options: CompileSpriteOptions = {},
+): Promise<Uint8Array> {
   const config = {
     shape: {
       id: {
@@ -86,14 +106,14 @@ export async function compileSpriteContent(
       transform: buildShapeTransforms(transform),
     },
     mode: {
-      [folder.format]: getModeConfig(folder.format, '.', folder.name, options),
+      [format]: getModeConfig(format, '.', name, options),
     },
   }
 
   const spriter = new SVGSpriter(config)
 
-  for (const filePath of folder.files) {
-    spriter.add(filePath, null, fs.readFileSync(filePath, 'utf-8'))
+  for (const source of sources) {
+    spriter.add(`${source.name}.svg`, null, source.content)
   }
 
   return new Promise((resolve, reject) => {
@@ -116,7 +136,7 @@ export async function compileSpriteContent(
       }
 
       if (!spriteContents) {
-        reject(new Error(`Failed to compile sprite "${folder.name}".`))
+        reject(new Error(`Failed to compile sprite "${name}".`))
         return
       }
 

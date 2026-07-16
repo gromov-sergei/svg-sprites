@@ -1,9 +1,15 @@
-import type { IconsIconElement } from './sprite'
+import type { AppIconElement } from './app-icons'
+import type { RemoteAppIconElement } from './remote-app-icons'
 
-const icon = document.createElement('icons-icon')
-const typedIcon: IconsIconElement = icon
+const appIcon = document.createElement('app-icon')
+const typedAppIcon: AppIconElement = appIcon
+const remoteAppIcon = document.createElement('remote-app-icon')
+const typedRemoteAppIcon: RemoteAppIconElement = remoteAppIcon
 
-typedIcon.icon = 'check'
+typedAppIcon.icon = 'check'
+typedRemoteAppIcon.icon = 'check'
 
 // @ts-expect-error Generated icon names form a literal union.
-typedIcon.icon = 'missing'
+typedAppIcon.icon = 'missing'
+// @ts-expect-error Generated remote icon names form a literal union.
+typedRemoteAppIcon.icon = 'missing'
